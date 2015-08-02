@@ -7,6 +7,12 @@ WARE.Models = {
 "models/props_lab/tpplug.mdl",
 "models/combine_camera/combine_camera.mdl"
  }
+ 
+ local dirOffset = {
+	Vector(  30, -13, -30 ),	Vector(  13,  30, -30 ),
+	Vector( -30,  13, -30 ),	Vector( -13, -30, -30 )
+}
+
 
 local MDL_CRATE = 1
 local MDL_PLUGHOLDER = 2
@@ -20,6 +26,7 @@ function WARE:GetModelList()
 end
 
 function WARE:Initialize()
+	local self = WARE
 	GAMEMODE:EnableFirstWinAward( )
 	GAMEMODE:SetWinAwards( AWARD_FRENZY )
 
@@ -29,6 +36,7 @@ function WARE:Initialize()
 	GAMEMODE:SetPlayersInitialStatus( false )
 	GAMEMODE:DrawInstructions( "Find a battery and plug it!" )
 	
+	/*
 	-- HAXX
 	-- GravGunOnPickedUp hook is broken, so we'll use this tricky workaround
 	local lua_run = ents.Create("lua_run")
@@ -36,28 +44,31 @@ function WARE:Initialize()
 	lua_run:SetKeyValue('Code','CALLER.BatteryOwner=ACTIVATOR')
 	lua_run:SetKeyValue('targetname','luarun')
 	lua_run:Spawn()
+	*/
 	
 	local ratio = 1
 	local minimum = 1
 	local num = math.Clamp(math.ceil(team.NumPlayers(TEAM_HUMANS)*ratio),minimum,64)
 	local entposcopy = GAMEMODE:GetRandomLocations(num, ENTS_OVERCRATE)
+	
 	local cratelist = {}
+	
 	for k,v in pairs(entposcopy) do
 		local ent = ents.Create ("prop_physics")
-		ent:SetModel( self.Models[MDL_CRATE] )
-		ent:SetPos(v:GetPos() + Vector(0,0,16))
-		ent:Spawn()
+			ent:SetModel( self.Models[MDL_CRATE] )
+			ent:SetPos(v:GetPos() + Vector(0,0,16))
+			ent:Spawn()
 		
 		table.insert(cratelist,ent)
 		
 		local phys = ent:GetPhysicsObject()
-		phys:Wake()
-		phys:ApplyForceCenter(VectorRand() * 256)
+			phys:ApplyForceCenter(VectorRand() * 256)
+			phys:Wake()
 		
 		GAMEMODE:AppendEntToBin(ent)
 		GAMEMODE:MakeAppearEffect(ent:GetPos())
 		
-		ent.contains = true
+		ent.HasBattery = true
 	end
 	
 	-- DISABLED : Now all crates contain a battery.
@@ -76,20 +87,14 @@ function WARE:Initialize()
 	local entposcopy3 = GAMEMODE:GetRandomLocations(num3, ENTS_ONCRATE)
 	for k,v in pairs(entposcopy3) do
 		local ent = ents.Create ("prop_physics")
-		ent:SetModel( self.Models[MDL_PLUGHOLDER] )
-		ent:PhysicsInit(SOLID_VPHYSICS)
-		ent:SetSolid(SOLID_VPHYSICS)
+			ent:SetModel( self.Models[MDL_PLUGHOLDER] )
+			ent:PhysicsInit(SOLID_VPHYSICS)
+			ent:SetSolid(SOLID_VPHYSICS)
 		
 		local side = math.random(1,4)
-		local xloc = 0
-		local yloc = 0
-		if side == 1 then xloc = 1 end
-		if side == 2 then yloc = 1 end
-		if side == 3 then xloc = -1 end
-		if side == 4 then yloc = -1 end
-		ent:SetPos( v:GetPos() + Vector(32*xloc,32*yloc,-32) )
-		ent:SetAngles(Angle(0,(side-1)*90,0))
-		ent:SetPos( ent:GetPos() + ent:GetRight()*13 + Vector(0,0,-5) )
+			ent:SetPos( v:GetPos() + dirOffset[side] )
+			ent:SetAngles(Angle(0,(side-1)*90,0))
+	
 		
 		ent:SetMoveType(MOVETYPE_NONE)
 		ent:SetCollisionGroup(COLLISION_GROUP_WEAPON)
@@ -104,11 +109,11 @@ function WARE:Initialize()
 		
 		
 		local camera = ents.Create ("npc_combine_camera")
-		camera:SetAngles(Angle(0,math.random(0,360),180))
-		camera:SetPos( v:GetPos() )
-		camera:SetKeyValue("spawnflags",208)
-		camera:SetCollisionGroup(COLLISION_GROUP_WEAPON)
-		camera:Spawn()
+			camera:SetAngles(Angle(0,side*90,180))
+			camera:SetPos( v:GetPos() )
+			camera:SetKeyValue("spawnflags",208)
+			camera:SetCollisionGroup(COLLISION_GROUP_WEAPON)
+			camera:Spawn()
 		
 		ent.LinkedCamera = camera
 		
@@ -122,14 +127,17 @@ function WARE:Initialize()
 	return
 end
 
+function WARE:GravGunOnPickedUp( ply, ent )
+	if ( ent.IsBattery ) then 
+		ent.BatteryOwner = ply
+	end
+end
+
 function WARE:StartAction()
 	return
 end
 
 function WARE:EndAction()
-	for _,v in pairs(ents.FindByClass("lua_run")) do
-		v:Remove()
-	end
 	for _,v in pairs(ents.FindByClass("prop_physics")) do
 		if v:GetModel() == self.Models[MDL_PLUGHOLDER] and !v.IsOccupied then
 			GAMEMODE:MakeLandmarkEffect( v:GetPos() )
@@ -137,60 +145,63 @@ function WARE:EndAction()
 	end
 end
 
-function WARE:PropBreak(pl,prop)	
-	if prop.contains == true then
-		local ent = ents.Create ("prop_physics")
-		ent:SetModel( self.Models[MDL_BATTERY] )
-		ent:SetPos(prop:GetPos())
-		ent:Spawn()
+function WARE:PropBreak(pl,prop)
+	local self = WARE
+	if prop.HasBattery == true then
+		local battery = ents.Create ("prop_physics")
+			battery:SetModel( self.Models[MDL_BATTERY] )
+			battery:SetPos(prop:GetPos())
+			battery:Spawn()
 		
-		ent:Fire("AddOutput", "OnPhysGunPickup luarun,RunCode")
-		
-		local ent2 = ents.Create ("prop_physics")
-		ent2:SetModel( MDLLIST[MDL_BATTERYDONGLE] )
-		ent2:SetPos(ent:GetPos() + ent:GetForward()*-8)
-		ent2:Spawn()
-		ent2:SetParent(ent)
+		local plug = ents.Create ("prop_physics")
+			plug:SetModel( MDLLIST[MDL_BATTERYDONGLE] )
+			plug:SetPos(battery:GetPos() + battery:GetForward()*-8)
+			plug:SetCollisionGroup( COLLISION_GROUP_WORLD )
+			plug:Spawn()
+			plug:SetParent(battery)
 
-		local phys = ent:GetPhysicsObject()
-		phys:Wake()
-		phys:AddAngleVelocity(Vector(math.random(200,300),math.random(200,300),math.random(200,300)))
-		phys:ApplyForceCenter(VectorRand() * 64)
+		local phys = battery:GetPhysicsObject()
+			phys:AddAngleVelocity(VectorRand() * 50)
+			phys:ApplyForceCenter(VectorRand() * 64)
 		
-		GAMEMODE:AppendEntToBin(ent)
-		GAMEMODE:MakeAppearEffect(ent:GetPos())
+		GAMEMODE:AppendEntToBin(battery)
+		GAMEMODE:MakeAppearEffect(battery:GetPos())
 		
-		local trail_entity = util.SpriteTrail( ent,  --Entity
-												0,  --iAttachmentID
-												Color( 255, 255, 255, 92 ),  --Color
-												false, -- bAdditive
-												0.9, --fStartWidth
-												1.5, --fEndWidth
-												1.2, --fLifetime
-												1 / ((0.7+1.2) * 0.5), --fTextureRes
-												"trails/physbeam.vmt" ) --strTexture
+		local trail_entity = util.SpriteTrail(battery,0,Color(255,255,255,92),false,0.9,1.5,1.2,1/((0.7+1.2)*0.5),"trails/physbeam.vmt")
+		
+		battery.Plug		= plug
+		battery.IsBattery 	= true
 	end
 end
 
-local function PlugBatteryIn(batteryremove, socket)
-	if ( !IsValid(batteryremove) or !IsValid(socket) ) then return end
-	
-	batteryremove:Remove()
-	
-	
-	local battery = ents.Create ("prop_dynamic_override")
-	battery:SetModel( MDLLIST[MDL_BATTERY] )
-	battery:SetPos(socket:GetPos() + socket:GetForward()*13 + socket:GetRight()*-13 + Vector(0,0,10))
+function WARE:PlugBatteryIn(socket, battery)
+	battery.GravGunBlocked = true	
+
+	--battery:SetPos(socket:GetPos() + socket:GetForward()*13 + socket:GetRight()*-13 + Vector(0,0,10))
+	battery:SetPos(socket:LocalToWorld( Vector( 13, 13, 10 ) ) )
 	battery:SetAngles(socket:GetAngles())
-	battery:Spawn()
-	GAMEMODE:AppendEntToBin(battery)
 	
-	--battery:GetPhysicsObject():EnableMotion(false)
-	--DropEntityIfHeld(battery)
-	--battery:GetPhysicsObject():ApplyForceCenter( Vector( 0, 0, 128 ) )
+	battery:SetCollisionGroup( COLLISION_GROUP_WORLD )
+	battery:GetPhysicsObject():EnableMotion(false)
 
+	
+	/*
+	battery:GetPhysicsObject():EnableMotion(false)
+	DropEntityIfHeld(battery)
+	battery:GetPhysicsObject():ApplyForceCenter( Vector( 0, 0, 128 ) )
+	*/
+	socket.LinkedCamera:Fire("Enable")
 	socket:EmitSound("npc/roller/mine/combine_mine_deploy1.wav")
-
+	
+	local data = EffectData()
+		data:SetOrigin( battery:GetPos() )
+		data:SetNormal( battery:GetForward() )
+		data:SetMagnitude( 8 )
+		data:SetScale( 1 )
+		data:SetRadius( 16 )
+	util.Effect( "Sparks", data )
+	
+	/*
 	local spark = ents.Create("env_spark")
 	spark:SetPos(battery:GetPos())
 	spark:SetKeyValue("MaxDelay",2)
@@ -200,43 +211,50 @@ local function PlugBatteryIn(batteryremove, socket)
 	spark:SetParent(battery)
 	spark:Fire("SparkOnce")
 	
+	
 	local camera = socket.LinkedCamera
 	camera:Fire("Enable")
+	*/
 end
 
 function WARE:Think()
-	if self.Sockets then
-		if !self.NextPlugThink or CurTime() > self.NextPlugThink then
+	local self = WARE
+	if !self.NextPlugThink or CurTime() < self.NextPlugThink then
 		
-			for l,w in pairs(self.Sockets) do
+		for key, socket in pairs(self.Sockets) do
+			local pos = socket:GetPos()
 			
-				for _,v in pairs(ents.FindInSphere(w:GetPos(),24)) do
-					if !w.IsOccupied and v:GetModel() == MDLLIST[MDL_BATTERY] then
-						local Owner = v.BatteryOwner
-						if Owner and Owner:IsPlayer() then
-							Owner:StripWeapons()
-							Owner:ApplyWin( )
-							w.IsOccupied = true
+			for _,ent in pairs(ents.FindInSphere(pos,24)) do
+				if (ent.IsBattery) then
+					local owner = ent.BatteryOwner
+						
+					if IsValid(owner) then
+						owner:StripWeapons()
+						owner:ApplyWin()
+						socket.IsOccupied = true
 							
-							GAMEMODE:MakeAppearEffect(v:GetPos())
-							
-							timer.Simple(0.05, PlugBatteryIn, v, w)
+						GAMEMODE:MakeAppearEffect(ent:GetPos())
+						
+						local curTime = CurTime()
+						if (curTime >= CurTime + 0.5) then
+							self:PlugBatteryIn(socket, ent)
 						end
 					end
 				end
-				
-			end
+			end			
+		end
 			
 			self.NextPlugThink = CurTime() + 0.1
-		end
 	end
-	
+	/*
 	for k,camera in pairs(ents.FindByClass("npc_combine_camera")) do
 		local sphere = ents.FindInSphere(camera:GetPos(),24)
+		
 		for _,target in pairs(sphere) do
 			if target:GetClass() == "prop_physics" then
-				target:GetPhysicsObject():ApplyForceCenter((target:GetPos() - camera:GetPos()):Normalize() * 500)
+				target:GetPhysicsObject():ApplyForceCenter((target:GetPos() - camera:GetPos()) * 500)
 			end
 		end
 	end
+	*/
 end

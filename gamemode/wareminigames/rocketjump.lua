@@ -35,7 +35,7 @@ function WARE:StartAction()
 		platform:SetAngles(Angle(90,0,0))
 		platform:Spawn()
 		
-		platform:SetColor(255, 0, 0, 255)
+		platform:SetColor(Color(255, 0, 0, 255))
 		platform:GetPhysicsObject():EnableMotion( false )
 		
 		GAMEMODE:AppendEntToBin( platform )

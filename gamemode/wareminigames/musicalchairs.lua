@@ -54,7 +54,7 @@ function WARE:Initialize()
 		dynaba:SetParent(pod)
 		GAMEMODE:AppendEntToBin(dynaba)
 		
-		constraint.Ballsocket( pod, GetWorldEntity(), 0, 0, pod:GetPos() + pod:GetAngles():Up() * 86 + pod:GetAngles():Forward() * 9, 0, 0, 0 )
+		constraint.Ballsocket( pod, game.GetWorld(), 0, 0, pod:GetPos() + pod:GetAngles():Up() * 86 + pod:GetAngles():Forward() * 9, 0, 0, 0 )
 
 		local physObj = pod:GetPhysicsObject()
 		if physObj:IsValid() then

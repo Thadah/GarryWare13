@@ -23,10 +23,12 @@ WARE.Models = {
  }
 
 function WARE:GetModelList()
+	local self = WARE
 	return self.Models
 end
 
 function WARE:ResetCrate(i)
+	local self = WARE
 	if !self.Crates then return end
 	
 	local prop = self.Crates[i]
@@ -34,10 +36,11 @@ function WARE:ResetCrate(i)
 	
 	local col = CrateColours[i]
 	
-	prop:SetColor(col[1]*100, col[2]*100, col[3]*100, 100)
+	prop:SetColor(Color(col[1]*100, col[2]*100, col[3]*100, 100))
 end
 
 function WARE:PlayCrate(i)
+	local self = WARE
 	if !self.Crates then return end
 	
 	local prop = self.Crates[i]
@@ -45,18 +48,23 @@ function WARE:PlayCrate(i)
 	
 	local col = CrateColours[i]
 	
-	prop:SetColor(col[1]*255, col[2]*255, col[3]*255, 255)
+	prop:SetColor(Color(col[1]*255, col[2]*255, col[3]*255, 255))
 	prop:SetHealth(100000)
 	prop:EmitSound("buttons/button17.wav", 100, CratePitches[i]/3)
 	
 	GAMEMODE:MakeAppearEffect( prop:GetPos() )
 	
-	timer.Simple(0.5, self.ResetCrate, self, i)
+	timer.Simple(0.5, function()
+	local col = CrateColours[i]
+	
+	prop:SetColor(Color(col[1]*100, col[2]*100, col[3]*100, 100))
+	end)
 end
 
 -----------------------------------------------------------------------------------
 
 function WARE:Initialize()
+	local self = WARE
 	GAMEMODE:EnableFirstWinAward( )
 	GAMEMODE:SetWinAwards( AWARD_IQ_WIN )
 	GAMEMODE:SetFailAwards( AWARD_IQ_FAIL )
@@ -81,7 +89,7 @@ function WARE:Initialize()
 		prop:SetPos(pos + Vector(0,0,64))
 		prop:Spawn()
 		
-		prop:SetColor(col[1]*100, col[2]*100, col[3]*100, 100)
+		prop:SetColor(Color(col[1]*100, col[2]*100, col[3]*100, 100))
 		prop:SetHealth(100000)
 		prop:SetMoveType(MOVETYPE_NONE)
 		prop:SetCollisionGroup(COLLISION_GROUP_WEAPON)
@@ -93,17 +101,44 @@ function WARE:Initialize()
 		GAMEMODE:MakeAppearEffect(pos)
 	end
 	
-	local sequence = {}
-	for i=1,numberSpawns do sequence[i]=i end
+	self.firstsequence = {}
+	for i=1,numberSpawns do self.firstsequence[i] = i end
 	
 	self.Sequence = {}
 	for i=1,numberSpawns do
-		self.Sequence[i] = table.remove(sequence, math.random(1,#sequence))
-		timer.Simple(delay+i-1, self.PlayCrate, self, self.Sequence[i])
+		self.Sequence[i] = table.remove(self.firstsequence, math.random(1, #self.firstsequence))
+		local curTime = CurTime()
+		
+		timer.Simple(delay+i-1, function()
+			if !self.Crates then return end
+	
+			local prop = self.Crates[i]
+			if !(prop and prop:IsValid()) then return end
+		
+			local col = CrateColours[i]
+		
+			prop:SetColor(Color(col[1]*255, col[2]*255, col[3]*255, 255))
+			prop:SetHealth(100000)
+			prop:EmitSound("buttons/button17.wav", 100, CratePitches[i]/3)
+	
+			GAMEMODE:MakeAppearEffect( prop:GetPos() )
+	
+			timer.Simple(0.5, function()
+				if !self.Crates then return end
+	
+				local prop = self.Crates[i]
+				if !(prop and prop:IsValid()) then return end
+	
+				local col = CrateColours[i]
+	
+				prop:SetColor(Color(col[1]*100, col[2]*100, col[3]*100, 100))
+			end)
+		end)
 	end
 end
 
 function WARE:StartAction()
+	local self = WARE
 	GAMEMODE:DrawInstructions( "Repeat!" )
 	
 	self.PlayerCurrentCrate = {}
@@ -120,7 +155,7 @@ function WARE:EndAction()
 end
 
 function WARE:EntityTakeDamage(ent,info)
-	local pool = self
+	local pool = WARE
 	local att = info:GetAttacker()
 	
 	if !att:IsPlayer() or !info:IsBulletDamage() then return end

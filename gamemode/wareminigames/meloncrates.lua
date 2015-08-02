@@ -3,13 +3,13 @@ WARE.Author = "Kilburn"
 local function ResetFlashCrate(prop)
 	if !(prop and prop:IsValid()) then return end
 	
-	prop:SetColor(255,255,255,255)
+	prop:SetColor(Color(255,255,255,255))
 end
 
 local function FlashCrate(prop)
 	if !(prop and prop:IsValid()) then return end
 	
-	prop:SetColor(255,255,255,50)
+	prop:SetColor(Color(255,255,255,50))
 	timer.Simple(0.45, ResetFlashCrate, prop)
 end
 

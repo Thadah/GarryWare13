@@ -28,10 +28,10 @@ function WARE:Initialize()
 	self.Tempo = math.random( 40, 70 )
 	self.NumberSpawns = math.random( 4, 5 )
 	
-	self.TolerenceSeconds = 0.25
+	self.TolerenceSeconds = 2.75
 	self.TolerenceSecondsBound = self.TolerenceSeconds/2
 
-	GAMEMODE:SetWareWindupAndLength(60/self.Tempo*self.TestTempo, 60/self.Tempo*(self.NumberSpawns+1))
+	GAMEMODE:SetWareWindupAndLength(60/self.Tempo * self.TestTempo, 60/self.Tempo * (self.NumberSpawns+1))
 	
 	GAMEMODE:SetPlayersInitialStatus( true )
 	GAMEMODE:DrawInstructions("To the rhythm!" )
@@ -94,7 +94,7 @@ function WARE:StartAction()
 	end
 	
 	for i=1,self.NumberSpawns do
-		timer.Simple( i*60/self.Tempo - self.TolerenceSecondsBound, self.OpenForRhythm)
+		timer.Simple( i*60/self.Tempo - self.TolerenceSecondsBound, function() self:OpenForRhythm() end)
 		
 	end
 	
@@ -103,7 +103,7 @@ end
 function WARE:EndAction()
 end
 
-function WARE:OpenForRhythm( )
+function WARE:OpenForRhythm()
 	local self = WARE
 	self.IsOpenForRhythm = true
 	timer.Simple( self.TolerenceSeconds, self.LateForRhythm, self )

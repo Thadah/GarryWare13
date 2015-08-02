@@ -9,6 +9,7 @@ EFFECT.LastPhasis = 0
 EFFECT.AngleDump = Angle(0,0,0)
 
 function EFFECT:Init( data )
+	local self = EFFECT
 	self.Origin  = data:GetOrigin()
 	self.Extrema = data:GetStart()
 	self.Radius = data:GetRadius()
@@ -50,6 +51,7 @@ function EFFECT:Init( data )
 end
 
 function EFFECT:Think( )
+	local self = EFFECT
 	if CurTime() > (self.Birth + self.Duration) then
 		return false
 	end
@@ -59,12 +61,14 @@ function EFFECT:Think( )
 end
 
 function EFFECT:CalculateAngle( iPhasis , angleToModify )
+	local self = EFFECT
 	angleToModify.p = math.sin(math.rad(self.VD[1] + iPhasis * self.VD[2])) * self.VD[3]
 	angleToModify.y = math.sin(math.rad(self.VD[4] + iPhasis * self.VD[5])) * self.VD[6]
 	angleToModify.r = math.sin(math.rad(self.VD[7] + iPhasis * self.VD[8])) * self.VD[9]
 end
 
 function EFFECT:Render( )
+	local self = EFFECT
 	local phasis = math.floor(CurTime() * self.Speed)
 	
 	render.SetMaterial( self.Mat )

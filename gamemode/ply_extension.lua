@@ -322,7 +322,7 @@ function meta:SimulateDeath( optvectPush, optiObjNumber )
 	
 	self._SimDead = true
 	
-	self:SetColor(255, 255, 255, 64)
+	self:SetColor(Color(255, 255, 255, 64))
 	self:CreateRagdoll( )
 	
 	if optvectPush then

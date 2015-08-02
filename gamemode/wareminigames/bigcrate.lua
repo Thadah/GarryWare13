@@ -1,3 +1,5 @@
+local self = WARE
+
 WARE.Author = "Hurricaaane (Ha3)"
 
 WARE.Models = { "models/props_junk/wood_crate001a.mdl", "models/props_junk/wood_crate002a.mdl" }
@@ -75,7 +77,7 @@ function WARE:GravGunPunt( ply, target )
 end
 
 function WARE:GravGunPickupAllowed( ply, target )
-	if ValidEntity(target) and target:GetModel() == self.Models[2] then
+	if IsValid(target) and target:GetModel() == self.Models[2] then
 		return false
 	else
 		return true

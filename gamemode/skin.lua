@@ -303,6 +303,7 @@ function SKIN:SchemeScorePanelLabel( panel )
 
 end
 
+
 function SKIN:PaintScorePanelLabel( panel )
 
 	if (!IsValid( panel.pPlayer ) or !panel.pPlayer:Alive() ) then
@@ -313,6 +314,7 @@ function SKIN:PaintScorePanelLabel( panel )
 		
 end
 
+/*
 function SKIN:SchemeScorePanelHeaderLabel( panel )
 
 	panel:SetTextColor( Color( 70, 70, 70, 255 ) )
@@ -326,6 +328,7 @@ function SKIN:SchemeSpectatorInfo( panel )
 	panel:SetFont( "FRETTA_SMALL" )
 		
 end
+*/
 
 /*---------------------------------------------------------
 	ScoreHeader
