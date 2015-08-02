@@ -75,7 +75,7 @@ function WARE:GravGunPunt( ply, target )
 end
 
 function WARE:GravGunPickupAllowed( ply, target )
-	if ValidEntity(target) and target:GetModel() == self.Models[2] then
+	if IsValid(target) and target:GetModel() == self.Models[2] then
 		return false
 	else
 		return true
