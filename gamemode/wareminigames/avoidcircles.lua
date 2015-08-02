@@ -76,25 +76,15 @@ function WARE:Think( )
 					
 					if (target:IsPlayer() == false) then
 						target:EmitSound("weapons/flame_thrower_airblast_rocket_redirect.wav")
-						target:GetPhysicsObject():ApplyForceCenter((target:GetPos() - ring:GetPos()):Normalize() * 150000)
+						target:GetPhysicsObject():ApplyForceCenter(target:GetPos() * 150000)
 						
 						if ((target.Deflected or false) == false) then
 							target.Deflected = true
-							local trail_entity = util.SpriteTrail( target,  --Entity
-																	0,  --iAttachmentID
-																	Color( 255, 255, 255, 255 ),  --Color
-																	false, -- bAdditive
-																	8, --fStartWidth
-																	0, --fEndWidth
-																	0.2, --fLifetime
-																	1 / ((0.7+1.2) * 0.5), --fTextureRes
-																	"trails/tube.vmt" ) --strTexture
+							local trail_entity = util.SpriteTrail( target,0,Color( 255, 255, 255, 255 ),false,8,0,0.2,1/((0.7+1.2)*0.5),"trails/tube.vmt" )
 						end
-						
-						
 					else
 						target:SetGroundEntity( NULL )
-						target:SetVelocity(target:GetVelocity()*(-1) + (target:GetPos() + Vector(0,0,32) - ring:GetPos()):Normalize() * 500)
+						target:SetVelocity(target:GetVelocity()*(-1) + (target:GetPos() + Vector(0,0,32) - ring:GetPos()) * 500)
 					end
 				
 				end
@@ -102,8 +92,8 @@ function WARE:Think( )
 			
 			if target:IsPlayer() and !target:GetLocked() then
 				target:ApplyLose()
-				local dir = (target:GetPos() + Vector(0, 0, 128) - ring:GetPos()):Normalize()
-				target:SimulateDeath( dir * 1000 )
+				local dir = (target:GetPos() + Vector(0, 0, 128) - ring:GetPos())
+				target:SimulateDeath( dir * 100 )
 				target:EjectWeapons( dir * 200, 100 )
 				
 			end

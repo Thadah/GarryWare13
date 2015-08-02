@@ -1,3 +1,5 @@
+local self = WARE
+
 WARE.Author = "Hurricaaane (Ha3)"
 
 WARE.Models = { "models/props_junk/wood_crate001a.mdl", "models/props_junk/wood_crate002a.mdl" }

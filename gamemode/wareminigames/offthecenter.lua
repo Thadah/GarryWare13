@@ -6,6 +6,13 @@ WARE.HeightLimit = 0
 
 WARE.CenterEntity = nil
 
+WARE.CenterPos = nil
+WARE.Apos = nil
+WARE.CircleRadius = nil
+WARE.Mposz = nil
+WARE.PitPosz = nil
+WARE.HeightLimit = nil
+
 function WARE:IsPlayable()
 	if team.NumPlayers(TEAM_HUMANS) >= 2 then
 		return true
@@ -14,6 +21,7 @@ function WARE:IsPlayable()
 end
 
 function WARE:Initialize()
+	local self = WARE
 	GAMEMODE:SetFailAwards( AWARD_FRENZY )
 	self.LastThinkDo = 0
 	
@@ -24,25 +32,29 @@ function WARE:Initialize()
 	GAMEMODE:SetPlayersInitialStatus( true )
 	GAMEMODE:DrawInstructions( "Away from the center! Don't fall!" )
 	
-	do
-		local centerpos = GAMEMODE:GetEnts("center")[1]:GetPos()
-		local apos      = GAMEMODE:GetEnts("land_a")[1]:GetPos()
-		self.CircleRadius = (centerpos - apos):Length() - 64
-		local effectRadius = self.CircleRadius + 32
+	self.CenterPos = GAMEMODE:GetEnts("center")[1]:GetPos()
+	self.Apos = GAMEMODE:GetEnts("land_a")[1]:GetPos()
+	self.CircleRadius = (self.CenterPos - self.Apos):Length() - 24
+	self.Mposz = GAMEMODE:GetEnts("land_measure")[1]:GetPos().z
+	self.PitPosz = GAMEMODE:GetEnts("pit_measure")[1]:GetPos().z
+	self.HeightLimit = self.PitPosz + (self.Mposz - self.PitPosz) * 0.8
+	
+	local effectRadius = self.CircleRadius + 32
 		
-		local effectdata = EffectData()
-		effectdata:SetOrigin( centerpos )
-		effectdata:SetStart( apos )
+	local effectdata = EffectData()
+		effectdata:SetOrigin( self.CenterPos )
+		effectdata:SetStart( self.Apos )
 		effectdata:SetRadius( effectRadius )
 		effectdata:SetMagnitude( 15 )
-		effectdata:SetAngle( Angle( 119, 199, 255 ) )
+		effectdata:SetAngles(Angle(119, 199, 255))
 		effectdata:SetScale( 9 )
-		util.Effect( "ware_prisma_harmonics", effectdata , true, true )
-		effectdata:SetOrigin( centerpos + Vector(0,0,16) )
-		util.Effect( "ware_prisma_harmonics_floor", effectdata , true, true )
+	util.Effect( "ware_prisma_harmonics", effectdata , true, true )
 		
-		local ent = ents.Create("ware_ringzone")
-		ent:SetPos( centerpos + Vector(0,0,8) )
+		effectdata:SetOrigin( self.CenterPos + Vector(0,0,16) )
+	util.Effect( "ware_prisma_harmonics_floor", effectdata , true, true )
+		
+	local ent = ents.Create("ware_ringzone")
+		ent:SetPos( self.CenterPos + Vector(0,0,8) )
 		ent:SetAngles( Angle(0,0,0) )
 		ent:Spawn()
 		ent:Activate()
@@ -55,16 +67,7 @@ function WARE:Initialize()
 		GAMEMODE:AppendEntToBin(ent)
 		GAMEMODE:MakeAppearEffect(ent:GetPos())
 		
-		self.CenterEntity = ent
-	end
-	
-	do
-		local pitposz = GAMEMODE:GetEnts("pit_measure")[1]:GetPos().z
-		local aposz   = GAMEMODE:GetEnts("land_measure")[1]:GetPos().z
-		self.HeightLimit = pitposz + (aposz - pitposz) * 0.8
-		
-	end
-	
+	self.CenterEntity = ent
 end
 
 function WARE:StartAction()	
@@ -79,6 +82,7 @@ function WARE:EndAction()
 end
 
 function WARE:Think( )
+	local self = WARE
 	for k,v in pairs(team.GetPlayers(TEAM_HUMANS)) do 
 		if !v:GetLocked() and (v:GetPos().z < self.HeightLimit) then
 			v:ApplyLose( )
@@ -108,15 +112,15 @@ function WARE:Think( )
 				end
 				
 				target:SetGroundEntity( NULL )
-				target:SetVelocity(target:GetVelocity()*(-1) + (target:GetPos() + Vector(0,0,32) - ring:GetPos()):Normalize() * 500)
+				target:SetVelocity(target:GetVelocity()*(-1) + (target:GetPos() + Vector(0,0,32) - ring:GetPos()) * 500)
 			
 			end
 		end
 	
 		if target:IsPlayer() and target:IsWarePlayer() and !target:GetLocked() then
-			local dir = (target:GetPos() + Vector(0, 0, 128) - ring:GetPos()):Normalize()
+			local dir = (target:GetPos() + Vector(0, 0, 128) - ring:GetPos())
 			target:ApplyLose()
-			target:SimulateDeath( dir * 1000 )
+			target:SimulateDeath( dir * 100 )
 			target:EjectWeapons( dir * 200, 100 ) 
 		end
 		

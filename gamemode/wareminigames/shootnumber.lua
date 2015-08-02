@@ -44,7 +44,7 @@ function WARE:Initialize()
 		prop:SetPos(pos+Vector(0,0,92))
 		prop:Spawn()
 		
-		prop:SetColor(255, 255, 255, 100)
+		prop:SetColor(Color(255, 255, 255, 100))
 		prop:SetHealth(100000)
 		prop:SetMoveType(MOVETYPE_NONE)
 		prop:SetCollisionGroup(COLLISION_GROUP_WEAPON)

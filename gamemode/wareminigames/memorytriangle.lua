@@ -2,18 +2,21 @@ WARE.Author = "Hurricaaane (Ha3)"
 WARE.Room = "empty"
 
 WARE.PossibleColours = {
-	{"red"   , Color(255,92,92,255) },
-	{"blue"  , Color(92,92,255,255) },
-	{"green" , Color(0,192,0,255) }
+	{"red"   , Color(220,0,0,255) },
+	{"blue"  , Color(0,0,220,255) },
+	{"green" , Color(0,220,0,255) }
 }
 
-WARE.Models = { "models/props_junk/wood_crate001a.mdl" }
+WARE.Models = { 
+"models/props_junk/wood_crate001a.mdl" 
+}
 
 function WARE:GetModelList()
 	return self.Models
 end
 
 function WARE:Initialize()
+	local self = WARE
 	GAMEMODE:EnableFirstWinAward( )
 	GAMEMODE:SetWinAwards( AWARD_IQ_WIN )
 	GAMEMODE:SetFailAwards( AWARD_IQ_FAIL )
@@ -39,7 +42,7 @@ function WARE:Initialize()
 		prop:SetPos(newpos)
 		prop:Spawn()
 		
-		prop:SetColor(255, 255, 255, 192)
+		prop:SetColor(Color(255, 255, 255, 192))
 		prop:SetHealth(100000)
 		prop:GetPhysicsObject():EnableMotion(false)
 		prop:SetCollisionGroup(COLLISION_GROUP_WEAPON)
@@ -80,6 +83,7 @@ function WARE:Initialize()
 end
 
 function WARE:SendColors()
+	local self = WARE
 	--local rp = RecipientFilter()
 	--rp:AddAllPlayers()
 	for i=1,#self.PossibleColours do
@@ -95,9 +99,10 @@ function WARE:SendColors()
 end
 
 function WARE:ReleaseAllCrates()
+	local self = WARE
 	--local rp = RecipientFilter()
 	--rp:AddAllPlayers()
-	for i=1,#self.PossibleColours do
+	for i=1, #self.PossibleColours do
 		local physobj = self.Crates[i]:GetPhysicsObject()
 		
 		physobj:EnableMotion(true)
@@ -108,6 +113,7 @@ function WARE:ReleaseAllCrates()
 end
 
 function WARE:StartAction()
+	local self = WARE
 	local what_property_color = math.random(0,1)
 	self.WinnerID = math.random(1,#self.PossibleColours)
 	

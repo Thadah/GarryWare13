@@ -259,7 +259,7 @@ function SWEP:RicochetCallback( bouncenum, attacker, tr, dmginfo )
 		end
 	end
 	
-	timer.Simple( 0.05, attacker.FireBullets, attacker, bullet, true )
+	timer.Simple(0.05, function() attacker:FireBullets(bullet, true) end)
 	attacker:SetNetworkedInt( "BulletType", 2 ) -- 2 = Ricochet
 	
 	return { damage = true, effects = DoDefaultEffect }

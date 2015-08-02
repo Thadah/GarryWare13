@@ -12,12 +12,16 @@ function WARE:GetModelList()
 end
 
 function WARE:FlashCans( iteration, delay )
-	local self = WARE
-	for k,ent in pairs(ents.FindByModel(self.Models[1])) do
+	WARE.Models = {
+		"models/props_junk/popcan01a.mdl",
+		"models/props_trainstation/trashcan_indoor001b.mdl"
+	}
+	for k,ent in pairs(ents.FindByModel(WARE.Models[1])) do
 		GAMEMODE:MakeAppearEffect( ent:GetPos() )
 	end
 	if (iteration > 0) then
-		timer.Simple( delay , self.FlashCans, self , iteration - 1, delay )
+		local delay = delay or 1
+		timer.Simple( delay , function() self:FlashCans((iteration - 1), delay ) end)
 	end
 end
 
@@ -31,14 +35,6 @@ function WARE:Initialize()
 	
 	local numberSpawns = math.Clamp(team.NumPlayers(TEAM_HUMANS),1,table.Count(GAMEMODE:GetEnts(ENTS_INAIR)))
 	
-	-- HAXX
-	-- GravGunOnPickedUp hook is broken, so we'll use this tricky workaround
-	local lua_run = ents.Create("lua_run")
-	
-	lua_run:SetKeyValue('Code','CALLER.CanOwner=ACTIVATOR')
-	lua_run:SetKeyValue('targetname','luarun')
-	lua_run:Spawn()
-	
 	for _,pos in ipairs(GAMEMODE:GetRandomPositions(numberSpawns, ENTS_INAIR)) do
 		local prop = ents.Create("prop_physics")
 		prop:SetModel( self.Models[1] )
@@ -50,7 +46,7 @@ function WARE:Initialize()
 		prop:SetAngles(Angle(math.random(-180,180),math.random(-180,180),math.random(-180,180)))
 		prop:Spawn()
 		
-		prop:Fire("AddOutput", "OnPhysGunPickup luarun,RunCode")
+		prop.IsCan = true
 		
 		util.SpriteTrail(prop,0,self.TrailColor,false,1.2,2.2,5,1/((1.2+2.2)*0.5),"trails/physbeam.vmt")
 		
@@ -64,7 +60,14 @@ function WARE:Initialize()
 	end
 end
 
+function WARE:GravGunOnPickedUp( ply, ent )
+	if ( ent.IsCan ) then 
+		ent.CanOwner = ply
+	end
+end
+
 function WARE:StartAction()
+	local self = WARE
 	GAMEMODE:DrawInstructions( "Now put it in the trashcan!" )
 	
 	self.Trashcans = {}
@@ -92,12 +95,10 @@ function WARE:StartAction()
 end
 
 function WARE:EndAction()
-	for _,v in pairs(ents.FindByClass("lua_run")) do
-		v:Remove()
-	end
 end
 
 function WARE:Think()
+	local self = WARE
 	if self.Trashcans then
 		if !self.NextTrashThink or CurTime() > self.NextTrashThink then
 		
@@ -105,7 +106,7 @@ function WARE:Think()
 			
 				local bmin,bmax = w:WorldSpaceAABB()
 				for _,v in pairs(ents.FindInBox(bmin + Vector(12,12,14),bmax - Vector(12,12,10))) do
-					if v:GetModel()=="models/props_junk/popcan01a.mdl" then
+					if v.IsCan then
 						local Owner = v.CanOwner
 						if Owner and Owner:IsPlayer() then
 							GAMEMODE:MakeAppearEffect(v:GetPos())

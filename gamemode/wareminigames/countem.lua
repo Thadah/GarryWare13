@@ -84,7 +84,7 @@ function WARE:StartAction()
 		prop:SetPos(newpos)
 		prop:Spawn()
 		
-		prop:SetColor(255, 255, 255, 192)
+		prop:SetColor(Color(255, 255, 255, 192))
 		prop:SetHealth(100000)
 		prop:GetPhysicsObject():EnableMotion( false )
 		prop:SetCollisionGroup(COLLISION_GROUP_WEAPON)

@@ -55,7 +55,7 @@ function WARE:Initialize()
 		table.insert( self.Props , ent )
 		
 		ent.ColorID = colorID
-		ent:SetColor(self.PossibleColors[colorID][2].r, self.PossibleColors[colorID][2].g, self.PossibleColors[colorID][2].b, self.PossibleColors[colorID][2].a)
+		ent:SetColor(Color(self.PossibleColors[colorID][2].r, self.PossibleColors[colorID][2].g, self.PossibleColors[colorID][2].b, self.PossibleColors[colorID][2].a))
 
 		GAMEMODE:AppendEntToBin(ent)
 		GAMEMODE:MakeAppearEffect(ent:GetPos())
