@@ -1,0 +1,17 @@
+"garryware13"
+{
+    "base"              "fretta13"
+	"title"		        "Fretta13: GarryWare Reloaded"
+    "menusystem"		"1"	
+	"maps"              "^wa_"
+	
+	"selectable"	    "1"
+	"fretta_maps"
+	{
+		"1"	"wa_"
+	}
+    "description"	"GarryWare - Do what she says."
+	
+	"author_name"	"GarryWare authors and GitHub Updaters"
+	
+}
