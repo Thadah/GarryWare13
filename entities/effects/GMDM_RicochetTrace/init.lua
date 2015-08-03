@@ -18,7 +18,7 @@ function EFFECT:Init( data )
 	self.DieTime = CurTime() + self.TracerTime
 	
 	-- Play ricochet sound with random pitch
-	WorldSound( "weapons/fx/rics/ric4.wav", self.StartPos, 80, math.random( 110, 180 ) )
+	sound.Play("weapons/fx/rics/ric4.wav", self.StartPos, 80, math.random( 110, 180 ))
 	
 	local vGrav = Vector( 0, 0, -450 )
 	local Dir = self.Dir:GetNormalized()
