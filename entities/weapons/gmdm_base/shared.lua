@@ -201,73 +201,6 @@ end
 function SWEP:BulletPenetrate( bouncenum, attacker, tr, dmginfo, isplayer )
 end
 
-function SWEP:RicochetCallback( bouncenum, attacker, tr, dmginfo )
-
-	if( not self ) then return end
-	
-	local DoDefaultEffect = false
-	if ( not tr.HitWorld ) then DoDefaultEffect = true end
-	if ( tr.HitSky ) then return end
-	
-	if ( tr.MatType ~= MAT_METAL ) then
-
-		 if ( tr.MatType ~= MAT_FLESH and self.ImpactEffects ) then
-		 
-			local effectdata = EffectData()
-				effectdata:SetOrigin( tr.HitPos )
-				effectdata:SetNormal( tr.HitNormal )
-				effectdata:SetScale( dmginfo:GetDamage() / 10000 )
-			util.Effect( "GMDM_HitSmoke", effectdata )			
-			
-			if ( SERVER ) then
-				util.ScreenShake( tr.HitPos, 100, 0.2, 1, 128 )
-			end
-			
-		end
-
-		return
-	end
-	
-	if( self.AllowRicochet == false ) then return { damage = true, effects = DoDefaultEffect } end
-	
-	if ( bouncenum > self.MaxRicochet ) then return end
-	
-	-- Bounce vector (Don't worry - I don't understand the maths either :x)
-	local DotProduct = tr.HitNormal:Dot( tr.Normal * -1 )
-	local Dir = ( 2 * tr.HitNormal * DotProduct ) + tr.Normal
-	Dir:Normalize()
-	
-	local bullet = 
-	{	
-		Num 		= 1,
-		Src 		= tr.HitPos,
-		Dir 		= Dir,	
-		Spread 		= Vector( 0.05, 0.05, 0 ),
-		Tracer		= 1,
-		TracerName 	= "GMDM_RicochetTrace",
-		Force		= 5,
-		Damage		= damage,
-		AmmoType 	= "Pistol",
-		HullSize	= 2
-	}
-		
-	-- BLaNK
-	-- Added conditional to stop errors when bullets ricoshet after weapon switch.
-	bullet.Callback = function( a, b, c )
-		if ( self.RicochetCallback ) then
-			return self:RicochetCallback( bouncenum+1, a, b, c )
-		end
-	end
-	
-	timer.Simple(0.05, function() attacker:FireBullets(bullet, true) end)
-	attacker:SetNetworkedInt( "BulletType", 2 ) -- 2 = Ricochet
-	
-	return { damage = true, effects = DoDefaultEffect }
-		
-end
-
-function SWEP:RicochetCallback_Redirect( a, b, c ) return self:RicochetCallback( 0, a, b, c ) end
-
 
 function SWEP:WeaponKilledPlayer( pl, dmginfo )
 	Msg( "[GMDM] Weapon " .. self:GetClass() .. " owned by " .. self:GetOwner():Name() .. " killed player " .. pl:Name() .. "\n" )
@@ -353,7 +286,7 @@ function SWEP:GMDMShootBulletEx( damage, num_bullets, aimcone, tracerfreq )
 	   the p228 is especially bad.
 	*/
 	if not IsFirstTimePredicted() then return end
-
+	
 	local bullet = {}
 	bullet.Num 		= num_bullets
 	bullet.Src 		= self.Owner:GetShootPos()			-- Source
@@ -365,7 +298,6 @@ function SWEP:GMDMShootBulletEx( damage, num_bullets, aimcone, tracerfreq )
 	bullet.AmmoType = "Pistol"
 	bullet.TracerName = "Tracer"
 	bullet.HullSize	= 4
-	bullet.Callback    = function( a, b, c ) return self:RicochetCallback_Redirect( a, b, c ) end
 	
 	self.Owner:FireBullets( bullet )
 	

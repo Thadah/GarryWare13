@@ -25,9 +25,8 @@ SWEP.ShootSound  = Sound( "Weapon_Pistol.NPC_Single" )
 SWEP.ReloadSound = Sound( "Weapon_Pistol.Reload" )
 
 function SWEP:PrimaryAttack()
-
-	self.Weapon:SetNextPrimaryFire( CurTime() + 0.1 )
-	self.Weapon:SetNextSecondaryFire( CurTime() + 0.1 )
+	self.Weapon:SetNextPrimaryFire( CurTime() + 0.3 )
+	self.Weapon:SetNextSecondaryFire( CurTime() + 0.3 )
 	
 	if ( not self:CanShootWeapon() ) then return end
 	if ( not self:CanPrimaryAttack() ) then return end
