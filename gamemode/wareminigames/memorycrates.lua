@@ -27,6 +27,11 @@ function WARE:GetModelList()
 	return self.Models
 end
 
+function WARE:GetModelFromList(i)
+	local self = WARE
+	return self.Models[i]
+end
+
 function WARE:ResetCrate(i)
 	local self = WARE
 	if !self.Crates then return end
@@ -103,7 +108,7 @@ function WARE:Initialize()
 		local num = getRandomColors()
 		local col = CrateColours[num]
 		local prop = ents.Create("prop_physics")
-		prop:SetModel( self.Models[1] )
+		prop:SetModel( WARE:GetModelFromList(1) )
 		prop:PhysicsInit(SOLID_VPHYSICS)
 		prop:SetSolid(SOLID_VPHYSICS)
 		prop:SetPos(pos + Vector(0,0,64))
