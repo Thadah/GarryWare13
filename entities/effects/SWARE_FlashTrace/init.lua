@@ -1,5 +1,4 @@
-
-
+EFFECT = {}
 EFFECT.Mat = Material( "effects/tool_tracer" )
 local matLight 	= Material( "effects/yellowflare" )
 

@@ -1,4 +1,4 @@
-
+EFFECT = {}
 
 EFFECT.Mat = Material( "effects/yellowflare" )
 

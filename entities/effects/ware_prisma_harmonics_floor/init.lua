@@ -1,3 +1,4 @@
+EFFECT = {}
 EFFECT.Mat = Material( "effects/yellowflare" )
 EFFECT.Color = Color( 119, 199, 255, 128 )
 EFFECT.NumPins = 10
