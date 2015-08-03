@@ -34,7 +34,7 @@ function WARE:ResetCrate(i)
 	local prop = self.Crates[i]
 	if !(prop and prop:IsValid()) then return end
 	
-	local col = CrateColours[prop-num]
+	local col = CrateColours[prop.num]
 	
 	prop:SetColor(Color(col[1]*100, col[2]*100, col[3]*100, 100))
 end
