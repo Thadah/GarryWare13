@@ -86,6 +86,13 @@ function WARE:Initialize()
 	
 end
 
+function WARE:OpenForRhythm()
+	local self = WARE
+	self.IsOpenForRhythm = true
+	timer.Simple( self.TolerenceSeconds, self.LateForRhythm, self )
+	timer.Simple( self.TolerenceSecondsBound, self.RhythmSignal, self )	
+end
+
 function WARE:StartAction()
 	local self = WARE
 	for _,v in pairs(team.GetPlayers(TEAM_HUMANS)) do 
@@ -95,20 +102,11 @@ function WARE:StartAction()
 	
 	for i=1,self.NumberSpawns do
 		timer.Simple( i*60/self.Tempo - self.TolerenceSecondsBound, function() self:OpenForRhythm() end)
-		
 	end
 	
 end
 
 function WARE:EndAction()
-end
-
-function WARE:OpenForRhythm()
-	local self = WARE
-	self.IsOpenForRhythm = true
-	timer.Simple( self.TolerenceSeconds, self.LateForRhythm, self )
-	timer.Simple( self.TolerenceSecondsBound, self.RhythmSignal, self )
-	
 end
 
 function WARE:RhythmSignal( )
