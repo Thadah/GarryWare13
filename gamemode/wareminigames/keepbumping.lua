@@ -95,7 +95,7 @@ function WARE:Think( )
 					
 					if (target:IsPlayer() == false) then
 						target:EmitSound("weapons/flame_thrower_airblast_rocket_redirect.wav")
-						target:GetPhysicsObject():ApplyForceCenter((target:GetPos() - ring:GetPos()) * 150000)
+						target:GetPhysicsObject():ApplyForceCenter(ring:GetPos():GetNormalized() * 10000)
 						
 						if ((target.Deflected or false) == false) then
 							target.Deflected = true
@@ -114,7 +114,7 @@ function WARE:Think( )
 					else
 						target:SetGroundEntity( NULL )
 						--target:SetVelocity(target:GetVelocity()*(-1) + (target:GetPos() + Vector(0,0,32) - ring:GetPos()):Normalize() * 500)
-						target:SetVelocity(target:GetVelocity()*(-1) + (target:GetPos() + Vector(0,0,32)) - ring:GetPos() * 500)
+						target:SetVelocity(target:GetVelocity()*(-1) + (target:GetPos() + Vector(0,0,32) - ring:GetPos()):GetNormalized() * 500)
 					end
 				
 				end

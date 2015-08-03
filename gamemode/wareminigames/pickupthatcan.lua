@@ -11,17 +11,13 @@ function WARE:GetModelList()
 	return self.Models
 end
 
-function WARE:FlashCans( iteration, delay )
-	WARE.Models = {
-		"models/props_junk/popcan01a.mdl",
-		"models/props_trainstation/trashcan_indoor001b.mdl"
-	}
+function WARE:FlashCans(iteration, delay)
 	for k,ent in pairs(ents.FindByModel(WARE.Models[1])) do
 		GAMEMODE:MakeAppearEffect( ent:GetPos() )
 	end
 	if (iteration > 0) then
 		local delay = delay or 1
-		timer.Simple( delay , function() self:FlashCans((iteration - 1), delay ) end)
+		timer.Simple(delay , function() self:FlashCans((iteration - 1), delay) end)
 	end
 end
 

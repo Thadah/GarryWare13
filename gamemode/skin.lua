@@ -173,29 +173,25 @@ SKIN.PaintOverSelectButton = SKIN.PaintOverCancelButton
 
 function SKIN:SchemeCancelButton( panel )
 
-	panel:SetFont( "FRETTA_SMALL" )
+	--panel:SetFont( "FRETTA_SMALL" )
 	
 	if ( panel:GetDisabled() ) then
 		panel:SetTextColor( self.colButtonTextDisabled )
 	else
 		panel:SetTextColor( self.colButtonText )
 	end
-	
-	DLabel.ApplySchemeSettings( panel )
 
 end
 
 function SKIN:SchemeSelectButton( panel )
 
-	panel:SetFont( "FRETTA_SMALL" )
+	--panel:SetFont( "FRETTA_SMALL" )
 	
 	if ( panel:GetDisabled() ) then
 		panel:SetTextColor( self.colButtonTextDisabled )
 	else
 		panel:SetTextColor( self.colButtonText )
 	end
-	
-	DLabel.ApplySchemeSettings( panel )
 
 end
 
@@ -233,7 +229,7 @@ function SKIN:PaintScorePanelLine( panel )
 	local Tall = panel:GetTall()
 	local BoxHeight = 21
 	
-	if (!IsValid( panel.pPlayer ) or !panel.pPlayer:Alive() ) then
+	if ( not IsValid( panel.pPlayer ) or !panel.pPlayer:Alive() ) then
 		draw.RoundedBox( 4, 0, Tall*0.5 - BoxHeight*0.5, panel:GetWide(), BoxHeight, Color( 60, 60, 60, 255 ) )
 		return
 	end
@@ -261,7 +257,7 @@ function SKIN:PaintScorePanel( panel )
 	render.UpdateScreenEffectTexture()
 	surface.DrawTexturedRect( x*-1, y*-1, ScrW(), ScrH() )
 	
-	--matBlurScreen:SetMaterialFloat( "$blur", 3 )
+	--matBlurScreen:SetFloat( "$blur", 3 )
 	--render.UpdateScreenEffectTexture()
 	--surface.DrawTexturedRect( x*-1, y*-1, ScrW(), ScrH() )
 		
@@ -276,16 +272,19 @@ end
 ---------------------------------------------------------*/
 function SKIN:LayoutTeamScoreboardHeader( panel )
 
-	panel.TeamName:StretchToParent( 0, 0, 0, 0 )
-	panel.TeamName:SetTextInset( 8 )
-	panel.TeamName:SetColor( Color( 0, 0, 0, 220 ) )
-	panel.TeamName:SetFont( "FRETTA_MEDIUM" )
-	
-	panel.TeamScore:StretchToParent( 0, 0, 0, 0 )
-	panel.TeamScore:SetContentAlignment( 6 )
-	panel.TeamScore:SetTextInset( 8 )
-	panel.TeamScore:SetColor( Color( 0, 0, 0, 250 ) )
-	panel.TeamScore:SetFont( "FRETTA_MEDIUM" )
+	if panel and panel.TeamName ~= "" then
+
+		panel.TeamName:StretchToParent( 0, 0, 0, 0 )
+		panel.TeamName:SetTextInset( 8 )
+		panel.TeamName:SetColor( Color( 0, 0, 0, 220 ) )
+		panel.TeamName:SetFont( "FRETTA_MEDIUM" )
+		
+		panel.TeamScore:StretchToParent( 0, 0, 0, 0 )
+		panel.TeamScore:SetContentAlignment( 6 )
+		panel.TeamScore:SetTextInset( 8 )
+		panel.TeamScore:SetColor( Color( 0, 0, 0, 250 ) )
+		panel.TeamScore:SetFont( "FRETTA_MEDIUM" )
+	end
 
 end
 
@@ -303,10 +302,9 @@ function SKIN:SchemeScorePanelLabel( panel )
 
 end
 
-
 function SKIN:PaintScorePanelLabel( panel )
 
-	if (!IsValid( panel.pPlayer ) or !panel.pPlayer:Alive() ) then
+	if ( not IsValid( panel.pPlayer ) or !panel.pPlayer:Alive() ) then
 		panel:SetAlpha( 125 )
 	else
 		panel:SetAlpha( 255 )
@@ -314,21 +312,17 @@ function SKIN:PaintScorePanelLabel( panel )
 		
 end
 
-/*
 function SKIN:SchemeScorePanelHeaderLabel( panel )
 
 	panel:SetTextColor( Color( 70, 70, 70, 255 ) )
-	panel:SetFont( "HudSelectionText" )
-		
+	
 end
 
 function SKIN:SchemeSpectatorInfo( panel )
 
 	panel:SetTextColor( Color( 255, 255, 255, 255 ) )
-	panel:SetFont( "FRETTA_SMALL" )
 		
 end
-*/
 
 /*---------------------------------------------------------
 	ScoreHeader
@@ -380,9 +374,6 @@ function SKIN:PaintGameNotice( panel )
 end
 
 function SKIN:SchemeGameNoticeLabel( panel )
-
-	panel:SetFont( "FRETTA_NOTIFY" )
-	DLabel.ApplySchemeSettings( panel )
 	
 end
 
@@ -412,7 +403,6 @@ end
 function SKIN:SchemeGamemodeButton( panel )
 
 	panel:SetTextColor( color_white )
-	panel:SetFont( "FRETTA_MEDIUM_SHADOW" )
 	panel:SetContentAlignment( 4 )
 	panel:SetTextInset( 8 )
 
