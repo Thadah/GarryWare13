@@ -34,7 +34,7 @@ function WARE:ResetCrate(i)
 	local prop = self.Crates[i]
 	if !(prop and prop:IsValid()) then return end
 	
-	local col = CrateColours[i]
+	local col = CrateColours[prop-num]
 	
 	prop:SetColor(Color(col[1]*100, col[2]*100, col[3]*100, 100))
 end
@@ -46,7 +46,7 @@ function WARE:PlayCrate(i)
 	local prop = self.Crates[i]
 	if !(prop and prop:IsValid()) then return end
 	
-	local col = CrateColours[i]
+	local col = CrateColours[prop.num]
 	
 	prop:SetColor(Color(col[1]*255, col[2]*255, col[3]*255, 255))
 	prop:SetHealth(100000)
@@ -79,9 +79,29 @@ function WARE:Initialize()
 	GAMEMODE:DrawInstructions( "Watch carefully!" )
 	
 	self.Crates = {}
+	self.UsedColors = {}
+	self.Sequence = {}
+	for i=1,numberSpawns do self.Sequence[i] = i end
+	
+	local function getRandomColors()
+		local rcolor = 1
+		local used = true
+		while (used) do
+			rcolor = math.random(1,#CrateColours)
+			used = false
+			for i=1,#self.UsedColors do
+				if (rcolor == self.UsedColors[i]) then
+					used = true
+				end
+			end
+		end
+		self.UsedColors[#self.UsedColors+1] = rcolor
+		return rcolor
+	end
 	
 	for i,pos in ipairs(GAMEMODE:GetRandomPositions(numberSpawns, ENTS_ONCRATE)) do
-		local col = CrateColours[i]
+		local num = getRandomColors()
+		local col = CrateColours[num]
 		local prop = ents.Create("prop_physics")
 		prop:SetModel( self.Models[1] )
 		prop:PhysicsInit(SOLID_VPHYSICS)
@@ -94,32 +114,24 @@ function WARE:Initialize()
 		prop:SetMoveType(MOVETYPE_NONE)
 		prop:SetCollisionGroup(COLLISION_GROUP_WEAPON)
 		prop.CrateID = i
+		prop.num = num
 		
 		self.Crates[i] = prop
 		
 		GAMEMODE:AppendEntToBin(prop)
 		GAMEMODE:MakeAppearEffect(pos)
-	end
-	
-	self.firstsequence = {}
-	for i=1,numberSpawns do self.firstsequence[i] = i end
-	
-	self.Sequence = {}
-	for i=1,numberSpawns do
-		self.Sequence[i] = table.remove(self.firstsequence, math.random(1, #self.firstsequence))
+		
 		local curTime = CurTime()
 		
 		timer.Simple(delay+i-1, function()
 			if !self.Crates then return end
 	
-			local prop = self.Crates[i]
 			if !(prop and prop:IsValid()) then return end
-		
-			local col = CrateColours[i]
+			
 		
 			prop:SetColor(Color(col[1]*255, col[2]*255, col[3]*255, 255))
 			prop:SetHealth(100000)
-			prop:EmitSound("buttons/button17.wav", 100, CratePitches[i]/3)
+			prop:EmitSound("buttons/button17.wav", 100, CratePitches[num]/3)
 	
 			GAMEMODE:MakeAppearEffect( prop:GetPos() )
 	
@@ -129,12 +141,17 @@ function WARE:Initialize()
 				local prop = self.Crates[i]
 				if !(prop and prop:IsValid()) then return end
 	
-				local col = CrateColours[i]
+				local col = CrateColours[num]
 	
 				prop:SetColor(Color(col[1]*100, col[2]*100, col[3]*100, 100))
 			end)
 		end)
+		
 	end
+	
+	
+	
+	
 end
 
 function WARE:StartAction()
