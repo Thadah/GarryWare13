@@ -480,7 +480,7 @@ function GM:Think()
 				self.FirstTimePickGame = 1.3
 				
 			else
-				self:SetNextGameStartsIn( 27 )
+				self:SetNextGameStartsIn( 10 )
 				self.FirstTimePickGame = 19.3
 				
 			end
