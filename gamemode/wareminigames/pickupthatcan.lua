@@ -1,3 +1,4 @@
+WARE = {}
 WARE.Author = "Kilburn"
 
 WARE.Models = {
@@ -12,7 +13,7 @@ function WARE:GetModelList()
 end
 
 function WARE:FlashCans(iteration, delay)
-	for k,ent in pairs(ents.FindByModel(WARE.Models[1])) do
+	for k,ent in pairs(ents.FindByModel(self.Models[1])) do
 		GAMEMODE:MakeAppearEffect( ent:GetPos() )
 	end
 	if (iteration > 0) then
@@ -22,7 +23,7 @@ function WARE:FlashCans(iteration, delay)
 end
 
 function WARE:Initialize()
-	GAMEMODE:EnableFirstWinAward( )
+	GAMEMODE:EnableFirstWinAward()
 	GAMEMODE:SetWinAwards( AWARD_FRENZY )
 	GAMEMODE:SetWareWindupAndLength(3,5)
 	
@@ -56,14 +57,13 @@ function WARE:Initialize()
 	end
 end
 
-function WARE:GravGunOnPickedUp( ply, ent )
+function WARE:GravGunOnPickedUp(ply, ent)
 	if ( ent.IsCan ) then 
 		ent.CanOwner = ply
 	end
 end
 
 function WARE:StartAction()
-	local self = WARE
 	GAMEMODE:DrawInstructions( "Now put it in the trashcan!" )
 	
 	self.Trashcans = {}
@@ -86,7 +86,7 @@ function WARE:StartAction()
 		GAMEMODE:AppendEntToBin(trash)
 		table.insert(self.Trashcans,trash)
 		
-		GAMEMODE:MakeAppearEffect( v )
+		GAMEMODE:MakeAppearEffect(v)
 	end
 end
 
@@ -94,7 +94,6 @@ function WARE:EndAction()
 end
 
 function WARE:Think()
-	local self = WARE
 	if self.Trashcans then
 		if !self.NextTrashThink or CurTime() > self.NextTrashThink then
 		
@@ -109,7 +108,7 @@ function WARE:Think()
 							v:Remove()
 						
 							Owner:StripWeapons()
-							Owner:ApplyWin( )
+							Owner:ApplyWin()
 						end
 					end
 				end
