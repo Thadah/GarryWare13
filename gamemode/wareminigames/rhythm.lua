@@ -5,7 +5,7 @@ WARE.Models = {
 "models/props_junk/wood_crate001a.mdl"
  }
  
-WARE.CorrectColor = Color(0, 0, 0, 255)
+WARE.CorrectColor = Color(0,0,0,255)
 
 function WARE:GetModelList()
 	return self.Models
@@ -17,8 +17,7 @@ WARE.Tempo = 140
 WARE.TestTempo = 4
 
 function WARE:Initialize()
-	local self = WARE
-	self.FailmessageColor = Color(64, 0, 0, 255)
+	self.FailmessageColor = Color(64, 0, 0)
 	
 	//GAMEMODE:EnableFirstWinAward( )
 	GAMEMODE:SetWinAwards( AWARD_IQ_WIN )
@@ -29,10 +28,10 @@ function WARE:Initialize()
 	self.Tempo = math.random( 40, 70 )
 	self.NumberSpawns = math.random( 4, 5 )
 	
-	self.TolerenceSeconds = 2.75
+	self.TolerenceSeconds = 0.25
 	self.TolerenceSecondsBound = self.TolerenceSeconds/2
 
-	GAMEMODE:SetWareWindupAndLength(60/self.Tempo * self.TestTempo, 60/self.Tempo * (self.NumberSpawns+1))
+	GAMEMODE:SetWareWindupAndLength(60/self.Tempo*self.TestTempo, 60/self.Tempo*(self.NumberSpawns+1))
 	
 	GAMEMODE:SetPlayersInitialStatus( true )
 	GAMEMODE:DrawInstructions("To the rhythm!" )
@@ -48,6 +47,7 @@ function WARE:Initialize()
 		prop:Spawn()
 		
 		prop:SetColor(Color(255, 255, 255, 100))
+		prop:SetRenderMode(RENDERMODE_TRANSALPHA)
 		prop:SetHealth(100000)
 		prop:SetMoveType(MOVETYPE_NONE)
 		prop:SetCollisionGroup(COLLISION_GROUP_WEAPON)
@@ -78,7 +78,7 @@ function WARE:Initialize()
 	self.CurrentRhythm = 1
 	
 	for i=1,self.TestTempo do
-		timer.Simple( i*60/self.Tempo, self.RhythmSignal, self )
+		timer.Simple( i*60/self.Tempo, function() self:RhythmSignal() end )
 		
 	end
 	umsg.Start("SpecialFlourish")
@@ -88,21 +88,20 @@ function WARE:Initialize()
 end
 
 function WARE:OpenForRhythm()
-	local self = WARE
 	self.IsOpenForRhythm = true
-	timer.Simple( self.TolerenceSeconds, self.LateForRhythm, self )
-	timer.Simple( self.TolerenceSecondsBound, self.RhythmSignal, self )	
+	timer.Simple( self.TolerenceSeconds, function() self:LateForRhythm() end )
+	timer.Simple( self.TolerenceSecondsBound, function() self:RhythmSignal() end )	
 end
 
 function WARE:StartAction()
-	local self = WARE
 	for _,v in pairs(team.GetPlayers(TEAM_HUMANS)) do 
 		v:Give("sware_pistol")
 		v:GiveAmmo(12, "Pistol", true)
 	end
 	
 	for i=1,self.NumberSpawns do
-		timer.Simple( i*60/self.Tempo - self.TolerenceSecondsBound, function() self:OpenForRhythm() end)
+		timer.Simple( i*60/self.Tempo - self.TolerenceSecondsBound, function() self:OpenForRhythm() end )
+		
 	end
 	
 end
@@ -110,19 +109,16 @@ end
 function WARE:EndAction()
 end
 
-function WARE:RhythmSignal( )
-	local self = WARE
+function WARE:RhythmSignal()
 	for k,v in pairs( self.Crates ) do
 		GAMEMODE:MakeAppearEffect( v:GetPos() )
-		
 	end
 	self.Crates[self.CurrentRhythm]:EmitSound("doors/vent_open3.wav", 100, GAMEMODE:GetSpeedPercent() )
 	
 	
 end
 
-function WARE:LateForRhythm( )
-	local self = WARE
+function WARE:LateForRhythm()
 	self.IsOpenForRhythm = false
 	
 	local hasLate = false
@@ -134,7 +130,7 @@ function WARE:LateForRhythm( )
 				rpLate:AddPlayer( ply )
 				
 			end
-			ply:ApplyLose( )
+			ply:ApplyLose()
 			ply:StripWeapons()
 			
 		end
@@ -150,11 +146,13 @@ function WARE:LateForRhythm( )
 	
 end
 
-function WARE:EntityTakeDamage(ent,info)
+function WARE:EntityTakeDamage(ent, dmginfo)
+	local inf = dmginfo:GetInflictor()
+	local att = dmginfo:GetAttacker()
+	local amount = dmginfo:GetDamage()
 	local pool = self
-	local att = info:GetAttacker()
 	
-	if !att:IsPlayer() or !info:IsBulletDamage() then return end
+	if !att:IsPlayer() or !dmginfo:IsBulletDamage() then return end
 	if !pool.Crates or !ent.CrateID then return end
 	
 	if !self.PlayerStates[att] then return end
@@ -176,7 +174,7 @@ function WARE:EntityTakeDamage(ent,info)
 			GAMEMODE:DrawInstructions( "Too early!" , self.FailmessageColor , nil , att )
 		end
 		
-		att:ApplyLose( )
+		att:ApplyLose()
 		att:StripWeapons()
 		
 	end
