@@ -236,7 +236,7 @@ function WARE:Think()
 						GAMEMODE:MakeAppearEffect(ent:GetPos())
 						
 						local curTime = CurTime()
-						if (curTime >= CurTime + 0.5) then
+						if (curTime >= CurTime() + 0.5) then
 							self:PlugBatteryIn(socket, ent)
 						end
 					end
@@ -244,7 +244,7 @@ function WARE:Think()
 			end			
 		end
 			
-			self.NextPlugThink = CurTime() + 0.1
+		self.NextPlugThink = CurTime() + 0.1
 	end
 	/*
 	for k,camera in pairs(ents.FindByClass("npc_combine_camera")) do
