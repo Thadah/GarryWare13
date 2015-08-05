@@ -8,7 +8,7 @@ WARE.Models = {
 	"models/props_c17/chair_office01a.mdl",
 	"models/props_c17/chair_stool01a.mdl",
 	"models/props_wasteland/controlroom_chair001a.mdl"
- }
+}
  
 WARE.Bullseyes = {}
 WARE.BVelocity = 128
@@ -29,14 +29,6 @@ function WARE:Initialize()
 	
 	GAMEMODE:SetPlayersInitialStatus( false )
 	GAMEMODE:DrawInstructions( "Hit the bullseye!" )
-	
-	-- HAXX
-	-- GravGunOnPickedUp hook is broken, so we'll use this tricky workaround
-	local lua_run = ents.Create("lua_run")
-	--lua_run:SetKeyValue('Code','CALLER:SetNWEntity("CanOwner",ACTIVATOR)')
-	lua_run:SetKeyValue('Code','CALLER.LastPuntedBy=ACTIVATOR')
-	lua_run:SetKeyValue('targetname','luarun')
-	lua_run:Spawn()
 	
 	for k,ply in pairs(team.GetPlayers(TEAM_HUMANS)) do 
 		ply:Give( "weapon_physcannon" )
@@ -74,12 +66,11 @@ function WARE:StartAction()
 		local model = MDLLIST[ math.random(1, #MDLLIST) ]
 		
 		local ent = ents.Create("prop_physics")
-		ent:SetModel( model )
-		ent:SetPos( pos + Vector(0,0,64) )
-		ent:SetAngles( Angle(0, math.Rand(0,360), 0) )
-		ent:Spawn()
-		
-		ent:Fire("AddOutput", "OnPhysGunPickup luarun,RunCode")
+			ent:SetModel( model )
+			ent:SetPos( pos + Vector(0,0,64) )
+			ent:SetAngles( Angle(0, math.Rand(0,360), 0) )
+			ent:Spawn()
+
 		
 		GAMEMODE:AppendEntToBin(ent)
 		GAMEMODE:MakeAppearEffect(ent:GetPos())
@@ -87,11 +78,11 @@ function WARE:StartAction()
 	
 end
 
-function WARE:EndAction()
-	for _,v in pairs(ents.FindByClass("lua_run")) do
-		v:Remove()
-	end
+function WARE:GravGunOnPickedUp(ply, ent)
+	ent.LastPuntedBy = ply
+end
 
+function WARE:EndAction()
 end
 
 function WARE:Think()
@@ -111,12 +102,11 @@ end
 
 function WARE:WarePhysicsCollideStream( collide_ent, data, physobj )
 	if (collide_ent:GetClass() == "ware_bullseye") and (data.HitEntity:GetClass() == "prop_physics") then
-		if IsValid(data.HitEntity.LastPuntedBy) and data.HitEntity.LastPuntedBy:IsPlayer() then
-			data.HitEntity.LastPuntedBy:ApplyWin( )
-			data.HitEntity.LastPuntedBy:StripWeapons()
-		end
+		local winner = data.HitEntity.LastPuntedBy
+
+		winner:ApplyWin()
+		winner:StripWeapons()
 	end
-	
 	return false
 end
 
