@@ -1,3 +1,4 @@
+WARE = {}
 WARE.Author = "Hurricaaane (Ha3)"
 
 WARE.Models = {
@@ -13,6 +14,7 @@ WARE.Models = {
 	Vector( -30,  13, -30 ),	Vector( -13, -30, -30 )
 }
 
+WARE.IsPlugged = false
 
 local MDL_CRATE = 1
 local MDL_PLUGHOLDER = 2
@@ -26,7 +28,6 @@ function WARE:GetModelList()
 end
 
 function WARE:Initialize()
-	local self = WARE
 	GAMEMODE:EnableFirstWinAward( )
 	GAMEMODE:SetWinAwards( AWARD_FRENZY )
 
@@ -35,16 +36,6 @@ function WARE:Initialize()
 	
 	GAMEMODE:SetPlayersInitialStatus( false )
 	GAMEMODE:DrawInstructions( "Find a battery and plug it!" )
-	
-	/*
-	-- HAXX
-	-- GravGunOnPickedUp hook is broken, so we'll use this tricky workaround
-	local lua_run = ents.Create("lua_run")
-	--lua_run:SetKeyValue('Code','CALLER:SetNWEntity("CanOwner",ACTIVATOR)')
-	lua_run:SetKeyValue('Code','CALLER.BatteryOwner=ACTIVATOR')
-	lua_run:SetKeyValue('targetname','luarun')
-	lua_run:Spawn()
-	*/
 	
 	local ratio = 1
 	local minimum = 1
@@ -70,16 +61,6 @@ function WARE:Initialize()
 		
 		ent.HasBattery = true
 	end
-	
-	-- DISABLED : Now all crates contain a battery.
-	--[[local ratio2 = 0.5
-	local minimum2 = 1
-	local num2 = math.Clamp(math.ceil(team.NumPlayers(TEAM_HUMANS)*ratio2),minimum2,num)
-	local entcontains = GAMEMODE:GetRandomLocations(num2, cratelist)
-	for k,v in pairs(entcontains) do
-		v.contains = true
-		--v:SetColor(255,0,0,255)
-	end]]--
 	
 	local ratio3 = 0.5
 	local minimum3 = 1
@@ -140,13 +121,12 @@ end
 function WARE:EndAction()
 	for _,v in pairs(ents.FindByClass("prop_physics")) do
 		if v:GetModel() == self.Models[MDL_PLUGHOLDER] and !v.IsOccupied then
-			GAMEMODE:MakeLandmarkEffect( v:GetPos() )
+			GAMEMODE:MakeLandmarkEffect(v:GetPos())
 		end
 	end
 end
 
 function WARE:PropBreak(pl,prop)
-	local self = WARE
 	if prop.HasBattery == true then
 		local battery = ents.Create ("prop_physics")
 			battery:SetModel( self.Models[MDL_BATTERY] )
@@ -177,19 +157,13 @@ end
 function WARE:PlugBatteryIn(socket, battery)
 	battery.GravGunBlocked = true	
 
-	--battery:SetPos(socket:GetPos() + socket:GetForward()*13 + socket:GetRight()*-13 + Vector(0,0,10))
 	battery:SetPos(socket:LocalToWorld( Vector( 13, 13, 10 ) ) )
 	battery:SetAngles(socket:GetAngles())
 	
 	battery:SetCollisionGroup( COLLISION_GROUP_WORLD )
 	battery:GetPhysicsObject():EnableMotion(false)
-
+	battery:GetPhysicsObject():Sleep()
 	
-	/*
-	battery:GetPhysicsObject():EnableMotion(false)
-	DropEntityIfHeld(battery)
-	battery:GetPhysicsObject():ApplyForceCenter( Vector( 0, 0, 128 ) )
-	*/
 	socket.LinkedCamera:Fire("Enable")
 	socket:EmitSound("npc/roller/mine/combine_mine_deploy1.wav")
 	
@@ -199,26 +173,18 @@ function WARE:PlugBatteryIn(socket, battery)
 		data:SetMagnitude( 8 )
 		data:SetScale( 1 )
 		data:SetRadius( 16 )
-	util.Effect( "Sparks", data )
+	util.Effect("Sparks", data)
 	
-	/*
-	local spark = ents.Create("env_spark")
-	spark:SetPos(battery:GetPos())
-	spark:SetKeyValue("MaxDelay",2)
-	spark:SetKeyValue("Magnitude",4)
-	spark:SetKeyValue("TrailLength",2)
-	spark:Spawn()
-	spark:SetParent(battery)
-	spark:Fire("SparkOnce")
-	
-	
-	local camera = socket.LinkedCamera
-	camera:Fire("Enable")
-	*/
+end
+
+function WARE:PrePlugBatteryIn(socket, ent)
+	if self.IsPlugged == false then
+		self:PlugBatteryIn(socket,ent)
+		GAMEMODE:MakeAppearEffect(ent:GetPos())
+	end
 end
 
 function WARE:Think()
-	local self = WARE
 	if !self.NextPlugThink or CurTime() < self.NextPlugThink then
 		
 		for key, socket in pairs(self.Sockets) do
@@ -233,20 +199,15 @@ function WARE:Think()
 						owner:ApplyWin()
 						socket.IsOccupied = true
 							
-						GAMEMODE:MakeAppearEffect(ent:GetPos())
-						
-						local curTime = CurTime()
-						if (curTime >= CurTime() + 0.5) then
-							self:PlugBatteryIn(socket, ent)
-						end
+						self:PrePlugBatteryIn(socket, ent)
+						self.IsPlugged = true
 					end
 				end
 			end			
-		end
-			
+		end	
 		self.NextPlugThink = CurTime() + 0.1
 	end
-	/*
+	
 	for k,camera in pairs(ents.FindByClass("npc_combine_camera")) do
 		local sphere = ents.FindInSphere(camera:GetPos(),24)
 		
@@ -256,5 +217,4 @@ function WARE:Think()
 			end
 		end
 	end
-	*/
 end
