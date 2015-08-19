@@ -10,7 +10,7 @@
 include( "ply_extension.lua" )
 
 GM.Name 	= "Fretta13: GarryWare Reloaded"
-GM.Author 	= "Hurricaaane (Ha3 Team), ported by Carpathia Gaming"
+GM.Author 	= "Created by Hurricaaane (Ha3 Team) \nPorted to Gmod13 by Thadah and Cyumus \nfor Carpathia Gaming"
 GM.Email 	= ""
 GM.Website 	= ""
 

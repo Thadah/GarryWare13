@@ -161,7 +161,6 @@ function GM:PickRandomGame()
 		
 		GAMEMODE:SetPlayersInitialStatus( false )
 		GAMEMODE:DrawInstructions( "Error with minigame \""..self.NextGameName.."\"." )
-		
 	end
 	self.NextgameEnd = CurTime() + self.Windup + self.WareLen
 	

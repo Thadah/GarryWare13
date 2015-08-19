@@ -22,7 +22,7 @@ function PANEL:Init()
 	self.lblGamemodeName:SetImage( "vgui/ware/garryware_logo" )
 		
 	self.lblGamemodeAuthor = vgui.Create( "DLabel", self )
-		self.lblGamemodeAuthor:SetText( "by " .. GAMEMODE.Author )
+		self.lblGamemodeAuthor:SetText( GAMEMODE.Author )
 		self.lblGamemodeAuthor:SetFont( "FRETTA_MEDIUM" )
 		self.lblGamemodeAuthor:SetColor( color_white )
 		
