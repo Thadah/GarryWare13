@@ -1,75 +1,68 @@
+WARE = {}
 WARE.Author = "Kilburn"
 
-local CrateColours = {
+WARE.CrateColours = {
 	{1,0,0},
 	{0,1,0},
 	{0,0,1},
 	{1,1,0},
 	{1,0,1},
-	{0,1,1},
+	{0,1,1}
 }
 
-local CratePitches = {
+WARE.CratePitches = {
 	262,
 	294,
 	330,
 	349,
 	392,
-	440,
+	440
 }
 
-WARE.Models = {
-"models/props_junk/wood_crate001a.mdl"
- }
+WARE.Models = {"models/props_junk/wood_crate001a.mdl"}
 
 function WARE:GetModelList()
-	local self = WARE
 	return self.Models
 end
 
 function WARE:GetModelFromList(i)
-	local self = WARE
 	return self.Models[i]
 end
 
 function WARE:ResetCrate(i)
-	local self = WARE
 	if !self.Crates then return end
 	
 	local prop = self.Crates[i]
 	if !(prop and prop:IsValid()) then return end
 	
-	local col = CrateColours[prop.num]
+	local col = self.CrateColours[prop.num]
 	
 	prop:SetColor(Color(col[1]*100, col[2]*100, col[3]*100, 100))
 end
 
 function WARE:PlayCrate(i)
-	local self = WARE
 	if !self.Crates then return end
 	
 	local prop = self.Crates[i]
-	if !(prop and prop:IsValid()) then return end
+	if !(prop and IsValid(prop)) then return end
 	
-	local col = CrateColours[prop.num]
+	local col = self.CrateColours[prop.num]
 	
 	prop:SetColor(Color(col[1]*255, col[2]*255, col[3]*255, 255))
 	prop:SetHealth(100000)
-	prop:EmitSound("buttons/button17.wav", 100, CratePitches[i]/3)
+	prop:EmitSound("buttons/button17.wav", 100, self.CratePitches[i]/3)
 	
 	GAMEMODE:MakeAppearEffect( prop:GetPos() )
 	
 	timer.Simple(0.5, function()
-	local col = CrateColours[i]
+	local col = self.CrateColours[i]
 	
 	prop:SetColor(Color(col[1]*100, col[2]*100, col[3]*100, 100))
 	end)
 end
 
------------------------------------------------------------------------------------
 
 function WARE:Initialize()
-	local self = WARE
 	GAMEMODE:EnableFirstWinAward( )
 	GAMEMODE:SetWinAwards( AWARD_IQ_WIN )
 	GAMEMODE:SetFailAwards( AWARD_IQ_FAIL )
@@ -92,7 +85,7 @@ function WARE:Initialize()
 		local rcolor = 1
 		local used = true
 		while (used) do
-			rcolor = math.random(1,#CrateColours)
+			rcolor = math.random(1,#self.CrateColours)
 			used = false
 			for i=1,#self.UsedColors do
 				if (rcolor == self.UsedColors[i]) then
@@ -106,9 +99,9 @@ function WARE:Initialize()
 	
 	for i,pos in ipairs(GAMEMODE:GetRandomPositions(numberSpawns, ENTS_ONCRATE)) do
 		local num = getRandomColors()
-		local col = CrateColours[num]
+		local col = self.CrateColours[num]
 		local prop = ents.Create("prop_physics")
-		prop:SetModel( WARE:GetModelFromList(1) )
+		prop:SetModel( self:GetModelFromList(1) )
 		prop:PhysicsInit(SOLID_VPHYSICS)
 		prop:SetSolid(SOLID_VPHYSICS)
 		prop:SetPos(pos + Vector(0,0,64))
@@ -136,7 +129,7 @@ function WARE:Initialize()
 		
 			prop:SetColor(Color(col[1]*255, col[2]*255, col[3]*255, 255))
 			prop:SetHealth(100000)
-			prop:EmitSound("buttons/button17.wav", 100, CratePitches[num]/3)
+			prop:EmitSound("buttons/button17.wav", 100, self.CratePitches[num]/3)
 	
 			GAMEMODE:MakeAppearEffect( prop:GetPos() )
 	
@@ -146,7 +139,7 @@ function WARE:Initialize()
 				local prop = self.Crates[i]
 				if !(prop and prop:IsValid()) then return end
 	
-				local col = CrateColours[num]
+				local col = self.CrateColours[num]
 	
 				prop:SetColor(Color(col[1]*100, col[2]*100, col[3]*100, 100))
 			end)
@@ -160,7 +153,6 @@ function WARE:Initialize()
 end
 
 function WARE:StartAction()
-	local self = WARE
 	GAMEMODE:DrawInstructions( "Repeat!" )
 	
 	self.PlayerCurrentCrate = {}
@@ -177,24 +169,23 @@ function WARE:EndAction()
 end
 
 function WARE:EntityTakeDamage(ent,info)
-	local pool = WARE
 	local att = info:GetAttacker()
 	
 	if !att:IsPlayer() or !info:IsBulletDamage() then return end
-	if !pool.PlayerCurrentCrate[att] then return end
-	if !pool.Crates or !ent.CrateID then return end
+	if !self.PlayerCurrentCrate[att] then return end
+	if !self.Crates or !ent.CrateID then return end
 	
 	self:PlayCrate(ent.CrateID)
 	
-	if pool.Sequence[pool.PlayerCurrentCrate[att]] == ent.CrateID then
-		pool.PlayerCurrentCrate[att] = pool.PlayerCurrentCrate[att] + 1
+	if self.Sequence[self.PlayerCurrentCrate[att]] == ent.CrateID then
+		self.PlayerCurrentCrate[att] = self.PlayerCurrentCrate[att] + 1
 		att:SendHitConfirmation()
-		if !pool.Sequence[pool.PlayerCurrentCrate[att]] then
-			att:ApplyWin( )
+		if !self.Sequence[self.PlayerCurrentCrate[att]] then
+			att:ApplyWin()
 			att:StripWeapons()
 		end
 	else
-		att:ApplyLose( )
+		att:ApplyLose()
 		att:StripWeapons()
 	end
 end
