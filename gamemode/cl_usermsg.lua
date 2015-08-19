@@ -150,12 +150,12 @@ local function NextGameTimes( m )
 		local musicID = m:ReadChar()
 		gws_CurrentAnnouncer = m:ReadChar()
 		local loopToPlay = m:ReadChar()
-		LocalPlayer():EmitSound( GAMEMODE.WASND.BITBL_GlobalWarening[libraryID][musicID] , 60, GAMEMODE:GetSpeedPercent() )
-		gws_AmbientMusicIsOn = true
-		EnableMusic()
-		
-	end
-	
+		if libraryID != nil and musicID != nil then
+			LocalPlayer():EmitSound( GAMEMODE.WASND.BITBL_GlobalWarening[libraryID][musicID] , 60, GAMEMODE:GetSpeedPercent() )
+			gws_AmbientMusicIsOn = true
+			EnableMusic()
+		end	
+	end	
 end
 usermessage.Hook( "NextGameTimes", NextGameTimes )
 
