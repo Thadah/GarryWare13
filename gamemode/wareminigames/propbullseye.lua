@@ -103,9 +103,11 @@ end
 function WARE:WarePhysicsCollideStream( collide_ent, data, physobj )
 	if (collide_ent:GetClass() == "ware_bullseye") and (data.HitEntity:GetClass() == "prop_physics") then
 		local winner = data.HitEntity.LastPuntedBy
-
-		winner:ApplyWin()
-		winner:StripWeapons()
+		
+		if IsValid(winner) then
+			winner:ApplyWin()
+			winner:StripWeapons()
+		end
 	end
 	return false
 end
