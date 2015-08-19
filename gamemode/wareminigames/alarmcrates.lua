@@ -58,6 +58,7 @@ function WARE:Initialize()
 			speaker:SetPos(prop:GetPos())
 			speaker:SetAngles(Angle(math.random(0,360),math.random(0,360),math.random(0,360)))
 			speaker:Spawn()
+			speaker:SetRenderMode(RENDERMODE_TRANSALPHA)
 			speaker:SetColor(Color(255,255,255,0))
 			speaker:GetPhysicsObject():EnableMotion(false)
 			

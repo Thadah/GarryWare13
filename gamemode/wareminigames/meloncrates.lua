@@ -8,9 +8,9 @@ end
 
 local function FlashCrate(prop)
 	if !(prop and prop:IsValid()) then return end
-	
+
 	prop:SetColor(Color(255,255,255,50))
-	timer.Simple(0.45, ResetFlashCrate, prop)
+	timer.Simple(0.65, function() ResetFlashCrate(prop) end)
 end
 
 
@@ -20,8 +20,7 @@ WARE.Models = {
 	"models/props_junk/plasticbucket001a.mdl",
 	"models/props_junk/metalbucket01a.mdl",
 	"models/props_junk/propanecanister001a.mdl",
-	"models/props_combine/breenglobe.mdl",
-	false
+	"models/props_combine/breenglobe.mdl"
  }
 
 local MDL_CRATE = 1
@@ -57,6 +56,7 @@ function WARE:Initialize()
 		prop:SetModel( MDLLIST[MDL_CRATE] )
 		prop:PhysicsInit(SOLID_VPHYSICS)
 		prop:SetSolid(SOLID_VPHYSICS)
+		prop:SetRenderMode(RENDERMODE_TRANSALPHA)
 		prop:SetPos(pos)
 		prop:Spawn()
 		
@@ -92,7 +92,7 @@ function WARE:Initialize()
 			prop.Contents = prop2
 		end
 		
-		timer.Simple(delay, FlashCrate, prop)
+		timer.Simple(delay, function() FlashCrate(prop) end)
 	end
 end
 
