@@ -14,8 +14,6 @@ WARE.Models = {
 	Vector( -30,  13, -30 ),	Vector( -13, -30, -30 )
 }
 
-WARE.IsPlugged = false
-
 local MDL_CRATE = 1
 local MDL_PLUGHOLDER = 2
 local MDL_BATTERY = 3
@@ -97,6 +95,7 @@ function WARE:Initialize()
 			camera:Spawn()
 		
 		ent.LinkedCamera = camera
+		--ent.IsOccupied = false
 		
 		GAMEMODE:AppendEntToBin(camera)
 		GAMEMODE:MakeAppearEffect(camera:GetPos())
@@ -151,6 +150,7 @@ function WARE:PropBreak(pl,prop)
 		
 		battery.Plug		= plug
 		battery.IsBattery 	= true
+		battery.IsPlugged   = false
 	end
 end
 
@@ -178,10 +178,8 @@ function WARE:PlugBatteryIn(socket, battery)
 end
 
 function WARE:PrePlugBatteryIn(socket, ent)
-	if self.IsPlugged == false then
-		self:PlugBatteryIn(socket,ent)
-		GAMEMODE:MakeAppearEffect(ent:GetPos())
-	end
+	self:PlugBatteryIn(socket,ent)
+	GAMEMODE:MakeAppearEffect(ent:GetPos())
 end
 
 function WARE:Think()
@@ -195,12 +193,15 @@ function WARE:Think()
 					local owner = ent.BatteryOwner
 						
 					if IsValid(owner) then
-						owner:StripWeapons()
-						owner:ApplyWin()
+
+						if !ent.IsPlugged and !socket.IsOccupied then	
+							self:PrePlugBatteryIn(socket, ent)
+							owner:ApplyWin()
+							owner:StripWeapons()
+						end
+
+						ent.IsPlugged = true
 						socket.IsOccupied = true
-							
-						self:PrePlugBatteryIn(socket, ent)
-						self.IsPlugged = true
 					end
 				end
 			end			
