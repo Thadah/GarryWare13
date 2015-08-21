@@ -1,4 +1,3 @@
-WARE = {}
 WARE.Author = "Kilburn"
 
 WARE.Models = {
@@ -12,18 +11,17 @@ function WARE:GetModelList()
 	return self.Models
 end
 
-function WARE:FlashCans(iteration, delay)
+function WARE:FlashCans( iteration, delay )
 	for k,ent in pairs(ents.FindByModel(self.Models[1])) do
 		GAMEMODE:MakeAppearEffect( ent:GetPos() )
 	end
 	if (iteration > 0) then
-		local delay = delay or 1
-		timer.Simple(delay , function() self:FlashCans((iteration - 1), delay) end)
+		timer.Simple( delay , function() self:FlashCans(iteration - 1, delay) end)
 	end
 end
 
 function WARE:Initialize()
-	GAMEMODE:EnableFirstWinAward()
+	GAMEMODE:EnableFirstWinAward( )
 	GAMEMODE:SetWinAwards( AWARD_FRENZY )
 	GAMEMODE:SetWareWindupAndLength(3,5)
 	
@@ -31,7 +29,7 @@ function WARE:Initialize()
 	GAMEMODE:DrawInstructions( "Pick up that can!" )
 	
 	local numberSpawns = math.Clamp(team.NumPlayers(TEAM_HUMANS),1,table.Count(GAMEMODE:GetEnts(ENTS_INAIR)))
-	
+
 	for _,pos in ipairs(GAMEMODE:GetRandomPositions(numberSpawns, ENTS_INAIR)) do
 		local prop = ents.Create("prop_physics")
 		prop:SetModel( self.Models[1] )
@@ -57,8 +55,14 @@ function WARE:Initialize()
 	end
 end
 
-function WARE:GravGunOnPickedUp(ply, ent)
-	if ( ent.IsCan ) then 
+function WARE.GravGunOnPickedUp(ply, ent)
+	if ent.IsCan then
+		ent.CanOwner = ply
+	end
+end
+
+function WARE:GravGunOnDropped(ply, ent)
+	if ent.IsCan then
 		ent.CanOwner = ply
 	end
 end
@@ -86,29 +90,32 @@ function WARE:StartAction()
 		GAMEMODE:AppendEntToBin(trash)
 		table.insert(self.Trashcans,trash)
 		
-		GAMEMODE:MakeAppearEffect(v)
+		GAMEMODE:MakeAppearEffect( v )
 	end
 end
 
 function WARE:EndAction()
+	for _,v in pairs(ents.FindByClass("lua_run")) do
+		v:Remove()
+	end
 end
 
 function WARE:Think()
 	if self.Trashcans then
-		if !self.NextTrashThink or CurTime() > self.NextTrashThink then
+		if not self.NextTrashThink or CurTime() > self.NextTrashThink then
 		
 			for l,w in pairs(self.Trashcans) do
 			
 				local bmin,bmax = w:WorldSpaceAABB()
 				for _,v in pairs(ents.FindInBox(bmin + Vector(12,12,14),bmax - Vector(12,12,10))) do
-					if v.IsCan then
+					if v:GetModel()=="models/props_junk/popcan01a.mdl" then
 						local Owner = v.CanOwner
 						if Owner and Owner:IsPlayer() then
 							GAMEMODE:MakeAppearEffect(v:GetPos())
 							v:Remove()
 						
 							Owner:StripWeapons()
-							Owner:ApplyWin()
+							Owner:ApplyWin( )
 						end
 					end
 				end
