@@ -1,9 +1,7 @@
 WARE.Author = "Hurricaaane (Ha3)"
 WARE.Room = "hexaprism"
 
-WARE.Models = {
-"models/Roller.mdl"
-}
+WARE.Models = {"models/Roller.mdl"}
 
 WARE.ToGather = 0
 WARE.Gathered = 0
@@ -28,15 +26,6 @@ end*/
 function WARE:Initialize()
 	GAMEMODE:EnableFirstWinAward( )
 	GAMEMODE:SetWinAwards( AWARD_FRENZY, AWARD_AIM )
-	
-	-- HAXX
-	-- GravGunOnPickedUp hook is broken, so we'll use this tricky workaround
-	local lua_run = ents.Create("lua_run")
-	
-	lua_run:SetKeyValue('Code','CALLER.Owner=ACTIVATOR')
-	lua_run:SetKeyValue('targetname','luarun')
-	lua_run:Spawn()
-
 
 	self.Gathered = 0
 
@@ -82,8 +71,6 @@ function WARE:StartAction()
 		prop:SetCollisionGroup(COLLISION_GROUP_WEAPON)
 		
 		prop.IsAFile = true
-		
-		prop:Fire("AddOutput", "OnPhysGunPickup luarun,RunCode")
 	
 		local physobj = prop:GetPhysicsObject()
 		physobj:EnableMotion(true)
@@ -122,9 +109,6 @@ function WARE:StartAction()
 	textent:SetPos(centerposupped)
 	textent:Spawn()
 	textent:SetParent(self.ZipEnt)
-	
-	--local rp = RecipientFilter()
-	--rp:AddAllPlayers()
 	
 	textent:SetEntityInteger( 0 )
 	GAMEMODE:SendEntityTextColor( nil , textent, 255, 255, 0, 255 )
@@ -221,6 +205,12 @@ function WARE:MidActionTrigger()
 	
 end
 
+function WARE:GravGunOnPickedUp(ply, ent)
+	if ent.IsAMail or ent.IsAFile then
+		ent.Owner = ply
+	end
+end
+
 function WARE:EndAction()
 	if !self.ZipBuilt then
 		for k,v in pairs(team.GetPlayers(TEAM_HUMANS)) do 
@@ -251,7 +241,7 @@ function WARE:Think()
 				if target.IsAFile and target.Owner then
 					GAMEMODE:MakeDisappearEffect( self.ZipEnt:GetPos() )
 					
-					if target.Owner then
+					if IsValid(target.Owner) then
 						target.Owner:SetAchievedNoLock( true )
 					end
 					
@@ -276,8 +266,8 @@ function WARE:Think()
 				if target.IsAMail and target.Owner then
 					GAMEMODE:MakeDisappearEffect( self.FacepunchEnt:GetPos() )
 					
-					if target.Owner then
-						target.Owner:ApplyWin( )
+					if IsValid(target.Owner) then
+						target.Owner:ApplyWin()
 						target.Owner:StripWeapons()
 					end
 					
