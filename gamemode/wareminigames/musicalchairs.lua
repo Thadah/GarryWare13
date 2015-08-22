@@ -57,7 +57,7 @@ function WARE:Initialize()
 		constraint.Ballsocket( pod, game.GetWorld(), 0, 0, pod:GetPos() + pod:GetAngles():Up() * 86 + pod:GetAngles():Forward() * 9, 0, 0, 0 )
 
 		local physObj = pod:GetPhysicsObject()
-		if physObj:IsValid() then
+		if IsValid(physObj) then
 			physObj:ApplyForceCenter(VectorRand() * physObj:GetMass() * 32)
 		end
 		

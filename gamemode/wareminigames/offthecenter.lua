@@ -1,3 +1,4 @@
+WARE = {}
 WARE.Author = "Hurricaaane (Ha3)"
 WARE.Room = "hexaprism"
  
@@ -21,7 +22,6 @@ function WARE:IsPlayable()
 end
 
 function WARE:Initialize()
-	local self = WARE
 	GAMEMODE:SetFailAwards( AWARD_FRENZY )
 	self.LastThinkDo = 0
 	
@@ -82,7 +82,6 @@ function WARE:EndAction()
 end
 
 function WARE:Think( )
-	local self = WARE
 	for k,v in pairs(team.GetPlayers(TEAM_HUMANS)) do 
 		if !v:GetLocked() and (v:GetPos().z < self.HeightLimit) then
 			v:ApplyLose( )

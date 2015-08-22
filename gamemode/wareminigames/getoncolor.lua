@@ -1,13 +1,13 @@
 WARE.Author = "Hurricaaane (Ha3)"
 
 WARE.PossibleColors = {
-{ "black" , Color(0,0,0,255) },
-{ "grey" , Color(138,138,138,255), Color(255,255,255,255) },
-{ "white" , Color(255,255,255,255), Color(0,0,0,255) },
-{ "red" , Color(220,0,0,255) },
-{ "green" , Color(0,220,0,255) },
-{ "blue" , Color(64,64,255,255) },
-{ "pink" , Color(255,0,255,255) }
+	{ "black" , Color(0,0,0,255) },
+	{ "grey" , Color(138,138,138,255), Color(255,255,255,255) },
+	{ "white" , Color(255,255,255,255), Color(0,0,0,255) },
+	{ "red" , Color(220,0,0,255) },
+	{ "green" , Color(0,220,0,255) },
+	{ "blue" , Color(64,64,255,255) },
+	{ "pink" , Color(255,0,255,255) }
 }
  
 WARE.Props = {}

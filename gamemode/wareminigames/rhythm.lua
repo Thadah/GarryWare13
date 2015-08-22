@@ -1,9 +1,7 @@
 WARE = {}
 WARE.Author = "Hurricaaane (Ha3)"
 
-WARE.Models = {
-"models/props_junk/wood_crate001a.mdl"
- }
+WARE.Models = {"models/props_junk/wood_crate001a.mdl"}
  
 WARE.CorrectColor = Color(0,0,0,255)
 

@@ -108,6 +108,7 @@ function WARE:Initialize()
 		prop:Spawn()
 		
 		prop:SetColor(Color(col[1]*100, col[2]*100, col[3]*100, 100))
+		prop:SetRenderMode(RENDERMODE_TRANSALPHA)
 		prop:SetHealth(100000)
 		prop:SetMoveType(MOVETYPE_NONE)
 		prop:SetCollisionGroup(COLLISION_GROUP_WEAPON)

@@ -28,7 +28,7 @@ function WARE:StartAction()
 		ent:Spawn()
 		
 		local phys = ent:GetPhysicsObject()
-		phys:ApplyForceCenter (VectorRand() * 512)
+		phys:ApplyForceCenter(VectorRand() * 512)
 		
 		GAMEMODE:AppendEntToBin(ent)
 		GAMEMODE:MakeAppearEffect(ent:GetPos())

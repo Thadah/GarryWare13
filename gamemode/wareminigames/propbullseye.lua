@@ -87,7 +87,7 @@ end
 
 function WARE:Think()
 	for k,ent in pairs(self.Bullseyes) do
-		if IsValid(ent) and ent:GetPhysicsObject():IsValid() then
+		if IsValid(ent) and IsValid(ent:GetPhysicsObject()) then
 			local physobj = ent:GetPhysicsObject()
 			local vel = physobj:GetVelocity()
 			local norm = vel:Normalize()

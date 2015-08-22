@@ -17,15 +17,15 @@ end
 
 local possiblenpcs = { "npc_manhack" , "npc_rollermine" }
 
---[[function WARE:FlashSpawns( iteration, delay )
+function WARE:FlashSpawns( iteration, delay )
 	for k,pos in pairs( self.Positions ) do
 		GAMEMODE:MakeAppearEffect( pos )
 	end
+
 	if (iteration > 0) then
-		timer.Simple( delay , self.FlashSpawns, self , iteration - 1, delay )
-	end
-	
-end]]--
+		timer.Simple(delay , function() self:FlashSpawns(iteration - 1, delay) end)
+	end	
+end
 
 --TBD DEBUG
 ---function WARE:IsPlayable()
@@ -61,7 +61,7 @@ function WARE:Initialize()
 		table.insert( self.Positions, Vector(0,0,92) + centerpos + Angle(0, math.random(0,360), 0):Forward() * math.random(alandmeasure * 0.5, alandmeasure) )
 	end
 	
-	--self:FlashSpawns( 6 , 0.3 )
+	self:FlashSpawns( 6 , 0.3 )
 end
 
 function WARE:StartAction()	
