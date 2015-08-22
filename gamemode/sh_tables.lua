@@ -97,6 +97,7 @@ GM.WASND.BITBL_TimeLeft = {}
 
 GM.WASND.BITBL_TimeLeft[1] = {}
 if SERVER or (CLIENT and !file.Exists("sound/vo/announcer_begins_1sec.wav", "GAME")) then
+	GM.WASND.BITBL_TimeLeft[1][0] = Sound("common/NULL.WAV")
 	GM.WASND.BITBL_TimeLeft[1][1] = Sound("ware/countdown_ann_sec1.mp3")
 	GM.WASND.BITBL_TimeLeft[1][2] = Sound("ware/countdown_ann_sec2.mp3")
 	GM.WASND.BITBL_TimeLeft[1][3] = Sound("ware/countdown_ann_sec3.mp3")
@@ -104,6 +105,7 @@ if SERVER or (CLIENT and !file.Exists("sound/vo/announcer_begins_1sec.wav", "GAM
 	GM.WASND.BITBL_TimeLeft[1][5] = Sound("ware/countdown_ann_sec5.mp3")
 	
 else
+	GM.WASND.BITBL_TimeLeft[1][0] = Sound("common/NULL.WAV")
 	GM.WASND.BITBL_TimeLeft[1][1] = Sound("vo/announcer_begins_1sec.wav")
 	GM.WASND.BITBL_TimeLeft[1][2] = Sound("vo/announcer_begins_2sec.wav")
 	GM.WASND.BITBL_TimeLeft[1][3] = Sound("vo/announcer_begins_3sec.wav")
@@ -112,6 +114,7 @@ else
 end
 
 GM.WASND.BITBL_TimeLeft[2] = {}
+GM.WASND.BITBL_TimeLeft[2][0] = Sound("common/NULL.WAV")
 GM.WASND.BITBL_TimeLeft[2][1] = Sound("ware/countdown_dos_sec1.mp3")
 GM.WASND.BITBL_TimeLeft[2][2] = Sound("ware/countdown_dos_sec2.mp3")
 GM.WASND.BITBL_TimeLeft[2][3] = Sound("ware/countdown_dos_sec3.mp3")
