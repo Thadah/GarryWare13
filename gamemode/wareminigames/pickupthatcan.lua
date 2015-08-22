@@ -1,3 +1,4 @@
+WARE = {}
 WARE.Author = "Kilburn"
 
 WARE.Models = {

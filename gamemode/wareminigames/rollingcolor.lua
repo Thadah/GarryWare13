@@ -1,39 +1,36 @@
+WARE = {}
 WARE.Author = "Kilburn"
 
 WARE.PossibleColors = {
-{ "black" , Color(0,0,0,255) },
-{ "grey" , Color(138,138,138,255)},
-{ "white" , Color(255,255,255,255)},
-{ "red" , Color(220,0,0,255) },
-{ "green" , Color(0,220,0,255) },
-{ "blue" , Color(64,64,255,255) },
-{ "pink" , Color(255,0,255,255) }
+	{ "black" , Color(0,0,0,255) },
+	{ "grey" , Color(138,138,138,255)},
+	{ "white" , Color(255,255,255,255)},
+	{ "red" , Color(220,0,0,255) },
+	{ "green" , Color(0,220,0,255) },
+	{ "blue" , Color(64,64,255,255) },
+	{ "pink" , Color(255,0,255,255) }
 }
 
-WARE.Models = {
-"models/props_c17/furniturewashingmachine001a.mdl"
- }
+WARE.Models = {"models/props_c17/furniturewashingmachine001a.mdl"}
  
 WARE.MagicSequence = {}
  
 WARE.Props = {}
 
 function WARE:GetModelList()
-	local self = WARE
 	return self.Models
 end
 
 function WARE:SwitchAllToNextColor( )
-	local self = WARE
 	for k,prop in pairs(self.Props) do
 		if IsValid( prop ) then
 			self:SwitchToNextColor( prop )
+			GAMEMODE:MakeAppearEffect(prop:GetPos())
 		end
 	end
 end
 
 function WARE:SwitchToNextColor( prop )
-	local self = WARE
 	if (CurTime() < (prop.LastHitDirect + 1.0)) or prop.HitCorrect then return end
 
 	local sequenceID = 1 + ((prop.SequenceID or 1) % #self.MagicSequence)
@@ -45,19 +42,17 @@ function WARE:SwitchToNextColor( prop )
 end
 
 local function RemoveProp( prop )
-	if prop and prop:IsValid() then
+	if IsValid(prop) then
 		GAMEMODE:MakeDisappearEffect( prop:GetPos() )
 		prop:Remove()
 	end
 end
 
 function WARE:Initialize()
-	local self = WARE
 	GAMEMODE:EnableFirstWinAward( )
 	GAMEMODE:SetWinAwards( AWARD_REFLEX )
 	GAMEMODE:SetWareWindupAndLength(0.7, 7)
 	
-	self.Props = {}
 	
 	self.MagicSequence = {}
 	for k=1,#self.PossibleColors do
@@ -107,13 +102,12 @@ function WARE:Initialize()
 end
 
 function WARE:StartAction()
-	local self = WARE
 	for _,ply in pairs(team.GetPlayers(TEAM_HUMANS)) do 
 		ply:Give("sware_pistol")
 		ply:GiveAmmo(12, "Pistol", true)
 	end
 	
-	timer.Create("WAREChangeColor", 0.7, 0, self.SwitchAllToNextColor)
+	timer.Create("WAREChangeColor", 0.7, 0, function() self:SwitchAllToNextColor() end)
 end
 
 function WARE:EndAction()
@@ -121,7 +115,6 @@ function WARE:EndAction()
 end
 
 function WARE:EntityTakeDamage(ent,info)
-	local self = WARE
     local att = info:GetAttacker()
 
 	if att:IsPlayer() == false or info:IsBulletDamage() == false then return end
@@ -132,7 +125,7 @@ function WARE:EntityTakeDamage(ent,info)
 	if self.MagicSequence[ent.SequenceID] == self.SelectedColorID then
 		att:ApplyWin( )
 		ent.HitCorrect = true
-		timer.Simple(1, RemoveProp, ent )
+		timer.Simple(1, function() RemoveProp(ent) end)
 	else
 		att:ApplyLose( )
 	end

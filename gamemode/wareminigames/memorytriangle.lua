@@ -1,3 +1,4 @@
+WARE = {}
 WARE.Author = "Hurricaaane (Ha3)"
 WARE.Room = "empty"
 
@@ -7,16 +8,13 @@ WARE.PossibleColours = {
 	{"green" , Color(0,220,0,255) }
 }
 
-WARE.Models = { 
-"models/props_junk/wood_crate001a.mdl" 
-}
+WARE.Models = { "models/props_junk/wood_crate001a.mdl"}
 
 function WARE:GetModelList()
 	return self.Models
 end
 
 function WARE:Initialize()
-	local self = WARE
 	GAMEMODE:EnableFirstWinAward( )
 	GAMEMODE:SetWinAwards( AWARD_IQ_WIN )
 	GAMEMODE:SetFailAwards( AWARD_IQ_FAIL )
@@ -43,6 +41,7 @@ function WARE:Initialize()
 		prop:Spawn()
 		
 		prop:SetColor(Color(255, 255, 255, 192))
+		prop:SetRenderMode(RENDERMODE_TRANSALPHA)
 		prop:SetHealth(100000)
 		prop:GetPhysicsObject():EnableMotion(false)
 		prop:SetCollisionGroup(COLLISION_GROUP_WEAPON)
@@ -78,12 +77,11 @@ function WARE:Initialize()
 		self.Crates[i].AssociatedText:SetEntityInteger(previousnumber)
 	end
 	
-	timer.Simple(0.1, self.SendColors, self)
-	timer.Simple(3.5, self.ReleaseAllCrates, self)
+	timer.Simple(0.1, function() self:SendColors() end)
+	timer.Simple(3.5, function() self:ReleaseAllCrates() end)
 end
 
 function WARE:SendColors()
-	local self = WARE
 	--local rp = RecipientFilter()
 	--rp:AddAllPlayers()
 	for i=1,#self.PossibleColours do
@@ -99,7 +97,7 @@ function WARE:SendColors()
 end
 
 function WARE:ReleaseAllCrates()
-	local self = WARE
+
 	--local rp = RecipientFilter()
 	--rp:AddAllPlayers()
 	for i=1, #self.PossibleColours do
@@ -113,7 +111,6 @@ function WARE:ReleaseAllCrates()
 end
 
 function WARE:StartAction()
-	local self = WARE
 	local what_property_color = math.random(0,1)
 	self.WinnerID = math.random(1,#self.PossibleColours)
 	
@@ -139,11 +136,10 @@ function WARE:EndAction()
 end
 
 function WARE:EntityTakeDamage(ent,info)
-	local pool = self
 	local att = info:GetAttacker()
 	
 	if !att:IsPlayer() or !info:IsBulletDamage() then return end
-	if !pool.Crates or !ent.CrateID then return end
+	if !self.Crates or !ent.CrateID then return end
 	
 	GAMEMODE:MakeAppearEffect(ent:GetPos())
 	
@@ -157,7 +153,7 @@ function WARE:EntityTakeDamage(ent,info)
 			if (i == self.WinnerID) then
 				GAMEMODE:SendEntityTextColor(
 				rp
-				, (pool.Crates[i]).AssociatedText
+				, (self.Crates[i]).AssociatedText
 				, self.PossibleColours[self.RolledColor[i]][2].r
 				, self.PossibleColours[self.RolledColor[i]][2].g
 				, self.PossibleColours[self.RolledColor[i]][2].b
@@ -166,7 +162,7 @@ function WARE:EntityTakeDamage(ent,info)
 			else
 				GAMEMODE:SendEntityTextColor(
 				rp
-				, (pool.Crates[i]).AssociatedText
+				, (self.Crates[i]).AssociatedText
 				, self.PossibleColours[self.RolledColor[i]][2].r * 0.5
 				, self.PossibleColours[self.RolledColor[i]][2].g * 0.5
 				, self.PossibleColours[self.RolledColor[i]][2].b * 0.5
@@ -181,7 +177,7 @@ function WARE:EntityTakeDamage(ent,info)
 			if (i == self.WinnerID) then
 				GAMEMODE:SendEntityTextColor(
 				rp
-				, (pool.Crates[i]).AssociatedText
+				, (self.Crates[i]).AssociatedText
 				, self.PossibleColours[self.RolledColor[i]][2].r
 				, self.PossibleColours[self.RolledColor[i]][2].g
 				, self.PossibleColours[self.RolledColor[i]][2].b
@@ -190,7 +186,7 @@ function WARE:EntityTakeDamage(ent,info)
 			elseif (i == ent.CrateID) then
 				GAMEMODE:SendEntityTextColor(
 				rp
-				, (pool.Crates[i]).AssociatedText
+				, (self.Crates[i]).AssociatedText
 				, self.PossibleColours[self.RolledColor[i]][2].r * 0.5
 				, self.PossibleColours[self.RolledColor[i]][2].g * 0.5
 				, self.PossibleColours[self.RolledColor[i]][2].b * 0.5
@@ -199,7 +195,7 @@ function WARE:EntityTakeDamage(ent,info)
 			else
 				GAMEMODE:SendEntityTextColor(
 				rp
-				, (pool.Crates[i]).AssociatedText
+				, (self.Crates[i]).AssociatedText
 				, self.PossibleColours[self.RolledColor[i]][2].r * 0.5
 				, self.PossibleColours[self.RolledColor[i]][2].g * 0.5
 				, self.PossibleColours[self.RolledColor[i]][2].b * 0.5
