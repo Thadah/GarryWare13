@@ -39,13 +39,14 @@ end
 
 
 function PANEL:PerformLayout()
-	self:SetSize( 48 , 48 )
-	self:SetPos( ScrW()*0.9 - self:GetWide() , ScrH()*0.9 - self:GetTall() )
+	self:SetSize( 90 , 90 )
+	self:SetPos( ScrW()*0.95 - self:GetWide() , ScrH()*0.95 - self:GetTall() )
 	
 	self.dClip:SetSize( self:GetWide() , self:GetTall() * 0.8 )
 	self.dClip:SetPos( 0, 0 )
 	
 	self.dBox:SetSize( self:GetWide() * 0.8 , self:GetTall() * 0.37 )
+	self.dBox:SetPos(0, 20)
 	self.dBox:Center()
 	self.dBox:AlignBottom()
 	
