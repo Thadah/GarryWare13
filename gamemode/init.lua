@@ -11,6 +11,8 @@
 CreateConVar( "ware_stats_enabled", 0, {FCVAR_ARCHIVE} )
 DEBUG_DISABLE_STATS = !(GetConVar("ware_stats_enabled"):GetInt() > 0)
 
+resource.AddWorkshop("302361226")
+
 include( "shared.lua" )
 include( "sh_tables.lua" )
 
