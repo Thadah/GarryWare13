@@ -1,5 +1,5 @@
 # GarryWare13
-A newer version of GarryWare13, reworked from the original GarryWare
+A newer version of GarryWare13, reworked from the original GarryWare.
 The new gamemode name will appear as: Fretta13: GarryWare Reloaded
 
 This gamemode does **not** support singleplayer. It is playable, but will fail in some wares, causing crashes and errors. To prevent this, please run the gamemode on a **dedicated server**, thank you.
