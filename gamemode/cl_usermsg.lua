@@ -430,20 +430,19 @@ local cStatusBackLoseColorSet = Color(255,  87,  87,192)
 local cStatusTextColorSet = Color(255,255,255,255)
 
 local tWinParticles = {
-	{"effects/yellowflare",35,2,ScrW()*0,ScrH(),20,20,50,70,-45,-60,60,64,256,Color(0, 164, 237,255),Color(0, 164, 237,0),5,1},
-	{"effects/yellowflare",5,2,ScrW()*0,ScrH(),10,10,20,30,-45,-60,60,256,512,Color(255,255,255,255),Color(255,255,255,0),10,1},
-	{"gui/silkicons/check_on.vmt",5,2,ScrW()*0,ScrH(),16,16,32,32,-45,-60,60,64,128,Color(255,255,255,255),Color(255,255,255,0),0,0.2}
+	{"effects/yellowflare.vtf",35,2,ScrW()*0,ScrH(),20,20,50,70,-45,-60,60,64,256,Color(0, 164, 237,255),Color(0, 164, 237,0),5,1},
+	{"effects/yellowflare.vtf",5,2,ScrW()*0,ScrH(),10,10,20,30,-45,-60,60,256,512,Color(255,255,255,255),Color(255,255,255,0),10,1},
+	{"icon16/tick.png",5,2,ScrW()*0,ScrH(),16,16,32,32,-45,-60,60,64,128,Color(255,255,255,255),Color(255,255,255,0),0,0.2}
 }
 local tFailParticles = {
-	{"effects/yellowflare",35,2,ScrW()*0,ScrH(),20,20,50,70,-45,-60,60,64,256,Color(255,87,87,255),Color(255,87,87,0),5,1},
-	{"effects/yellowflare",5,2,ScrW()*0,ScrH(),10,10,20,30,-45,-60,60,256,512,Color(255,255,255,255),Color(255,255,255,0),10,1},
-	{"gui/silkicons/check_off.vmt",5,2,ScrW()*0,ScrH(),16,16,32,32,-45,-60,60,64,128,Color(255,255,255,255),Color(255,255,255,0),0,0.2}
+	{"effects/yellowflare.vtf",35,2,ScrW()*0,ScrH(),20,20,50,70,-45,-60,60,64,256,Color(255,87,87,255),Color(255,87,87,0),5,1},
+	{"effects/yellowflare.vtf",5,2,ScrW()*0,ScrH(),10,10,20,30,-45,-60,60,256,512,Color(255,255,255,255),Color(255,255,255,0),10,1},
+	{"icon16/cross.png",5,2,ScrW()*0,ScrH(),16,16,32,32,-45,-60,60,64,128,Color(255,255,255,255),Color(255,255,255,0),0,0.2}
 }
 
 local function MakeParticlesFromTable( myTablePtr )
 	for k,particle in pairs(myTablePtr) do
 		GAMEMODE:OnScreenParticlesMake(particle)
-		
 	end
 	
 end
@@ -465,7 +464,6 @@ local function ReceiveStatuses( usrmsg )
 			LocalPlayer():EmitSound( table.Random(GAMEMODE.WASND.TBL_LocalLose), 100, GAMEMODE:GetSpeedPercent() )
 		
 			MakeParticlesFromTable( tFailParticles )
-			
 		end
 		
 	else
