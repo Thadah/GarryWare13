@@ -1,6 +1,7 @@
 WARE.Author = "Hurricaaane (Ha3)"
 
 WARE.EndingColor = Color(0,0,0,255)
+WARE.HitAmount = math.random(8, 12)
 
 function WARE:IsPlayable()
 	if team.NumPlayers(TEAM_HUMANS) >= 2 then
@@ -18,7 +19,7 @@ function WARE:Initialize()
 	self.MostTimesHit = 0
 	
 	GAMEMODE:SetPlayersInitialStatus( false )
-	GAMEMODE:DrawInstructions( "Hit the bullseye 14 times or more!" )
+	GAMEMODE:DrawInstructions( "Hit the bullseye "..self.HitAmount.." times or more!" )
 	
 	for k,ply in pairs(team.GetPlayers(TEAM_HUMANS)) do 
 		ply:Give( "sware_pistol" )
@@ -49,7 +50,7 @@ function WARE:StartAction()
 end
 
 function WARE:EndAction()
-	if (self.MostTimesHit >= 14) then
+	if (self.MostTimesHit >= self.HitAmount) then
 		GAMEMODE:DrawInstructions( "It was hit ".. self.MostTimesHit .." times!", self.EndingColor )
 		
 	elseif (self.MostTimesHit == 2) then
@@ -75,7 +76,7 @@ function WARE:Think( )
 			self.MostTimesHit = ply.BULLSEYE_Hit
 		end
 		
-		if ply.BULLSEYE_Hit >= 14 then
+		if ply.BULLSEYE_Hit >= self.HitAmount then
 			if GAMEMODE:IsFirstWinAwardEnabled( ) then
 				ply:ApplyWin()
 			end
