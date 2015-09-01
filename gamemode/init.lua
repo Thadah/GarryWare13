@@ -672,3 +672,74 @@ if !DEBUG_DISABLE_STATS then StatsPoolMinigameDescriptions() end
 
 ////////////////////////////////////////////////
 ////////////////////////////////////////////////
+
+function GM:EndTheGameForOnce()
+	if self.GameHasEnded == true then return end
+	
+	self.GamesArePlaying = false
+	self.GameHasEnded = true
+	
+	-- Find combos before ending the game and after saying the game has ended
+	for _,ply in pairs(team.GetPlayers(TEAM_HUMANS)) do
+		ply:PrintComboMessagesAndEffects( ply:GetCombo() )
+	end
+	
+	self:EndGame()
+	
+	--self:DoProcessAllAwards()
+	
+	--Send info about VGUI
+	local dataRef = GAMEMODE.WADAT.TBL_GlobalWareningEpic[2]
+	timer.Simple( dataRef.StartDalay + dataRef.MusicFadeDelay, function() gws_AmbientMusic[1]:ChangeVolume( 0.0, GAMEMODE:GetSpeedPercent() ) end )
+	timer.Simple( dataRef.StartDalay, PlayEnding, 2)
+	
+	/*
+	umsg.Start("SpecialFlourish")
+		umsg.Char( 2 )
+	umsg.End()
+	umsg.Start("EndOfGamemode")
+	umsg.End()
+	*/
+	--Send info about ware
+	--local rp = RecipientFilter()
+	--rp:AddAllPlayers()
+	umsg.Start("NextGameTimes", nil)
+		umsg.Float( 0 )
+		umsg.Float( 0 )
+		umsg.Float( 0 )
+		umsg.Float( 0 )
+		umsg.Bool( false )
+		umsg.Bool( false )
+	umsg.End()
+	umsg.Start("BestStreakEverBreached", rp)
+		umsg.Long( self.BestStreakEver )
+	umsg.End()
+	
+	if !DEBUG_DISABLE_STATS then
+		self:StatsCR_LogSynthesisGLON()
+	end
+	
+end
+
+function GM:EndOfGame( bGamemodeVote )
+	self:EndTheGameForOnce()
+	
+	self.BaseClass:EndOfGame( bGamemodeVote )
+end
+
+function GM:OnEndOfGame()
+
+	for k,v in pairs( player.GetAll() ) do
+
+		v:Freeze(true)
+		--v:ConCommand( "+showscores" )
+		
+	end
+	
+end
+
+function GM:StartGamemodeVote()
+	self:EndTheGameForOnce()
+	
+	self.BaseClass:StartGamemodeVote()
+end

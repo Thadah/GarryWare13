@@ -343,6 +343,7 @@ local function EndOfGamemode( m )
 end
 usermessage.Hook( "EndOfGamemode", EndOfGamemode )
 
+/*
 local function SpecialFlourish( m )
 	local musicID = m:ReadChar()
 	local dataRef = GAMEMODE.WADAT.TBL_GlobalWareningEpic[musicID]
@@ -350,7 +351,7 @@ local function SpecialFlourish( m )
 	timer.Simple( dataRef.StartDalay, PlayEnding, musicID )
 end
 usermessage.Hook( "SpecialFlourish", SpecialFlourish )
-
+*/
 
 local function HitConfirmation( m )
 	LocalPlayer():EmitSound( GAMEMODE.WASND.Confirmation, GAMEMODE:GetSpeedPercent() )
