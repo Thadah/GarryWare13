@@ -8,8 +8,6 @@
 ////////////////////////////////////////////////
 
 -- Defaulted OFF !
-CreateConVar( "ware_stats_enabled", 0, {FCVAR_ARCHIVE} )
-DEBUG_DISABLE_STATS = !(GetConVar("ware_stats_enabled"):GetInt() > 0)
 
 resource.AddWorkshop("302361226")
 
@@ -28,11 +26,6 @@ include( "entitymap_module.lua" )
 include( "sv_filelist.lua" )
 include( "sv_warehandy.lua" )
 include( "sv_playerhandle.lua" )
-include( "sv_frettarelated.lua" )
-
-if !DEBUG_DISABLE_STATS then
-	include( "sv_statistics.lua" )
-end
 
 GM.TakeFragOnSuicide = false
 
@@ -53,19 +46,6 @@ GM.NextgameStart = 0
 GM.NextgameEnd = 0
 
 GM.NumberOfWaresPlayed = -1
-
---DEBUG
-CreateConVar( "ware_debug", 0, {FCVAR_ARCHIVE} )
-CreateConVar( "ware_debugname", "", {FCVAR_ARCHIVE} )
-
---[[
-ware_debug 0 : Plays normal mode.
-ware_debug 1 : Plays continuously <ware_debugname>, waiting time stripped.
-ware_debug 2 : Plays normal mode, waiting time stripped.
-ware_debug 3 : Plays normal mode, waiting time stripped, intro sequence skipped.
-( Please don't skip gamemode intro, it is actually
-required to make sure players have loaded some files )
-]]--
 
 -- Ware internal functions.
 
@@ -668,7 +648,6 @@ end
 -- Start up.
 
 IncludeMinigames()
-if !DEBUG_DISABLE_STATS then StatsPoolMinigameDescriptions() end
 
 ////////////////////////////////////////////////
 ////////////////////////////////////////////////
@@ -703,6 +682,9 @@ function GM:EndTheGameForOnce()
 	--Send info about ware
 	--local rp = RecipientFilter()
 	--rp:AddAllPlayers()
+	gws_TickAnnounce = 5
+
+	/*
 	umsg.Start("NextGameTimes", nil)
 		umsg.Float( 0 )
 		umsg.Float( 0 )
@@ -711,14 +693,13 @@ function GM:EndTheGameForOnce()
 		umsg.Bool( false )
 		umsg.Bool( false )
 	umsg.End()
+	*/
+	self:SetBestStreak(self.BestStreakEver)
+	/*
 	umsg.Start("BestStreakEverBreached", rp)
 		umsg.Long( self.BestStreakEver )
 	umsg.End()
-	
-	if !DEBUG_DISABLE_STATS then
-		self:StatsCR_LogSynthesisGLON()
-	end
-	
+	*/
 end
 
 function GM:EndOfGame( bGamemodeVote )
