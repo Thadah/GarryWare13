@@ -42,13 +42,11 @@ function GM:PlayerInitialSpawn( ply, id )
 	ply:SetComboSpecialInteger( 0 )
 	
 	-- TOKEN_GW_STATS : Need to add player if not already done NOW !
-	if !DEBUG_DISABLE_STATS then self:StatsManagePlayerJoined( ply ) end
 end
 
 function GM:PlayerDisconnected( ply )
 	-- TOKEN_GW_STATS : Need to store last data NOW !
-	if !DEBUG_DISABLE_STATS then self:StatsStore( ply ) end
-	
+
 end
 
 function GM:PlayerSpawn(ply)

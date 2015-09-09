@@ -135,7 +135,7 @@ function meta:ApplyLock( dontSendStatusMessage )
 		-- TOKEN_GWUPDATE_COMP
 		local anim = (math.random(0, 1) > 0) and ACT_SIGNAL_FORWARD or ACT_SIGNAL_HALT
 		self:DoAnimationEvent( anim ) 
-		self:EmitSound(GAMEMODE.WASND.OtherWin, 100, GAMEMODE:GetSpeedPercent())
+		self:EmitSound(GAMEMODE.WASND[10][5][2], 100, GAMEMODE:GetSpeedPercent())
 		self:AddFrags( 1 )
 		local newComboVal = self:IncrementCombo()
 		
@@ -156,7 +156,7 @@ function meta:ApplyLock( dontSendStatusMessage )
 		-- TOKEN_GWUPDATE_COMP
 		local anim = (math.random(0, 1) > 0) and ACT_GMOD_GESTURE_ITEM_THROW or ACT_GMOD_GESTURE_ITEM_DROP
 		self:DoAnimationEvent( anim ) 
-		self:EmitSound(GAMEMODE.WASND.OtherLose, 100, GAMEMODE:GetSpeedPercent())
+		self:EmitSound(GAMEMODE.WASND[10][6][2], 100, GAMEMODE:GetSpeedPercent())
 		self:AddDeaths( 1 )
 		self:InterruptCombo()
 		
@@ -255,18 +255,18 @@ function meta:PrintComboMessagesAndEffects( compareCombo )
 		GAMEMODE:PrintInfoMessage( self:GetName(), " equalized a ", "Server Best Streak of " .. compareCombo .. " Wares!" )
 		
 		--self:EmitSound( GAMEMODE.WASND.TBL_LocalWon[1] , 100 , 125 )
-		self:EmitSound( GAMEMODE.WASND.GlobalWareningReport , 84 )
+		self:EmitSound( GAMEMODE.WASND[10][1][2] , 84 )
 		
 	elseif (compareCombo >= 3) and (compareCombo == self:GetBestCombo()) then 
 		GAMEMODE:PrintInfoMessage( self:GetName(), " scored his ", "Own Best Streak of " .. compareCombo .. " wares!" )
 		
 		--self:EmitSound( GAMEMODE.WASND.TBL_LocalWon[2] , 100 , 119 )
-		self:EmitSound( GAMEMODE.WASND.GlobalWareningReport, 100, GAMEMODE:GetSpeedPercent())
+		self:EmitSound( GAMEMODE.WASND[10][1][2], 100, GAMEMODE:GetSpeedPercent())
 	
 	elseif (compareCombo >= 3) then 
 		GAMEMODE:PrintInfoMessage( self:GetName(), " scored a ", "Streak of " .. compareCombo .. " wares." )
 		
-		self:EmitSound( GAMEMODE.WASND.GlobalWareningReport, 100, GAMEMODE:GetSpeedPercent())
+		self:EmitSound( GAMEMODE.WASND[10][1][2], 100, GAMEMODE:GetSpeedPercent())
 	end
 end
 

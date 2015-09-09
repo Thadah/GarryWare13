@@ -1,9 +1,10 @@
 ////////////////////////////////////////////////
-// GarryWare Gold                             //
+// GarryWare Reloaded                         //
 // by Hurricaaane (Ha3)                       //
 //  and Kilburn_                              //
-// Fixed by Thadah                            //
+// Fixed by Thadah and Cyumus                 //
 // http://www.youtube.com/user/Hurricaaane    //
+// https://www.youtube.com/c/CyumusAduni	  //
 //--------------------------------------------//
 -- Clientside Initialization                  --
 ////////////////////////////////////////////////
@@ -62,7 +63,8 @@ include( 'cl_usermsg.lua' )
 include( 'cl_mapdecoration.lua' )
 
 include( 'skin.lua' )
-include( "sh_tables.lua" )
+include( "libs/sh_tables.lua" )
+include( "libs/sh_sound.lua" )
 include( "sh_chataddtext.lua" )
 
 include( "cl_version.lua" )
@@ -112,18 +114,16 @@ function WARE_SortTableStateBlind( plyA, plyB )
 end
 
 function GM:CreateAmbientMusic()
-	for k,path in pairs(GAMEMODE.WASND.THL_AmbientMusic) do
-		gws_AmbientMusic[k] = CreateSound(LocalPlayer(), path)
+	for k,path in pairs(GAMEMODE.WASND[1]) do
+		gws_AmbientMusic[k] = CreateSound(LocalPlayer(), path[2])
 		gws_AmbientMusic_dat[k] = {}
 	end
-	
 end
 
 function GM:InitPostEntity()
 	self.BaseClass:InitPostEntity()
 	
 	self:CreateAmbientMusic()
-	
 end
 
 function GM:Think()
@@ -132,14 +132,18 @@ function GM:Think()
 	-- Announcer ticks.
 	if (gws_TickAnnounce > 0 and CurTime() < gws_NextgameEnd ) then
 		if (CurTime() > (gws_NextgameEnd - (gws_WareLen / 6) * gws_TickAnnounce )) then
-			if GAMEMODE.WASND.BITBL_TimeLeft[gws_CurrentAnnouncer][gws_TickAnnounce] then
-				LocalPlayer():EmitSound( GAMEMODE.WASND.BITBL_TimeLeft[gws_CurrentAnnouncer][gws_TickAnnounce], 100, GAMEMODE:GetSpeedPercent() )
-			end
-			gws_TickAnnounce = gws_TickAnnounce - 1
 			
-			if gws_TickAnnounce == 0 and GAMEMODE.WASND.BITBL_TimeLeft[gws_CurrentAnnouncer][0] then
-				timer.Create("Announcer", (gws_WareLen / 6), 0, function() LocalPlayer():EmitSound(GAMEMODE.WASND.BITBL_TimeLeft[gws_CurrentAnnouncer][0], 100, GAMEMODE:GetSpeedPercent()) end)
+			if gws_CurrentAnnouncer == 1 then
+				local nameOfFile = GAMEMODE.WASND[6][gws_TickAnnounce][1]
+			elseif gws_CurrentAnnouncer == 2 then
+				local nameOfFile = GAMEMODE.WASND[6][gws_TickAnnounce+5][1]
+			else
+				local nameOfFile = GaMEMODE.WASND[7][(gws_TickAnnounce%2)+1][1]
 			end
+			
+			sound.PlayFile(nameOfFile)
+			
+			gws_TickAnnounce = gws_TickAnnounce - 1
 		end
 	end
 end

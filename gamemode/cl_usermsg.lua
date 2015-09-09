@@ -72,7 +72,7 @@ local function ServerJoinInfo( m )
 	print("Game ends on time : "..gws_TimeWhenGameEnds)
 end
 usermessage.Hook( "ServerJoinInfo", ServerJoinInfo )
-
+/*
 local function EnableMusicVolume()
 	if gws_AmbientMusicIsOn then
 		gws_AmbientMusic[1]:ChangeVolume( 0.7, GAMEMODE:GetSpeedPercent() )
@@ -130,7 +130,9 @@ local function PlayEnding( musicID )
 	
 	timer.Simple( dataRef.Length, EnableMusic)
 end
+*/
 
+/*
 local function NextGameTimes( m )
 	gws_NextwarmupEnd = m:ReadFloat()
 	gws_NextgameEnd   = m:ReadFloat()
@@ -158,6 +160,7 @@ local function NextGameTimes( m )
 	end	
 end
 usermessage.Hook( "NextGameTimes", NextGameTimes )
+*/
 
 local function EventEndgameTrigger( m )
 	local achieved = m:ReadBool()
@@ -324,7 +327,7 @@ local function WaitHide( m )
 end
 usermessage.Hook( "WaitHide", WaitHide )
 
-
+/*
 local function EndOfGamemode( m )
 	ClockVGUI:Hide()
 	ClockGameVGUI:Hide()
@@ -343,7 +346,7 @@ local function EndOfGamemode( m )
 end
 usermessage.Hook( "EndOfGamemode", EndOfGamemode )
 
-/*
+
 local function SpecialFlourish( m )
 	local musicID = m:ReadChar()
 	local dataRef = GAMEMODE.WADAT.TBL_GlobalWareningEpic[musicID]

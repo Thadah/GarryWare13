@@ -10,7 +10,7 @@
 include( "ply_extension.lua" )
 
 GM.Name 	= "Fretta13: GarryWare Reloaded"
-GM.Author 	= "Created by Hurricaaane (Ha3 Team) \nPorted to Gmod13 by Thadah and Cyumus \nfor Carpathia Gaming"
+GM.Author 	= "Created by Hurricaaane (Ha3 Team) \nPorted to Gmod13 by Thadah and Cyumus \nfor Area 27"
 GM.Email 	= ""
 GM.Website 	= ""
 
@@ -79,6 +79,24 @@ function GM:GetBaseColorPtr( sColorname )
 	if (GAMEMODE.WACOLS[sColorname] == nil) then return GAMEMODE.WACOLS["unknown"] end
 	
 	return GAMEMODE.WACOLS[sColorname]
+end
+
+function GM:Initialize()
+	self.BaseClass:Initialize()
+	
+	// Precaches and adds all sounds to the sound list
+	for k,v in pairs (GAMEMODE.WASND) do
+		for k2,v2 in pairs (v) do
+			sound.Add({
+				name = v2[1],
+				channel = CHAN_AUTO,
+				volume = 1.0,
+				level = 75,
+				pitch = 100,
+				sound = v2[2]
+			})
+		end
+	end
 end
 
 
