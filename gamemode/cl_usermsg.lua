@@ -117,9 +117,9 @@ local function DisableMusic()
 end
 
 local function PlayEnding( musicID )
-	local dataRef = GAMEMODE.WADAT.TBL_GlobalWareningEpic[1]
+	local dataRef = GAMEMODE.WADAT.GlobalWareningEpic[1]
 	
-	LocalPlayer():EmitSound( GAMEMODE.WASND.TBL_GlobalWareningEpic[1], 60, GAMEMODE:GetSpeedPercent() )
+	LocalPlayer():EmitSound( GAMEMODE.WASND[10][2][2], 60, GAMEMODE:GetSpeedPercent() )
 	gws_AmbientMusicIsOn = true
 	
 	for k, music in pairs( gws_AmbientMusic ) do
@@ -150,8 +150,8 @@ local function NextGameTimes( m )
 		local musicID = m:ReadChar()
 		gws_CurrentAnnouncer = m:ReadChar()
 		local loopToPlay = m:ReadChar()
-		if libraryID != nil and musicID != nil then
-			LocalPlayer():EmitSound( GAMEMODE.WASND.BITBL_GlobalWarening[libraryID][musicID] , 60, GAMEMODE:GetSpeedPercent() )
+		if musicID != nil then
+			LocalPlayer():EmitSound( GAMEMODE.WASND[libraryID][musicID][2] , 60, GAMEMODE:GetSpeedPercent() )
 			gws_AmbientMusicIsOn = true
 			EnableMusic()
 		end	
@@ -167,9 +167,9 @@ local function EventEndgameTrigger( m )
 	timer.Simple( 0.5, DisableMusic )
 	
 	if (achieved) then
-		LocalPlayer():EmitSound( GAMEMODE.WASND.TBL_GlobalWareningWin[ musicID ] , 60, GAMEMODE:GetSpeedPercent() )
+		LocalPlayer():EmitSound( GAMEMODE.WASND[3][musicID][2] , 60, GAMEMODE:GetSpeedPercent() )
 	else
-		LocalPlayer():EmitSound( GAMEMODE.WASND.TBL_GlobalWareningLose[ musicID ] , 60, GAMEMODE:GetSpeedPercent() )
+		LocalPlayer():EmitSound( GAMEMODE.WASND[4][musicID][2] , 60, GAMEMODE:GetSpeedPercent() )
 	end
 end
 usermessage.Hook( "EventEndgameTrigger", EventEndgameTrigger )
@@ -183,9 +183,9 @@ local function EventEveryoneState( m )
 	local achieved = m:ReadBool()
 
 	if (achieved) then
-		LocalPlayer():EmitSound( GAMEMODE.WASND.EveryoneWon, 100, GAMEMODE:GetSpeedPercent() )
+		LocalPlayer():EmitSound( GAMEMODE.WASND[10][7][2], 100, GAMEMODE:GetSpeedPercent() )
 	else
-		LocalPlayer():EmitSound( GAMEMODE.WASND.EveryoneLost, 100, GAMEMODE:GetSpeedPercent() )
+		LocalPlayer():EmitSound( GAMEMODE.WASND[10][8][2], 100, GAMEMODE:GetSpeedPercent() )
 	end
 end
 usermessage.Hook( "EventEveryoneState", EventEveryoneState )
@@ -193,9 +193,9 @@ usermessage.Hook( "EventEveryoneState", EventEveryoneState )
 local function PlayerTeleported( m )
 	if  !m:ReadBool() then
 		local musicID = m:ReadChar()
-		LocalPlayer():EmitSound( GAMEMODE.WASND.TBL_GlobalWareningTeleport[ musicID ] , 60, GAMEMODE:GetSpeedPercent() )
+		LocalPlayer():EmitSound( GAMEMODE.WASND[5][math.Clamp(musicID, 1, 2)] , 60, GAMEMODE:GetSpeedPercent() )
 	end
-	LocalPlayer():EmitSound( table.Random(GAMEMODE.WASND.TBL_Teleport) , 40, GAMEMODE:GetSpeedPercent() )
+	LocalPlayer():EmitSound(GAMEMODE.WASND[5][math.random(3,5)][2], 40, GAMEMODE:GetSpeedPercent() )
 end
 usermessage.Hook( "PlayerTeleported", PlayerTeleported )
 
@@ -345,15 +345,15 @@ usermessage.Hook( "EndOfGamemode", EndOfGamemode )
 
 local function SpecialFlourish( m )
 	local musicID = m:ReadChar()
-	local dataRef = GAMEMODE.WADAT.TBL_GlobalWareningEpic[musicID]
-	timer.Simple( dataRef.StartDalay + dataRef.MusicFadeDelay, function() gws_AmbientMusic[1]:ChangeVolume( 0.0, GAMEMODE:GetSpeedPercent() ) end )
-	timer.Simple( dataRef.StartDalay, PlayEnding, musicID )
+	local dataRef = GAMEMODE.WADAT.GlobalWareningEpic[musicID]
+	timer.Simple( dataRef.StartDelay + dataRef.MusicFadeDelay, function() gws_AmbientMusic[1]:ChangeVolume( 0.0, GAMEMODE:GetSpeedPercent() ) end )
+	timer.Simple( dataRef.StartDelay, PlayEnding, musicID )
 end
 usermessage.Hook( "SpecialFlourish", SpecialFlourish )
 
 
 local function HitConfirmation( m )
-	LocalPlayer():EmitSound( GAMEMODE.WASND.Confirmation, GAMEMODE:GetSpeedPercent() )
+	LocalPlayer():EmitSound( GAMEMODE.WASND[10][4][2], GAMEMODE:GetSpeedPercent() )
 end
 usermessage.Hook( "HitConfirmation", HitConfirmation )
 
@@ -456,12 +456,12 @@ local function ReceiveStatuses( usrmsg )
 	if !isServerGlobal then
 		sText = ((yourStatus and "Success!") or "Failure!") -- MaxOfS2D you fail
 		if yourStatus then
-			LocalPlayer():EmitSound( table.Random(GAMEMODE.WASND.TBL_LocalWon), 100, GAMEMODE:GetSpeedPercent() )
+			LocalPlayer():EmitSound( table.Random(GAMEMODE.WASND[8])[2], 100, GAMEMODE:GetSpeedPercent() )
 		
 			MakeParticlesFromTable( tWinParticles )
 			
 		else
-			LocalPlayer():EmitSound( table.Random(GAMEMODE.WASND.TBL_LocalLose), 100, GAMEMODE:GetSpeedPercent() )
+			LocalPlayer():EmitSound( table.Random(GAMEMODE.WASND[9])[2], 100, GAMEMODE:GetSpeedPercent() )
 		
 			MakeParticlesFromTable( tFailParticles )
 		end
@@ -487,7 +487,7 @@ local function ReceiveSpecialStatuses( usrmsg )
 		positive = true
 		
 		sText = "Done!"
-		LocalPlayer():EmitSound( table.Random(GAMEMODE.WASND.TBL_LocalWon), 100, GAMEMODE:GetSpeedPercent() )
+		LocalPlayer():EmitSound( table.Random(GAMEMODE.WASND[8])[2], 100, GAMEMODE:GetSpeedPercent() )
 		
 	end
 

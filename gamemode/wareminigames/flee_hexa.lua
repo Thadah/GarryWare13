@@ -1,3 +1,4 @@
+WARE = {}
 WARE.Author = "Hurricaaane (Ha3)"
 WARE.Room = "hexaprism"
 
@@ -8,8 +9,6 @@ WARE.Models = {
  }
  
 WARE.Positions = {}
-
-
 
 function WARE:GetModelList()
 	return self.Models
@@ -26,11 +25,6 @@ function WARE:FlashSpawns( iteration, delay )
 		timer.Simple(delay , function() self:FlashSpawns(iteration - 1, delay) end)
 	end	
 end
-
---TBD DEBUG
----function WARE:IsPlayable()
----	return true
----end
 
 function WARE:Initialize()
 	GAMEMODE:EnableFirstFailAward( )

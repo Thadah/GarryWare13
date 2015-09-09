@@ -1,3 +1,4 @@
+WARE = {}
 WARE.Author = "Hurricaaane (Ha3)"
 
 WARE.Models = {

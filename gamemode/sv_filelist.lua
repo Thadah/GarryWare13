@@ -19,7 +19,6 @@ AddCSLuaFile( "cl_version.lua" )
 
 AddCSLuaFile( "skin.lua" )
 AddCSLuaFile( "libs/sh_tables.lua" )
-AddCSLuaFile( "libs/sh_sound.lua")
 AddCSLuaFile( "ply_extension.lua" )
 AddCSLuaFile( "garbage_module.lua" )
 AddCSLuaFile( "sh_chataddtext.lua" )

@@ -417,6 +417,7 @@ pon2.decode = function(val)
 end
 
 -- compatability layor
+/*
 do
 	require 'pon'
 	local pon = pon
@@ -429,3 +430,4 @@ do
 		return nil
 	end
 end
+*/

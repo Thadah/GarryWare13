@@ -142,7 +142,7 @@ function GM:RespawnAllPlayers( bNoMusicEvent, bForce )
 	
 	umsg.Start("PlayerTeleported", rp)
 		umsg.Bool(bNoMusicEvent or false)
-		umsg.Char( math.random(1, #GAMEMODE.WASND.TBL_GlobalWareningTeleport ) )
+		umsg.Char( math.random(1, #math.Clamp(GAMEMODE.WASND[5], 1, 2)))
 	umsg.End()
 end
 

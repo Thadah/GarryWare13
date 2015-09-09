@@ -23,8 +23,10 @@ include( "environment_module.lua" )
 include( "entitymap_module.lua" )
 
 --Libraries
-include( "libs/sh_sound.lua")
 include( "libs/sh_tables.lua" )
+
+--Modules
+include("modules/netstream2.lua")
 
 include( "sv_filelist.lua" )
 include( "sv_warehandy.lua" )
@@ -158,11 +160,6 @@ function GM:PickRandomGame()
 	local iLoopToPlay = ( (self.Windup + self.WareLen) >= 10 ) and 2 or 1
 	
 	-- Send info about ware
-	self:NextGameTimes(CurTime() + self.Windup, self.NextGameEnd, self.Windup, self.WareLen, 
-		self.WareShouldNotAnnounce, true, 
-		GAMEMODE.WASND[2][math.random(1,#GAMEMODE.WASND[2])][1], 
-		self.WareOverrideAnnouncer, iLoopToPlay
-	)
 
 	local rp = RecipientFilter()
 	rp:AddAllPlayers()
@@ -173,8 +170,8 @@ function GM:PickRandomGame()
 		umsg.Float( self.WareLen )
 		umsg.Bool( self.WareShouldNotAnnounce )
 		umsg.Bool( true )
-		umsg.Char( 1 )
-		umsg.Char( math.random(1, #GAMEMODE.WASND.TBL_GlobalWareningNew ) )
+		umsg.Char( 3 )
+		umsg.Char( math.random(1, #GAMEMODE.WASND[3]) )
 		umsg.Char( self.WareOverrideAnnouncer )
 		umsg.Char( iLoopToPlay )
 	umsg.End()
@@ -209,8 +206,8 @@ function GM:TryNextPhase( )
 		umsg.Float(self.WareLen)
 		umsg.Bool(self.WareShouldNotAnnounce)
 		umsg.Bool(true)
-		umsg.Char(4)
-		umsg.Char(math.random(1, #GAMEMODE.WASND.[2]))
+		umsg.Char(2)
+		umsg.Char(math.random(1, #GAMEMODE.WASND[2]))
 		umsg.Char(self.WareOverrideAnnouncer)
 		umsg.Char(iLoopToPlay)
 	umsg.End()
@@ -266,13 +263,13 @@ function GM:EndGame()
 		
 		umsg.Start("EventEndgameTrigger", rpWin)
 			umsg.Bool( true )
-			umsg.Char(math.random(1, #GAMEMODE.WASND.[3]))
+			umsg.Char(math.random(1, #GAMEMODE.WASND[3]))
 		umsg.End()
 		
 		-- Send negative message to the RP list of losers.
 		umsg.Start("EventEndgameTrigger", rpLose)
 			umsg.Bool(false)
-			umsg.Char(math.random(1, #GAMEMODE.WASND.[4]))
+			umsg.Char(math.random(1, #GAMEMODE.WASND[4]))
 		umsg.End()
 		
 		if (team.NumPlayers(TEAM_SPECTATOR) ~= 0) then
@@ -286,7 +283,7 @@ function GM:EndGame()
 			
 			umsg.Start("EventEndgameTrigger", rpSpec)
 				umsg.Bool(false)
-				umsg.Char(math.random(1, #GAMEMODE.WASND.[4]))
+				umsg.Char(math.random(1, #GAMEMODE.WASND[4]))
 			umsg.End()
 		end
 	end
@@ -323,25 +320,18 @@ end
 
 function GM:PickRandomGameName( bFirst )
 	local env
-	
-	if GetConVar("ware_debug"):GetInt() == 1 then
-		self.NextGameName = GetConVar("ware_debugname"):GetString()
-		env = ware_env.FindEnvironment(ware_mod.Get(self.NextGameName).Room) or self.CurrentEnvironment
-		
-	elseif bFirst and (GetConVar("ware_debug"):GetInt() % 2 == 0) then
+
+	if bFirst then
 		self.NextGameName = "_intro"
 		env = ware_env.FindEnvironment(ware_mod.Get(self.NextGameName).Room) or self.CurrentEnvironment
-		
 	else
 		self.NextGameName, env = ware_mod.GetRandomGameName()
-		
-	end
+	end	
 	
 	if env ~= self.CurrentEnvironment then
 		self.CurrentEnvironment = env
 		self.NextgameStart = self.NextgameStart + self.WADAT.TransitFlourishTime
 		self.NextPlayerRespawn = CurTime() + self.WADAT.EndFlourishTime
-		
 	end
 	
 end
@@ -455,16 +445,10 @@ function GM:Think()
 			self.GamesArePlaying = true
 			self.WareHaveStarted = false
 			self.ActionPhase = false
-			
-			if ( GetConVar("ware_debug"):GetInt() > 0 ) then
-				self:SetNextGameStartsIn( 4 )
-				self.FirstTimePickGame = 1.3
+
+			self:SetNextGameStartsIn( 10 )
+			self.FirstTimePickGame = 19.3
 				
-			else
-				self:SetNextGameStartsIn( 10 )
-				self.FirstTimePickGame = 19.3
-				
-			end
 			SendUserMessage("WaitShow")
 		end
 	end

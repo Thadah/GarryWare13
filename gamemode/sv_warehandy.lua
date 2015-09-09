@@ -13,7 +13,7 @@ function GM:SetWareWindupAndLength(windup , len)
 end
 
 function GM:OverrideAnnouncer( id )
-    if (1 <= id) and (id <= #self.WASND.BITBL_TimeLeft) then
+    if (1 <= id) and (id <= #self.WASND[6]) then
 		self.WareOverrideAnnouncer = id
 	end
 end
@@ -128,7 +128,7 @@ function GM:SetNextGameEnd(time)
 		umsg.Bool( true )
 		umsg.Bool( true )
 		umsg.Char( 1 )
-		umsg.Char( math.random(1, #GAMEMODE.WASND.TBL_GlobalWareningNew ) )
+		umsg.Char( math.random(1, #GAMEMODE.WASND[2] ) )
 		umsg.Char( self.WareOverrideAnnouncer )
 	umsg.End()
 end

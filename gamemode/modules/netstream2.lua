@@ -11,7 +11,11 @@
 
 
 local type, error, pcall, pairs, _player = type, error, pcall, pairs, player
-
+print("")
+print("//////////////////////////////")
+print("// NetStream2: Adding pONv2 //")
+print("//////////////////////////////")
+include("pon2.lua")
 if (!pon2) then
 	error("NetStream: Unable to find pon2!")
 end

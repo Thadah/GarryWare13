@@ -113,8 +113,8 @@ function WARE_SortTableStateBlind( plyA, plyB )
 end
 
 function GM:CreateAmbientMusic()
-	for k,path in pairs(GAMEMODE.WASND.THL_AmbientMusic) do
-		gws_AmbientMusic[k] = CreateSound(LocalPlayer(), path)
+	for k,path in pairs(GAMEMODE.WASND[1]) do
+		gws_AmbientMusic[k] = CreateSound(LocalPlayer(), path[2])
 		gws_AmbientMusic_dat[k] = {}
 	end
 	
@@ -139,10 +139,9 @@ function GM:Think()
 			elseif gws_CurrentAnnouncer == 2 then
 				local nameOfFile = GAMEMODE.WASND[6][gws_TickAnnounce+5][1]
 			else
-				local nameOfFile = GaMEMODE.WASND[7][(gws_TickAnnounce%2)+1][1]
+				local nameOfFile = GAMEMODE.WASND[7][(gws_TickAnnounce%2)+1][1]
 			end
-			
-			sound.PlayFile(nameOfFile)
+			LocalPlayer():EmitSound(nameOfFile)
 			
 			gws_TickAnnounce = gws_TickAnnounce - 1
 		end
