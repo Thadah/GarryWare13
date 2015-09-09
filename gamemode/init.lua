@@ -108,18 +108,10 @@ end
 function GM:SendEveryoneEvent( probable )
 	--local rpAll = RecipientFilter()
 	--rpAll:AddAllPlayers()
-
-	/*if (probable) then
-		LocalPlayer():EmitSound( GAMEMODE.WASND.EveryoneWon, 100, GAMEMODE:GetSpeedPercent() )
-	else
-		LocalPlayer():EmitSound( GAMEMODE.WASND.EveryoneLost, 100, GAMEMODE:GetSpeedPercent() )
-	end*/
-
-	/*
+	
 	umsg.Start("EventEveryoneState", nil)
 		umsg.Bool( probable )
 	umsg.End()
-	*/
 end
 
 ////////////////////////////////////////////////
@@ -171,7 +163,7 @@ function GM:PickRandomGame()
 		GAMEMODE.WASND[2][math.random(1,#GAMEMODE.WASND[2])][1], 
 		self.WareOverrideAnnouncer, iLoopToPlay
 	)
-	/*
+
 	local rp = RecipientFilter()
 	rp:AddAllPlayers()
 	umsg.Start("NextGameTimes", rp)
@@ -186,7 +178,7 @@ function GM:PickRandomGame()
 		umsg.Char( self.WareOverrideAnnouncer )
 		umsg.Char( iLoopToPlay )
 	umsg.End()
-	*/
+	
 	self.WareShouldNotAnnounce = false
 end
 
@@ -211,16 +203,16 @@ function GM:TryNextPhase( )
 	--local rp = RecipientFilter()
 	--rp:AddAllPlayers()
 	umsg.Start("NextGameTimes", nil)
-		umsg.Float( 0 )
-		umsg.Float( self.NextgameEnd )
-		umsg.Float( self.Windup )
-		umsg.Float( self.WareLen )
-		umsg.Bool( self.WareShouldNotAnnounce )
-		umsg.Bool( true )
-		umsg.Char( 4 )
-		umsg.Char( math.random(1, #GAMEMODE.WASND[2] ) )
-		umsg.Char( self.WareOverrideAnnouncer )
-		umsg.Char( iLoopToPlay )
+		umsg.Float(0)
+		umsg.Float(self.NextgameEnd)
+		umsg.Float(self.Windup)
+		umsg.Float(self.WareLen)
+		umsg.Bool(self.WareShouldNotAnnounce)
+		umsg.Bool(true)
+		umsg.Char(4)
+		umsg.Char(math.random(1, #GAMEMODE.WASND.[2]))
+		umsg.Char(self.WareOverrideAnnouncer)
+		umsg.Char(iLoopToPlay)
 	umsg.End()
 	self.WareShouldNotAnnounce = false
 	
@@ -270,23 +262,18 @@ function GM:EndGame()
 			--v:ConCommand("r_cleardecals")
 		end
 		
-		
 		-- Send positive message to the RP list of winners.
 		
-		/*umsg.Start("EventEndgameTrigger", rpWin)
+		umsg.Start("EventEndgameTrigger", rpWin)
 			umsg.Bool( true )
-			umsg.Char( math.random(1, #GAMEMODE.WASND.TBL_GlobalWareningWin ) )
+			umsg.Char(math.random(1, #GAMEMODE.WASND.[3]))
 		umsg.End()
-		
-		sound.Play(GAMEMODE.WASND[3][math.random(1,#GAMEMODE.WASND[3])][1], Vector(0,0,0))
-		
-		
 		
 		-- Send negative message to the RP list of losers.
 		umsg.Start("EventEndgameTrigger", rpLose)
-			umsg.Bool( false )
-			umsg.Char( math.random(1, #GAMEMODE.WASND.TBL_GlobalWareningLose ) )
-		umsg.End()*/
+			umsg.Bool(false)
+			umsg.Char(math.random(1, #GAMEMODE.WASND.[4]))
+		umsg.End()
 		
 		if (team.NumPlayers(TEAM_SPECTATOR) ~= 0) then
 			local rpSpec = RecipientFilter()
@@ -297,10 +284,10 @@ function GM:EndGame()
 				--v:ConCommand("r_cleardecals")
 			end
 			
-			/*umsg.Start("EventEndgameTrigger", rpSpec)
-				umsg.Bool( false )
-				umsg.Char( math.random(1, #GAMEMODE.WASND.TBL_GlobalWareningLose ) )
-			umsg.End()*/
+			umsg.Start("EventEndgameTrigger", rpSpec)
+				umsg.Bool(false)
+				umsg.Char(math.random(1, #GAMEMODE.WASND.[4]))
+			umsg.End()
 		end
 	end
 	
@@ -335,10 +322,20 @@ function GM:EndGame()
 end
 
 function GM:PickRandomGameName( bFirst )
-	local env = ware_env.FindEnvironment(ware_mod.Get(self.NextGameName).Room) or self.CurrentEnvironment
-
-	self.NextGameName = "_intro"
-
+	local env
+	
+	if GetConVar("ware_debug"):GetInt() == 1 then
+		self.NextGameName = GetConVar("ware_debugname"):GetString()
+		env = ware_env.FindEnvironment(ware_mod.Get(self.NextGameName).Room) or self.CurrentEnvironment
+		
+	elseif bFirst and (GetConVar("ware_debug"):GetInt() % 2 == 0) then
+		self.NextGameName = "_intro"
+		env = ware_env.FindEnvironment(ware_mod.Get(self.NextGameName).Room) or self.CurrentEnvironment
+		
+	else
+		self.NextGameName, env = ware_mod.GetRandomGameName()
+		
+	end
 	
 	if env ~= self.CurrentEnvironment then
 		self.CurrentEnvironment = env
@@ -435,8 +432,6 @@ function GM:Think()
 			GAMEMODE:EndGame()
 			
 			-- Send info about ware
-			self:NextGameTimes(0, 0, 0, 0, false, false)
-			/*
 			--local rp = RecipientFilter()
 			--rp:AddAllPlayers()
 			umsg.Start("NextGameTimes", nil)
@@ -447,7 +442,7 @@ function GM:Think()
 				umsg.Bool( false )
 				umsg.Bool( false )
 			umsg.End()
-			*/
+			
 		elseif self.FirstTimePickGame and CurTime() > self.FirstTimePickGame then
 			-- Game has just started, pick the first game
 			self:PickRandomGameName( true )
@@ -461,9 +456,15 @@ function GM:Think()
 			self.WareHaveStarted = false
 			self.ActionPhase = false
 			
-			self:SetNextGameStartsIn( 10 )
-			self.FirstTimePickGame = 19.3
+			if ( GetConVar("ware_debug"):GetInt() > 0 ) then
+				self:SetNextGameStartsIn( 4 )
+				self.FirstTimePickGame = 1.3
 				
+			else
+				self:SetNextGameStartsIn( 10 )
+				self.FirstTimePickGame = 19.3
+				
+			end
 			SendUserMessage("WaitShow")
 		end
 	end
@@ -647,124 +648,3 @@ end
 -- Start up.
 
 IncludeMinigames()
-
-////////////////////////////////////////////////
-////////////////////////////////////////////////
-
---Fretta Stuff
-function GM:EndTheGameForOnce()
-	if self.GameHasEnded == true then return end
-	
-	self.GamesArePlaying = false
-	self.GameHasEnded = true
-	
-	-- Find combos before ending the game and after saying the game has ended
-	for _,ply in pairs(team.GetPlayers(TEAM_HUMANS)) do
-		ply:PrintComboMessagesAndEffects( ply:GetCombo() )
-	end
-	
-	self:EndGame()
-	
-	--self:DoProcessAllAwards()
-	
-	--Send info about VGUI
-	self:SpecialFlourish(2)
-	self:EndOfGamemode()
-
-	/*
-	umsg.Start("SpecialFlourish")
-		umsg.Char( 2 )
-	umsg.End()
-	umsg.Start("EndOfGamemode")
-	umsg.End()
-	*/
-	--Send info about ware
-	--local rp = RecipientFilter()
-	--rp:AddAllPlayers()
-	gws_TickAnnounce = 5
-
-	self:NextGameTimes(0, 0, 0, 0, false, false, nil, nil, nil, nil)
-	/*
-	umsg.Start("NextGameTimes", nil)
-		umsg.Float( 0 )
-		umsg.Float( 0 )
-		umsg.Float( 0 )
-		umsg.Float( 0 )
-		umsg.Bool( false )
-		umsg.Bool( false )
-	umsg.End()
-	*/
-	self:SetBestStreak(self.BestStreakEver)
-	/*
-	umsg.Start("BestStreakEverBreached", rp)
-		umsg.Long( self.BestStreakEver )
-	umsg.End()
-	*/
-end
-
-function GM:EndOfGame( bGamemodeVote )
-	self:EndTheGameForOnce()
-	
-	self.BaseClass:EndOfGame( bGamemodeVote )
-end
-
-function GM:OnEndOfGame()
-
-	for k,v in pairs( player.GetAll() ) do
-
-		v:Freeze(true)
-		v:ConCommand( "+showscores" )
-		
-	end
-	
-end
-
-function GM:StartGamemodeVote()
-	self:EndTheGameForOnce()
-	
-	self.BaseClass:StartGamemodeVote()
-end
-
-/////////////////////////////////////////
-
-function GM:NextGameTimes(warmEnd, gameEnd, warmLen, wareLen, keepA, playM, musicID, announcer, loop)
-	gws_NextwarmupEnd = warmEnd
-	gws_NextgameEnd   = gameEnd
-	gws_WarmupLen     = warmLen
-	gws_WareLen       = wareLen
-	local bShouldKeepAnnounce = keepA
-	local bShouldPlayMusic = playM
-	
-	if  !bShouldKeepAnnounce then
-		gws_TickAnnounce = 5
-	else
-		gws_TickAnnounce = 0
-	end
-	
-	if bShouldPlayMusic then
-		local musicID = musicID
-		gws_CurrentAnnouncer = announcer
-		local loopToPlay = loop
-		if musicID != nil then
-			--LocalPlayer():EmitSound( GAMEMODE.WASND.BITBL_GlobalWarening[libraryID][musicID] , 60, GAMEMODE:GetSpeedPercent() )
-			sound.Play(musicID, Vector(0,0,0))
-			gws_AmbientMusicIsOn = true
-			self:EnableMusic(loopToPlay)
-		end	
-	end	
-end
-
-function GM:EndOfGamemode()
-	ClockVGUI:Hide()
-	ClockGameVGUI:Hide()
-	StupidBoardVGUI:Hide()
-	LiveScoreBoardVGUI:Hide()
-	AmmoVGUI:Show()
-	
-	AwardVGUI:Show()
-	AwardVGUI:PerformScoreData()
-	
-	self:GetScoreboard():SetVisible( false )
-	
-	gws_AtEndOfGame = true
-end

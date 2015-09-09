@@ -15,7 +15,9 @@ function WARE:Initialize()
 	
 	self.Entground = GAMEMODE:GetEnts(ENTS_CROSS)
 	
-	GAMEMODE:SpecialFlourish(1)
+	umsg.Start("SpecialFlourish")
+		umsg.Char( 1 )
+	umsg.End()
 	
 	for k,ply in pairs(team.GetPlayers(TEAM_HUMANS)) do
 		ply:SetAchievedSpecialInteger( -1 )

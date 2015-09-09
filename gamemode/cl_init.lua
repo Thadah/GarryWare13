@@ -64,7 +64,6 @@ include( 'cl_mapdecoration.lua' )
 
 include( 'skin.lua' )
 include( "libs/sh_tables.lua" )
-include( "libs/sh_sound.lua" )
 include( "sh_chataddtext.lua" )
 
 include( "cl_version.lua" )
@@ -114,16 +113,18 @@ function WARE_SortTableStateBlind( plyA, plyB )
 end
 
 function GM:CreateAmbientMusic()
-	for k,path in pairs(GAMEMODE.WASND[1]) do
-		gws_AmbientMusic[k] = CreateSound(LocalPlayer(), path[2])
+	for k,path in pairs(GAMEMODE.WASND.THL_AmbientMusic) do
+		gws_AmbientMusic[k] = CreateSound(LocalPlayer(), path)
 		gws_AmbientMusic_dat[k] = {}
 	end
+	
 end
 
 function GM:InitPostEntity()
 	self.BaseClass:InitPostEntity()
 	
 	self:CreateAmbientMusic()
+	
 end
 
 function GM:Think()
