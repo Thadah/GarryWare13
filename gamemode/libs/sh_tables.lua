@@ -75,16 +75,16 @@ GM.WASND =
 		{"Ann4", Sound("ware/countdown_ann_sec4.mp3")},
 		{"Ann5", Sound("ware/countdown_ann_sec5.mp3")},
 		// Dos Sound
-		{"Dos1", Sound("ware/countdown_ann_sec1.mp3")},
-		{"Dos2", Sound("ware/countdown_ann_sec2.mp3")},
-		{"Dos3", Sound("ware/countdown_ann_sec3.mp3")},
-		{"Dos4", Sound("ware/countdown_ann_sec4.mp3")},
-		{"Dos5", Sound("ware/countdown_ann_sec5.mp3")}		
+		{"Dos1", Sound("ware/countdown_dos_sec1.mp3")},
+		{"Dos2", Sound("ware/countdown_dos_sec2.mp3")},
+		{"Dos3", Sound("ware/countdown_dos_sec3.mp3")},
+		{"Dos4", Sound("ware/countdown_dos_sec4.mp3")},
+		{"Dos5", Sound("ware/countdown_dos_sec5.mp3")}		
 	},
 	// 7. Tick Sound
 	{
-		{"TickHigh", Sound("ware/countdown_tick_high.wav")},
-		{"TickLow", Sound("ware/countdown_tick_low.wav")}		
+		{"TickLow", Sound("ware/countdown_tick_low.wav")},	
+		{"TickHigh", Sound("ware/countdown_tick_high.wav")}
 	},
 	// 8. Clientside Win Sound
 	{

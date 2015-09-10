@@ -133,14 +133,18 @@ function GM:Think()
 	-- Announcer ticks.
 	if (gws_TickAnnounce > 0 and CurTime() < gws_NextgameEnd ) then
 		if (CurTime() > (gws_NextgameEnd - (gws_WareLen / 6) * gws_TickAnnounce )) then
+						
+			local nameOfFile = ""
 			
 			if gws_CurrentAnnouncer == 1 then
-				local nameOfFile = GAMEMODE.WASND[6][gws_TickAnnounce][1]
+				nameOfFile = GAMEMODE.WASND[6][gws_TickAnnounce][1]
 			elseif gws_CurrentAnnouncer == 2 then
-				local nameOfFile = GAMEMODE.WASND[6][gws_TickAnnounce+5][1]
+				nameOfFile = GAMEMODE.WASND[6][gws_TickAnnounce+5][1]
 			else
-				local nameOfFile = GAMEMODE.WASND[7][(gws_TickAnnounce%2)+1][1]
+				nameOfFile = GAMEMODE.WASND[7][(gws_TickAnnounce%2)+1][1]
 			end
+			
+			
 			LocalPlayer():EmitSound(nameOfFile)
 			
 			gws_TickAnnounce = gws_TickAnnounce - 1
