@@ -27,6 +27,7 @@ include( "libs/sh_tables.lua" )
 
 --Modules
 include("modules/netstream2.lua")
+include("modules/pon2.lua")
 
 include( "sv_filelist.lua" )
 include( "sv_warehandy.lua" )
@@ -98,10 +99,15 @@ function GM:CheckGlobalStatus( endOfGameBypassValidation )
 		-- Note from Ha3 : OMG, check the usermessage types next time. 1 hour waste
 		--local rp = RecipientFilter()
 		--rp:AddAllPlayers( )
+
+		netStream.Start(player, "gw_yourstatus", probableStatus, true)
+		print("gw_yourstatus NetStream sent")
+		/*
 		umsg.Start("gw_yourstatus", nil)
 			umsg.Bool(probableStatus)
 			umsg.Bool(true)
 		umsg.End()
+		*/
 	end
 	
 	return true , probableStatus

@@ -15,11 +15,15 @@ function WARE:Initialize()
 	
 	self.Entground = GAMEMODE:GetEnts(ENTS_CROSS)
 	
+	
+	/*
 	umsg.Start("SpecialFlourish")
 		umsg.Char( 1 )
 	umsg.End()
-	
+	*/
+
 	for k,ply in pairs(team.GetPlayers(TEAM_HUMANS)) do
+		netstream.Start(ply, "SpecialFlourish", 1)
 		ply:SetAchievedSpecialInteger( -1 )
 		ply:SetLockedSpecialInteger( 1 )
 	end

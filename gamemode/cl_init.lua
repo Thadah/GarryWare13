@@ -66,6 +66,10 @@ include( 'skin.lua' )
 include( "libs/sh_tables.lua" )
 include( "sh_chataddtext.lua" )
 
+--Modules
+include("modules/netstream2.lua")
+include("modules/pon2.lua")
+
 include( "cl_version.lua" )
 
 include( 'cl_splashscreen.lua' )

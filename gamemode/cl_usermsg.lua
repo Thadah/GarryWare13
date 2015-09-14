@@ -7,6 +7,9 @@
 // Usermessages and VGUI                      //
 ////////////////////////////////////////////////
 
+include("modules/netstream2.lua")
+include("modules/pon2.lua")
+
 gws_NextgameStart = 0
 gws_NextwarmupEnd = 0
 gws_NextgameEnd = 0
@@ -193,7 +196,7 @@ usermessage.Hook( "EventEveryoneState", EventEveryoneState )
 local function PlayerTeleported( m )
 	if  !m:ReadBool() then
 		local musicID = m:ReadChar()
-		LocalPlayer():EmitSound( GAMEMODE.WASND[5][math.Clamp(musicID, 1, 2)] , 60, GAMEMODE:GetSpeedPercent() )
+		LocalPlayer():EmitSound( GAMEMODE.WASND[5][math.Clamp(musicID, 1, 2)][2] , 60, GAMEMODE:GetSpeedPercent() )
 	end
 	LocalPlayer():EmitSound(GAMEMODE.WASND[5][math.random(3,5)][2], 40, GAMEMODE:GetSpeedPercent() )
 end
@@ -342,14 +345,20 @@ local function EndOfGamemode( m )
 	--timer.Simple( GAMEMODE.WADAT.EpilogueFlourishDelayAfterEndOfGamemode, PlayEnding, 2 )
 end
 usermessage.Hook( "EndOfGamemode", EndOfGamemode )
-
+/*
 local function SpecialFlourish( m )
 	local musicID = m:ReadChar()
 	local dataRef = GAMEMODE.WADAT.GlobalWareningEpic[musicID]
 	timer.Simple( dataRef.StartDelay + dataRef.MusicFadeDelay, function() gws_AmbientMusic[1]:ChangeVolume( 0.0, GAMEMODE:GetSpeedPercent() ) end )
 	timer.Simple( dataRef.StartDelay, PlayEnding, musicID )
 end
-usermessage.Hook( "SpecialFlourish", SpecialFlourish )
+*/
+netstream.Hook("SpecialFlourish", function(m)
+	local musicID = m
+	local dataRef = GAMEMODE.WADAT.GlobalWareningEpic[musicID]
+	timer.Simple( dataRef.StartDelay + dataRef.MusicFadeDelay, function() gws_AmbientMusic[1]:ChangeVolume( 0.0, GAMEMODE:GetSpeedPercent() ) end )
+	timer.Simple( dataRef.StartDelay, PlayEnding, musicID )
+end)
 
 
 local function HitConfirmation( m )
@@ -446,7 +455,7 @@ local function MakeParticlesFromTable( myTablePtr )
 	end
 	
 end
-
+/*
 local function ReceiveStatuses( usrmsg )	
 	local sText = ""
 	
@@ -476,6 +485,35 @@ local function ReceiveStatuses( usrmsg )
 	StatusVGUI:PrepareDrawData( sText, nil, colorSelect, 3.0 )
 end
 usermessage.Hook( "gw_yourstatus", ReceiveStatuses )
+*/
+netstream.Hook("gw_yourstatus", function(selfStatus, globalStatus)
+	local sText = ""
+	
+	local yourStatus = selfStatus or false
+	local isServerGlobal = globalStatus or false
+	
+	if !isServerGlobal then
+		sText = ((yourStatus and "Success!") or "Failure!") -- MaxOfS2D you fail
+		if yourStatus then
+			LocalPlayer():EmitSound( table.Random(GAMEMODE.WASND[8])[2], 100, GAMEMODE:GetSpeedPercent() )
+		
+			MakeParticlesFromTable( tWinParticles )
+			
+		else
+			LocalPlayer():EmitSound( table.Random(GAMEMODE.WASND[9])[2], 100, GAMEMODE:GetSpeedPercent() )
+		
+			MakeParticlesFromTable( tFailParticles )
+		end
+		
+	else
+		sText = ((yourStatus and "Everyone won!") or "Everyone failed!")
+		
+	end
+
+	local colorSelect = yourStatus and cStatusBackWinColorSet or cStatusBackLoseColorSet
+
+	StatusVGUI:PrepareDrawData( sText, nil, colorSelect, 3.0 )
+end)
 
 local function ReceiveSpecialStatuses( usrmsg )	
 	local specialStatus = usrmsg:ReadChar() or 0
