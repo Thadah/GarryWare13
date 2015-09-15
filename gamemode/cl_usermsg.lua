@@ -29,7 +29,7 @@ gws_AmbientMusicIsOn = false
 -- TODO DEBUG : SET TO FALSE AFTER EDITING !
 gws_AtEndOfGame = false
 
-
+/*
 local function DecorationInfo( m )
 	local origin  = m:ReadVector()
 	local extrema = m:ReadVector()
@@ -37,7 +37,13 @@ local function DecorationInfo( m )
 	GAMEMODE:MapDecoration( origin, extrema )
 end
 usermessage.Hook( "DecorationInfo", DecorationInfo )
+*/
 
+netstream.Hook("DecorationInfo", function(data)
+	GAMEMODE:MapDecoration( data[1], data[2] )
+end)
+
+/*
 local function ModelList( m )
 	local numberOfModels = m:ReadLong()
 	local currentModelCount = #GAMEMODE.ModelPrecacheTable
@@ -57,12 +63,33 @@ local function ModelList( m )
 	end
 end
 usermessage.Hook( "ModelList", ModelList )
+*/
+
+netstream.Hook("ModelList", function(data)
+	local numberOfModels = data[1]
+	local currentModelCount = #GAMEMODE.ModelPrecacheTable
+	local model = ""
+	
+	for i=1,numberOfModels do
+		table.insert( GAMEMODE.ModelPrecacheTable, data[2] )
+	end
+	
+	gws_PrecacheSequence = (gws_PrecacheSequence or 0) + 1
+	
+	print( "Precaching sequence #".. gws_PrecacheSequence .."." )
+	for k=(currentModelCount + 1),(currentModelCount + numberOfModels) do
+		model = GAMEMODE.ModelPrecacheTable[ k ]
+		--print( "Precaching model " .. k .. " : " .. model )
+		util.PrecacheModel( model )
+	end
+end)
 
 local function GameStartTime( m )
 	gws_NextgameStart = m:ReadLong()
 end
 usermessage.Hook( "GameStartTime", GameStartTime )
 
+/*
 local function ServerJoinInfo( m )
 	local didnotbegin = false
 
@@ -75,6 +102,19 @@ local function ServerJoinInfo( m )
 	print("Game ends on time : "..gws_TimeWhenGameEnds)
 end
 usermessage.Hook( "ServerJoinInfo", ServerJoinInfo )
+*/
+
+netstream.Hook("ServerJoinInfo", function(data)
+	local didnotbegin = false
+
+	gws_TimeWhenGameEnds = data[1]
+	didnotbegin = data[2]
+	
+	if didnotbegin == true then
+		WaitShow()
+	end
+	print("Game ends on time : "..gws_TimeWhenGameEnds)
+end)
 
 local function EnableMusicVolume()
 	if gws_AmbientMusicIsOn then
@@ -176,12 +216,18 @@ local function EventEndgameTrigger( m )
 	end
 end
 usermessage.Hook( "EventEndgameTrigger", EventEndgameTrigger )
-
+/*
 local function BestStreakEverBreached( m )
 	GAMEMODE:SetBestStreak( m:ReadLong() )
 end
 usermessage.Hook( "BestStreakEverBreached", BestStreakEverBreached )
+*/
 
+netstream.Hook("BestStreakEverBreached", function(BestStreakEver)
+	 GAMEMODE:SetBestStreak(BestStreakEver)
+end)
+
+/*
 local function EventEveryoneState( m )
 	local achieved = m:ReadBool()
 
@@ -191,8 +237,18 @@ local function EventEveryoneState( m )
 		LocalPlayer():EmitSound( GAMEMODE.WASND[10][8][2], 100, GAMEMODE:GetSpeedPercent() )
 	end
 end
-usermessage.Hook( "EventEveryoneState", EventEveryoneState )
+*/
+netstream.Hook( "EventEveryoneState", function(m)
+	local achieved = m
 
+	if (achieved) then
+		LocalPlayer():EmitSound( GAMEMODE.WASND[10][7][2], 100, GAMEMODE:GetSpeedPercent() )
+	else
+		LocalPlayer():EmitSound( GAMEMODE.WASND[10][8][2], 100, GAMEMODE:GetSpeedPercent() )
+	end
+end)
+
+/*
 local function PlayerTeleported( m )
 	if  !m:ReadBool() then
 		local musicID = m:ReadChar()
@@ -201,6 +257,16 @@ local function PlayerTeleported( m )
 	LocalPlayer():EmitSound(GAMEMODE.WASND[5][math.random(3,5)][2], 40, GAMEMODE:GetSpeedPercent() )
 end
 usermessage.Hook( "PlayerTeleported", PlayerTeleported )
+*/
+
+netstream.Hook("PlayerTeleported", function(data)
+	local bool = data[1] or false
+	if  !bool then
+		local musicID = data[2]
+		LocalPlayer():EmitSound( GAMEMODE.WASND[5][math.Clamp(musicID, 1, 2)][2] , 60, GAMEMODE:GetSpeedPercent() )
+	end
+	LocalPlayer():EmitSound(GAMEMODE.WASND[5][math.random(3,5)][2], 40, GAMEMODE:GetSpeedPercent() )
+end)
 
 
 
@@ -486,11 +552,11 @@ local function ReceiveStatuses( usrmsg )
 end
 usermessage.Hook( "gw_yourstatus", ReceiveStatuses )
 */
-netstream.Hook("gw_yourstatus", function(selfStatus, globalStatus)
+netstream.Hook("gw_yourstatus", function(data)
 	local sText = ""
 	
-	local yourStatus = selfStatus or false
-	local isServerGlobal = globalStatus or false
+	local yourStatus = data[1] or false
+	local isServerGlobal = data[2] or false
 	
 	if !isServerGlobal then
 		sText = ((yourStatus and "Success!") or "Failure!") -- MaxOfS2D you fail
@@ -513,6 +579,8 @@ netstream.Hook("gw_yourstatus", function(selfStatus, globalStatus)
 	local colorSelect = yourStatus and cStatusBackWinColorSet or cStatusBackLoseColorSet
 
 	StatusVGUI:PrepareDrawData( sText, nil, colorSelect, 3.0 )
+
+	print("gw_yourstatus NetStream sent correctly")
 end)
 
 local function ReceiveSpecialStatuses( usrmsg )	

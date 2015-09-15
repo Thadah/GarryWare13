@@ -100,8 +100,8 @@ function GM:CheckGlobalStatus( endOfGameBypassValidation )
 		--local rp = RecipientFilter()
 		--rp:AddAllPlayers( )
 
-		netStream.Start(player, "gw_yourstatus", probableStatus, true)
-		print("gw_yourstatus NetStream sent")
+		netstream.Start(player, "gw_yourstatus", {probableStatus, true})
+		print("gw_yourstatus NetStream sent for processing")
 		/*
 		umsg.Start("gw_yourstatus", nil)
 			umsg.Bool(probableStatus)
@@ -116,10 +116,13 @@ end
 function GM:SendEveryoneEvent( probable )
 	--local rpAll = RecipientFilter()
 	--rpAll:AddAllPlayers()
+	netstream.Start(team.GetPlayers(TEAM_HUMANS), "EventEveryoneState", probable)
 	
+	/*
 	umsg.Start("EventEveryoneState", nil)
 		umsg.Bool( probable )
 	umsg.End()
+	*/
 end
 
 ////////////////////////////////////////////////
