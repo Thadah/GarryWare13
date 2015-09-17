@@ -167,11 +167,29 @@ function GM:PickRandomGame()
 	end
 	
 	local iLoopToPlay = ( (self.Windup + self.WareLen) >= 10 ) and 2 or 1
+
+
+	local newWindup = CurTime() + self.Windup
 	
 	-- Send info about ware
-
-	local rp = RecipientFilter()
-	rp:AddAllPlayers()
+	for k,v in pairs (team.GetPlayers(TEAM_HUMANS)) do
+		netstream.Start(v, "NextGameTimes", {
+			newWindup,
+			self.NextgameEnd,
+			self.Windup,
+			self.WareLen,
+			self.WareShouldNotAnnounce,
+			true,
+			2,
+			math.random(1, 5),
+			self.WareOverrideAnnouncer,
+			iLoopToPlay
+		})
+		print("NS2")
+	end
+	
+	
+	/*
 	umsg.Start("NextGameTimes", rp)
 		umsg.Float( CurTime() + self.Windup )
 		umsg.Float( self.NextgameEnd )
@@ -184,7 +202,7 @@ function GM:PickRandomGame()
 		umsg.Char( self.WareOverrideAnnouncer )
 		umsg.Char( iLoopToPlay )
 	umsg.End()
-	
+	*/
 	self.WareShouldNotAnnounce = false
 end
 
@@ -208,6 +226,19 @@ function GM:TryNextPhase( )
 	
 	--local rp = RecipientFilter()
 	--rp:AddAllPlayers()
+	netstream.Start("NextGameTimes", {
+		0, 
+		self.NextgameEnd, 
+		self.Windup, 
+		self.WareLen, 
+		self.WareShouldNotAnnounce,
+		true,
+		2,
+		math.random(1, #GAMEMODE.WASND[2]),
+		self.WareOverrideAnnouncer,
+		iLoopToPlay
+	})
+	/*
 	umsg.Start("NextGameTimes", nil)
 		umsg.Float(0)
 		umsg.Float(self.NextgameEnd)
@@ -220,6 +251,8 @@ function GM:TryNextPhase( )
 		umsg.Char(self.WareOverrideAnnouncer)
 		umsg.Char(iLoopToPlay)
 	umsg.End()
+	*/
+
 	self.WareShouldNotAnnounce = false
 	
 	return true
@@ -433,6 +466,15 @@ function GM:Think()
 			-- Send info about ware
 			--local rp = RecipientFilter()
 			--rp:AddAllPlayers()
+			netstream.Start("NextGameTimes", {
+				0,
+				0,
+				0,
+				0,
+				false,
+				false
+			})
+			/*
 			umsg.Start("NextGameTimes", nil)
 				umsg.Float( 0 )
 				umsg.Float( 0 )
@@ -441,7 +483,7 @@ function GM:Think()
 				umsg.Bool( false )
 				umsg.Bool( false )
 			umsg.End()
-			
+			*/
 		elseif self.FirstTimePickGame and CurTime() > self.FirstTimePickGame then
 			-- Game has just started, pick the first game
 			self:PickRandomGameName( true )

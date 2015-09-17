@@ -174,6 +174,7 @@ local function PlayEnding( musicID )
 	timer.Simple( dataRef.Length, EnableMusic)
 end
 
+/*
 local function NextGameTimes( m )
 	gws_NextwarmupEnd = m:ReadFloat()
 	gws_NextgameEnd   = m:ReadFloat()
@@ -201,6 +202,39 @@ local function NextGameTimes( m )
 	end	
 end
 usermessage.Hook( "NextGameTimes", NextGameTimes )
+*/
+
+netstream.Hook("NextGameTimes", function(data)
+	print("NS")
+	gws_NextwarmupEnd = data[1]
+	gws_NextgameEnd   = data[2]
+	gws_WarmupLen     = data[3]
+	gws_WareLen       = data[4]
+	local bShouldKeepAnnounce = data[5]
+	local bShouldPlayMusic = data[6]
+	
+	if  !bShouldKeepAnnounce then
+		gws_TickAnnounce = 5
+	else
+		gws_TickAnnounce = 0
+	end
+	print("NS3")
+	if bShouldPlayMusic then
+		local libraryID = data[7]
+		local musicID = data[8]
+		gws_CurrentAnnouncer = data[9]
+		local loopToPlay = data[10]
+		print("NS4")
+		if musicID != nil then
+			print("NS5")
+			LocalPlayer():EmitSound( GAMEMODE.WASND[libraryID][musicID][2] , 60, GAMEMODE:GetSpeedPercent() )
+			print("NS6")
+			gws_AmbientMusicIsOn = true
+			EnableMusic()
+			print("NS7")
+		end	
+	end	
+end)
 
 local function EventEndgameTrigger( m )
 	local achieved = m:ReadBool()
@@ -238,8 +272,8 @@ local function EventEveryoneState( m )
 	end
 end
 */
-netstream.Hook( "EventEveryoneState", function(m)
-	local achieved = m
+netstream.Hook( "EventEveryoneState", function(data)
+	local achieved = data
 
 	if (achieved) then
 		LocalPlayer():EmitSound( GAMEMODE.WASND[10][7][2], 100, GAMEMODE:GetSpeedPercent() )
@@ -564,7 +598,6 @@ netstream.Hook("gw_yourstatus", function(data)
 			LocalPlayer():EmitSound( table.Random(GAMEMODE.WASND[8])[2], 100, GAMEMODE:GetSpeedPercent() )
 		
 			MakeParticlesFromTable( tWinParticles )
-			
 		else
 			LocalPlayer():EmitSound( table.Random(GAMEMODE.WASND[9])[2], 100, GAMEMODE:GetSpeedPercent() )
 		

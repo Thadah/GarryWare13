@@ -22,12 +22,12 @@ function GM:PlayerInitialSpawn( ply, id )
 		didnotbegin = true
 	end
 
-	netstream.Start(player, "ServerJoinInfo", {self.TimeWhenGameEnds, didnotbegin})
+	netstream.Start("ServerJoinInfo", {self.TimeWhenGameEnds, didnotbegin})
 
-	netstream.Start(player, "BestStreakEverBreached", self.BestStreakEver)
+	netstream.Start("BestStreakEverBreached", self.BestStreakEver)
 
 	if self.Decoration_Origin then
-		netstream.Start(player, "DecorationInfo", {self.Decoration_Origin, self.Decoration_Extrema})
+		netstream.Start("DecorationInfo", {self.Decoration_Origin, self.Decoration_Extrema})
 	end
 
 	/*
@@ -148,7 +148,7 @@ function GM:RespawnAllPlayers( bNoMusicEvent, bForce )
 		end
 	end
 	
-	netstream.Start(player, "PlayerTeleported", {bNoMusicEvent, randomsound})
+	netstream.Start("PlayerTeleported", {bNoMusicEvent, randomsound})
 	
 	/*
 	umsg.Start("PlayerTeleported", rp)
@@ -180,7 +180,7 @@ function GM:SendModelList( ply )
 			model = self.ModelPrecacheTable[ (i - 1) * messageSplit + k ]
 		end
 		
-		netstream.Start(ply, "ModelList", {toSend, model})
+		netstream.Start("ModelList", {toSend, model})
 
 		/*
 		umsg.Start("ModelList", ply)
