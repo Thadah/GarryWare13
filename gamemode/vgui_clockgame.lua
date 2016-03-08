@@ -55,7 +55,11 @@ function PANEL:Paint()
 	
 	surface.SetTexture( self.TrotterTexID )
 	surface.SetDrawColor( 255, 255, 255, 255 )
+	if (GAMEMODE.GameLength) then
+		surface.DrawTexturedRectRotated( ScrW() - 24, ScrH() - 18 , 64, 64, 360 * ((gws_TimeWhenGameEnds - CurTime()) / (GAMEMODE.GameLength * 60)) + 90 + self.StartAngle )
+	else
+		surface.DrawTexturedRectRotated( ScrW() - 24, ScrH() - 18 , 64, 64, 360 * ((gws_TimeWhenGameEnds - CurTime()) / 56) + 90 + self.StartAngle )
+	end
 	
-	surface.DrawTexturedRectRotated( ScrW() - 24, ScrH() - 18 , 64, 64, 360 * ((gws_TimeWhenGameEnds - CurTime()) / (GAMEMODE.GameLength * 60)) + 90 + self.StartAngle )
 
 end
