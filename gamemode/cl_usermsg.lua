@@ -8,7 +8,7 @@
 ////////////////////////////////////////////////
 
 include("modules/netstream2.lua")
-include("modules/pon2.lua")
+include("modules/pon.lua")
 
 gws_NextgameStart = 0
 gws_NextwarmupEnd = 0
@@ -84,10 +84,16 @@ netstream.Hook("ModelList", function(data)
 	end
 end)
 
+/*
 local function GameStartTime( m )
 	gws_NextgameStart = m:ReadLong()
 end
 usermessage.Hook( "GameStartTime", GameStartTime )
+*/
+
+netstream.Hook("GameStartTime", function(data)
+	gws_NextgameStart = data
+end)
 
 /*
 local function ServerJoinInfo( m )
@@ -304,7 +310,7 @@ end)
 
 
 
-
+/*
 local function EntityTextChangeColor( m )
 	local target = m:ReadEntity()
 	local r,g,b,a = m:ReadChar() + 128, m:ReadChar() + 128, m:ReadChar() + 128, m:ReadChar() + 128
@@ -316,7 +322,22 @@ local function EntityTextChangeColor( m )
 	end
 end
 usermessage.Hook( "EntityTextChangeColor", EntityTextChangeColor )
+*/
 
+netstream.Hook("EntityTextChangeColor", function(data)
+	local target = data[1]
+	local r,g,b,a = data[2], data[3], data[4], data[5]
+
+	if IsValid(target) and target.SetEntityColor then
+		target:SetEntityColor(r,g,b,a)
+	else
+		timer.Simple( 0, function(target,r,g,b,a) 
+			if IsValid(target) and target.SetEntityColor then 
+				target:SetEntityColor(r,g,b,a) 
+			end 
+		end)
+	end
+end)
 
 /*----------------------------------
 VGUI Includes
@@ -391,6 +412,7 @@ local tWinEvalutaion = {
 {95, "Massive WIN"},
 {100, "Epic WIN"}
 }
+
 local function EvaluateFailure( iPercent )
 	local iPos = 1
 	while (iPos < #tWinEvalutaion) and ( iPercent > tWinEvalutaion[iPos][1] ) do
@@ -398,7 +420,7 @@ local function EvaluateFailure( iPercent )
 	end
 	return tWinEvalutaion[iPos][2]
 end
-
+/*
 local function Transit( m )
 	if m then
 		local theoWinFailNum = tonumber( m:ReadChar() )
@@ -416,18 +438,64 @@ local function Transit( m )
 	timer.Simple( 2.7, function() TransitVGUI:Hide() end )
 end
 usermessage.Hook( "Transit", Transit )
+*/
+netstream.Hook("Transit", function(data)
+	if data then
+		local theoWinFailNum = tonumber(data)
+		TransitVGUI:SetSubtitle("Server Fail-o-meter : " .. tostring( 100 - theoWinFailNum ) .. "% ... " .. EvaluateFailure( theoWinFailNum ) .. "!"  )
+		
+		local fWinFailBlend = theoWinFailNum / 100
+		fWinFailBlend = math.Clamp((fWinFailBlend - 0.5) * 1.5 + 0.5, 0, 1)
+		TransitVGUI:SetBlend( fWinFailBlend )
+		
+	end
+	
+	TransitVGUI:Show()
+	RunConsoleCommand("r_cleardecals")
+	
+	timer.Simple( 2.7, function() TransitVGUI:Hide() end )
+end)
 
+/*
 function WaitShow( m ) --used in ServerJoinInfo
 	WaitVGUI:Show()
 end
 usermessage.Hook( "WaitShow", WaitShow )
+*/
 
+netstream.Hook("WaitShow", function()
+	WaitVGUI:Show()
+end)
+
+/*
 local function WaitHide( m )
 	WaitVGUI:Hide()
 end
 usermessage.Hook( "WaitHide", WaitHide )
+*/
 
+netstream.Hook("WaitHide", function()
+	WaitVGUI:Hide()
+end)
 
+netstream.Hook("EndOfGamemode", function()
+	ClockVGUI:Hide()
+	ClockGameVGUI:Hide()
+	StupidBoardVGUI:Hide()
+	LiveScoreBoardVGUI:Hide()
+	AmmoVGUI:Show()
+	
+	AwardVGUI:Show()
+	AwardVGUI:PerformScoreData()
+	
+	GAMEMODE:GetScoreboard():SetVisible( false )
+	
+	gws_AtEndOfGame = true
+	
+	--timer.Simple( GAMEMODE.WADAT.EpilogueFlourishDelayAfterEndOfGamemode, PlayEnding, 2 )
+end)
+
+/*
 local function EndOfGamemode( m )
 	ClockVGUI:Hide()
 	ClockGameVGUI:Hide()
@@ -445,6 +513,8 @@ local function EndOfGamemode( m )
 	--timer.Simple( GAMEMODE.WADAT.EpilogueFlourishDelayAfterEndOfGamemode, PlayEnding, 2 )
 end
 usermessage.Hook( "EndOfGamemode", EndOfGamemode )
+*/
+
 /*
 local function SpecialFlourish( m )
 	local musicID = m:ReadChar()
@@ -453,18 +523,26 @@ local function SpecialFlourish( m )
 	timer.Simple( dataRef.StartDelay, PlayEnding, musicID )
 end
 */
+
 netstream.Hook("SpecialFlourish", function(m)
-	local musicID = m
-	local dataRef = GAMEMODE.WADAT.GlobalWareningEpic[musicID]
-	timer.Simple( dataRef.StartDelay + dataRef.MusicFadeDelay, function() gws_AmbientMusic[1]:ChangeVolume( 0.0, GAMEMODE:GetSpeedPercent() ) end )
-	timer.Simple( dataRef.StartDelay, PlayEnding, musicID )
+	local musicID = tonumber(m)
+	if musicID then
+		local dataRef = GAMEMODE.WADAT.GlobalWareningEpic[musicID]
+		timer.Simple( dataRef.StartDelay + dataRef.MusicFadeDelay, function() gws_AmbientMusic[1]:ChangeVolume( 0.0, GAMEMODE:GetSpeedPercent() ) end )
+		timer.Simple( dataRef.StartDelay, PlayEnding, musicID )
+	end
 end)
 
-
+/*
 local function HitConfirmation( m )
 	LocalPlayer():EmitSound( GAMEMODE.WASND[10][4][2], GAMEMODE:GetSpeedPercent() )
 end
 usermessage.Hook( "HitConfirmation", HitConfirmation )
+*/
+
+netstream.Hook("HitConfirmation", function()
+	LocalPlayer():EmitSound( GAMEMODE.WASND[10][4][2], GAMEMODE:GetSpeedPercent() )
+end)
 
 local function DoRagdollEffect( ply, optvectPush, optiObjNumber, iIter)
 	if  !IsValid( ply ) then return end
@@ -498,6 +576,7 @@ local function DoRagdollEffect( ply, optvectPush, optiObjNumber, iIter)
 	
 end
 
+/*
 local function PlayerRagdollEffect( m )
 	local ply = m:ReadEntity()
 	local optvectPush = m:ReadVector()
@@ -508,7 +587,24 @@ local function PlayerRagdollEffect( m )
 	DoRagdollEffect( ply, optvectPush, optiObjNumber, 20)
 end
 usermessage.Hook( "PlayerRagdollEffect", PlayerRagdollEffect )
+*/
 
+netstream.Hook("PlayerRagdollEffect", function(data)
+	local ply = data[1]
+	local optvectPush = data[2]
+	local optiObjNumber = nil
+	if data[3] then
+		optiObjNumber = data[3]
+	else
+		optiObjNumber = -1
+	end
+	
+	if  !IsValid( ply ) then return end
+	
+	DoRagdollEffect( ply, optvectPush, optiObjNumber, 20)
+end)
+
+/*
 local function ReceiveInstructions( usrmsg )
 	local sText = usrmsg:ReadString()
 	local bUseCustomBG  = usrmsg:ReadBool()
@@ -531,8 +627,27 @@ local function ReceiveInstructions( usrmsg )
 	
 end
 usermessage.Hook( "gw_instructions", ReceiveInstructions )
+*/
 
-
+netstream.Hook("gw_instructions", function(data)
+	local sText = data[1]
+	local bUseCustomBG  = data[2]
+	
+	local cFG_Builder = nil
+	local cBG_Builder = nil
+	
+	if bUseCustomBG then
+		local bUseCustomFG = data[3]
+		
+		cBG_Builder = Color(data[4], data[5], data[6], data[7])
+		
+		if bUseCustomFG then
+			cFG_Builder = Color(data[8], data[9], data[10], data[11])
+		end
+	
+	end
+	InstructionsVGUI:PrepareDrawData( sText, cFG_Builder, cBG_Builder )
+end)
 	
 local cStatusBackWinColorSet  = Color(0, 164, 237,192)
 local cStatusBackLoseColorSet = Color(255,  87,  87,192)
@@ -616,6 +731,7 @@ netstream.Hook("gw_yourstatus", function(data)
 	print("gw_yourstatus NetStream sent correctly")
 end)
 
+/*
 local function ReceiveSpecialStatuses( usrmsg )	
 	local specialStatus = usrmsg:ReadChar() or 0
 	local positive = false
@@ -635,3 +751,23 @@ local function ReceiveSpecialStatuses( usrmsg )
 	StatusVGUI:PrepareDrawData( sText, nil, colorSelect, 1.0 )
 end
 usermessage.Hook( "gw_specialstatus", ReceiveSpecialStatuses )
+*/
+
+netstream.Hook("gw_specialstatus", function(data)
+	local specialStatus = data or 0
+	local positive = false
+	
+	local sText = ""
+	
+	if specialStatus == 1 then
+		positive = true
+		
+		sText = "Done!"
+		LocalPlayer():EmitSound( table.Random(GAMEMODE.WASND[8])[2], 100, GAMEMODE:GetSpeedPercent() )
+		
+	end
+
+	local colorSelect = positive and cStatusBackWinColorSet or cStatusBackLoseColorSet
+
+	StatusVGUI:PrepareDrawData( sText, nil, colorSelect, 1.0 )
+end)

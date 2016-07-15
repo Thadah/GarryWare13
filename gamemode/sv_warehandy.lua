@@ -42,7 +42,43 @@ end
 
 function GM:DrawInstructions( sInstructions , optColorPointer , optTextColorPointer , optrpFilter )
 	local rp = optrpFilter or nil
+
+	if optColorPointer then
+		if optTextColorPointer then
+			netstream.Start(rp, "gw_instructions", {
+				sInstructions, 
+				true, 
+				true, 
+				optColorPointer.r, 
+				optColorPointer.g, 
+				optColorPointer.b,
+				optColorPointer.a,
+				optTextColorPointer.r,
+				optTextColorPointer.g,
+				optTextColorPointer.b,
+				optTextColorPointer.a
+			})
+		else
+			netstream.Start(rp, "gw_instructions", {
+				sInstructions, 
+				true, 
+				false, 
+				optColorPointer.r, 
+				optColorPointer.g, 
+				optColorPointer.b,
+				optColorPointer.a
+			})
+		end
+	else
+		netstream.Start(rp, "gw_instructions", {
+			sInstructions, 
+			false, 
+			false
+		})
+	end
+end
 			
+	/*
 	umsg.Start( "gw_instructions", rp )
 	umsg.String( sInstructions )
 	-- If there is no color, no chars about the color are passed.
@@ -66,6 +102,7 @@ function GM:DrawInstructions( sInstructions , optColorPointer , optTextColorPoin
 	end
 	umsg.End()
 end
+*/
 
 function GM:SetPlayersInitialStatus(isAchievedNilIfMystery)
 	-- nil as an achieved status then can only be set globally (start of game).

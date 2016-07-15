@@ -68,7 +68,7 @@ include( "sh_chataddtext.lua" )
 
 --Modules
 include("modules/netstream2.lua")
-include("modules/pon2.lua")
+include("modules/pon.lua")
 
 include( "cl_version.lua" )
 

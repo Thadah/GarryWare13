@@ -16,6 +16,7 @@ function WARE:Initialize()
 	self.Entground = GAMEMODE:GetEnts(ENTS_CROSS)
 	
 	
+	netstream.Start(nil, "SpecialFlourish", 1)
 	/*
 	umsg.Start("SpecialFlourish")
 		umsg.Char( 1 )
