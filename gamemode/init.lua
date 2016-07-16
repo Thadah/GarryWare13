@@ -12,22 +12,22 @@
 resource.AddWorkshop("302361226")
 
 include( "shared.lua")
-include( "sh_chataddtext.lua" )
+
 
 include( "sv_awards.lua" )
 include( "sv_effects.lua" )
 include( "sv_entitygathering.lua" )
 
-include( "minigames_module.lua" )
-include( "environment_module.lua" )
-include( "entitymap_module.lua" )
-
 --Libraries
 include( "libs/sh_tables.lua" )
+include( "libs/sh_chat.lua" )
 
 --Modules
 include("modules/netstream2.lua")
 include("modules/pon.lua")
+include("modules/minigames_module.lua")
+include("modules/environment_module.lua")
+include("modules/entitymap_module.lua")
 
 include( "sv_filelist.lua" )
 include( "sv_warehandy.lua" )
@@ -156,7 +156,11 @@ function GM:PickRandomGame()
 		self:SetWareWindupAndLength(0, 3)
 		
 		GAMEMODE:SetPlayersInitialStatus( false )
-		GAMEMODE:DrawInstructions( "Error with minigame \""..self.NextGameName.."\"." )
+		if self.NextGameName then
+			GAMEMODE:DrawInstructions( "Error with minigame \""..self.NextGameName.."\"." )
+		else
+			ErrorNoHalt("Unable to choose random minigame, retrying...")
+		end
 	end
 	self.NextgameEnd = CurTime() + self.Windup + self.WareLen
 	

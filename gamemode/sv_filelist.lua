@@ -12,37 +12,43 @@ AddCSLuaFile( "shared.lua" )
 AddCSLuaFile( "cl_init.lua" )
 AddCSLuaFile( "cl_hud.lua" )
 AddCSLuaFile( "cl_postprocess.lua" )
-AddCSLuaFile( "cl_usermsg.lua" )
-AddCSLuaFile( "cl_mapdecoration.lua" )
+AddCSLuaFile( "cl_networking.lua" )
+
 
 AddCSLuaFile( "cl_version.lua" )
 
-AddCSLuaFile( "skin.lua" )
+--Libraries
+AddCSLuaFile( "libs/sh_skin.lua" )
 AddCSLuaFile( "libs/sh_tables.lua" )
+AddCSLuaFile( "libs/cl_mapdecoration.lua" )
+AddCSLuaFile( "libs/sh_garbagecollector.lua" )
+AddCSLuaFile( "libs/sh_chat.lua" )
+
 AddCSLuaFile( "ply_extension.lua" )
-AddCSLuaFile( "garbage_module.lua" )
-AddCSLuaFile( "sh_chataddtext.lua" )
+
 
 -- Fretta VGUI replacements :
-AddCSLuaFile( "cl_splashscreen.lua" )
-AddCSLuaFile( "vgui/vgui_scoreboard.lua" )
+AddCSLuaFile( "derma/cl_splashscreen.lua" )
+AddCSLuaFile( "derma/vgui/cl_scoreboard.lua" )
 
-AddCSLuaFile( "vgui_transitscreen.lua" )
-AddCSLuaFile( "vgui_clock.lua" )
-AddCSLuaFile( "vgui_clockgame.lua" )
-AddCSLuaFile( "vgui_waitscreen.lua" )
+AddCSLuaFile( "derma/vgui/cl_transitscreen.lua" )
+AddCSLuaFile( "derma/vgui/cl_clock.lua" )
+AddCSLuaFile( "derma/vgui/cl_clockgame.lua" )
+AddCSLuaFile( "derma/vgui/cl_waitscreen.lua" )
 
-AddCSLuaFile( "garryware_vgui_main.lua" )
-AddCSLuaFile( "garryware_vgui_livescoreboard.lua" )
-AddCSLuaFile( "garryware_vgui_instructions.lua" )
-AddCSLuaFile( "garryware_vgui_status.lua" )
-AddCSLuaFile( "garryware_vgui_ammo.lua" )
-AddCSLuaFile( "garryware_vgui_awards.lua" )
-AddCSLuaFile( "panel_warelabel.lua" )
-AddCSLuaFile( "panel_arrow.lua" )
-AddCSLuaFile( "panel_message.lua" )
-AddCSLuaFile( "panel_playerlabel.lua" )
-AddCSLuaFile( "panel_finalplayerlabel.lua" )
+--Garryware VGUI
+AddCSLuaFile( "derma/garryware_vgui/cl_main.lua" )
+AddCSLuaFile( "derma/garryware_vgui/cl_livescoreboard.lua" )
+AddCSLuaFile( "derma/garryware_vgui/cl_instructions.lua" )
+AddCSLuaFile( "derma/garryware_vgui/cl_status.lua" )
+AddCSLuaFile( "derma/garryware_vgui/cl_ammo.lua" )
+AddCSLuaFile( "derma/garryware_vgui/cl_awards.lua" )
+
+AddCSLuaFile( "derma/cl_warelabel.lua" )
+AddCSLuaFile( "derma/cl_arrow.lua" )
+AddCSLuaFile( "derma/cl_message.lua" )
+AddCSLuaFile( "derma/cl_playerlabel.lua" )
+AddCSLuaFile( "derma/cl_finalplayerlabel.lua" )
 
 -- Sound Resources
 for k,stringOrTable in pairs(GM.WASND) do

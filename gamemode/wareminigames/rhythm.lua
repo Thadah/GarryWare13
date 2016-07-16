@@ -77,9 +77,9 @@ function WARE:Initialize()
 	
 	for i=1,self.TestTempo do
 		timer.Simple( i*60/self.Tempo, function() self:RhythmSignal() end )
-		
 	end
-	netstream.Start(nil, "SpecialFlourish", 3)
+
+	netstream.Start("SpecialFlourish", 3)
 	
 end
 

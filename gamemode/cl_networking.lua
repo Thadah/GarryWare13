@@ -117,7 +117,7 @@ netstream.Hook("ServerJoinInfo", function(data)
 	didnotbegin = data[2]
 	
 	if didnotbegin == true then
-		WaitShow()
+		netstream.Start("WaitShow")
 	end
 	print("Game ends on time : "..gws_TimeWhenGameEnds)
 end)
@@ -344,16 +344,16 @@ VGUI Includes
 ------------------------------------*/
 
 
-local vgui_transit = vgui.RegisterFile( "vgui_transitscreen.lua" )
-local vgui_wait = vgui.RegisterFile( "vgui_waitscreen.lua" )
-local vgui_clock = vgui.RegisterFile( "vgui_clock.lua" )
-local vgui_clockgame = vgui.RegisterFile( "vgui_clockgame.lua" )
-local vgui_stupidboard = vgui.RegisterFile( "garryware_vgui_main.lua")
-local vgui_livescoreboard = vgui.RegisterFile( "garryware_vgui_livescoreboard.lua")
-local vgui_instructions = vgui.RegisterFile( "garryware_vgui_instructions.lua")
-local vgui_status = vgui.RegisterFile( "garryware_vgui_status.lua")
-local vgui_ammo = vgui.RegisterFile( "garryware_vgui_ammo.lua")
-local vgui_awards = vgui.RegisterFile( "garryware_vgui_awards.lua")
+local vgui_transit = vgui.RegisterFile( "derma/vgui/cl_transitscreen.lua" )
+local vgui_wait = vgui.RegisterFile( "derma/vgui/cl_waitscreen.lua" )
+local vgui_clock = vgui.RegisterFile( "derma/vgui/cl_clock.lua" )
+local vgui_clockgame = vgui.RegisterFile( "derma/vgui/cl_clockgame.lua" )
+local vgui_stupidboard = vgui.RegisterFile( "derma/garryware_vgui/cl_main.lua")
+local vgui_livescoreboard = vgui.RegisterFile( "derma/garryware_vgui/cl_livescoreboard.lua")
+local vgui_instructions = vgui.RegisterFile( "derma/garryware_vgui/cl_instructions.lua")
+local vgui_status = vgui.RegisterFile( "derma/garryware_vgui/cl_status.lua")
+local vgui_ammo = vgui.RegisterFile( "derma/garryware_vgui/cl_ammo.lua")
+local vgui_awards = vgui.RegisterFile( "derma/garryware_vgui/cl_awards.lua")
 
 local TransitVGUI = vgui.CreateFromTable( vgui_transit )
 local WaitVGUI = vgui.CreateFromTable( vgui_wait )
@@ -524,12 +524,14 @@ local function SpecialFlourish( m )
 end
 */
 
-netstream.Hook("SpecialFlourish", function(m)
-	local musicID = tonumber(m)
+netstream.Hook("SpecialFlourish", function(data)
+	local musicID = data
 	if musicID then
 		local dataRef = GAMEMODE.WADAT.GlobalWareningEpic[musicID]
-		timer.Simple( dataRef.StartDelay + dataRef.MusicFadeDelay, function() gws_AmbientMusic[1]:ChangeVolume( 0.0, GAMEMODE:GetSpeedPercent() ) end )
-		timer.Simple( dataRef.StartDelay, PlayEnding, musicID )
+		if dataRef then
+			timer.Simple( dataRef.StartDelay + dataRef.MusicFadeDelay, function() gws_AmbientMusic[1]:ChangeVolume( 0.0, GAMEMODE:GetSpeedPercent() ) end )
+			timer.Simple( dataRef.StartDelay, PlayEnding, musicID )
+		end
 	end
 end)
 

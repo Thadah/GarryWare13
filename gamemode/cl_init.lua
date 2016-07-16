@@ -51,20 +51,22 @@ surface.CreateFont("garryware_smalltext", {
 	additive = false
 } )
 
-include( 'panel_warelabel.lua' )
-include( 'panel_arrow.lua' )
-include( 'panel_message.lua' )
-include( 'panel_playerlabel.lua' )
-include( 'panel_finalplayerlabel.lua' )
+include( 'derma/cl_warelabel.lua' )
+include( 'derma/cl_arrow.lua' )
+include( 'derma/cl_message.lua' )
+include( 'derma/cl_playerlabel.lua' )
+include( 'derma/cl_finalplayerlabel.lua' )
 
 include( 'cl_hud.lua' )
 include( 'cl_postprocess.lua' )
-include( 'cl_usermsg.lua' )
-include( 'cl_mapdecoration.lua' )
+include( 'cl_networking.lua' )
 
-include( 'skin.lua' )
+
+--Libraries
 include( "libs/sh_tables.lua" )
-include( "sh_chataddtext.lua" )
+include( "libs/sh_skin.lua" )
+include( "libs/sh_chat.lua" )
+include( "libs/cl_mapdecoration.lua" )
 
 --Modules
 include("modules/netstream2.lua")
@@ -72,10 +74,10 @@ include("modules/pon.lua")
 
 include( "cl_version.lua" )
 
-include( 'cl_splashscreen.lua' )
-include( 'vgui/vgui_scoreboard.lua' )
+include( 'derma/cl_splashscreen.lua' )
+include( 'derma/vgui/cl_scoreboard.lua' )
 
-include( 'garbage_module.lua' )
+include( 'libs/sh_garbagecollector.lua' )
 
 
 function WARE_SortTable( plyA, plyB )

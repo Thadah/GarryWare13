@@ -117,6 +117,9 @@ function GM:SetPlayersInitialStatus(isAchievedNilIfMystery)
 end
 
 function GM:SendEntityTextColor( rpfilterOrPlayer, entity, r, g, b, a )
+
+	netstream.Start(rpfilterOrPlayer, "EntityTextChangeColor", {entity, r, g, b, a})
+	/*
 	umsg.Start("EntityTextChangeColor", rpfilterOrPlayer)
 		umsg.Entity( entity )
 		umsg.Char( r - 128 )
@@ -124,6 +127,7 @@ function GM:SendEntityTextColor( rpfilterOrPlayer, entity, r, g, b, a )
 		umsg.Char( b - 128 )
 		umsg.Char( a - 128 )
 	umsg.End()
+	*/
 end
 
 ////////////////////////////////////////////////
@@ -157,6 +161,10 @@ function GM:SetNextGameEnd(time)
 	
 	--local rp = RecipientFilter()
 	--rp:AddAllPlayers()
+
+	local random = math.random(1, #GAMEMODE.WASND[2] )
+	netstream.Start(nil, "NextGameTimes", {0, self.NextgameEnd, self.Windup, self.WareLen, true, true, 1, random, self.WareOverrideAnnouncer})
+	/*
 	umsg.Start("NextGameTimes", nil)
 		umsg.Float( 0 )
 		umsg.Float( self.NextgameEnd )
@@ -168,6 +176,7 @@ function GM:SetNextGameEnd(time)
 		umsg.Char( math.random(1, #GAMEMODE.WASND[2] ) )
 		umsg.Char( self.WareOverrideAnnouncer )
 	umsg.End()
+	*/
 end
 
 ////////////////////////////////////////////////
