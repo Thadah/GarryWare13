@@ -14,7 +14,7 @@ function EFFECT:Init( data )
 	self.Extrema = data:GetStart()
 	self.Radius = data:GetRadius()
 	self.Speed = data:GetMagnitude()
-	local angleFake = data:GetAngle()
+	local angleFake = data:GetAngles()
 	self.Duration = data:GetScale()
 	self.Birth = CurTime()
 
@@ -87,16 +87,12 @@ function EFFECT:Render( )
 				
 			end
 		end
-		
-		for k,_ in pairs( self.SubSequents[i] ) do
-			self.Color.a = self.BaseAlpha * delta * alphamul
-			render.DrawBeam( self.SubSequents[i][k], 		
-							 self.SubSequents[i][(k % self.CirclePrecision) + 1],
-							 self.Thickness,					
-							 0.5,					
-							 0.5,				
-							 self.Color )
-		end
+		cam.Start3D()
+			for k,_ in pairs( self.SubSequents[i] ) do
+				self.Color.a = self.BaseAlpha * delta * alphamul
+				render.DrawBeam(self.SubSequents[i][k], self.SubSequents[i][(k % self.CirclePrecision) + 1], self.Thickness, 0.5, 0.5, self.Color )
+			end
+		cam.End3D()
 		
 	end
 	self.LastPhasis = phasis
