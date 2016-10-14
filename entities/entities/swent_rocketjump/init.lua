@@ -48,7 +48,7 @@ function ENT:PhysicsCollide( data, physobj )
 	/*for _,ent in pairs(ents.FindInSphere(self.Entity:GetPos(),64)) do
 		if ent:IsPlayer() == true then
 			ent:SetGroundEntity( NULL )
-			ent:SetVelocity(ent:GetVelocity() + (ent:GetPos() - self.Entity:GetPos()):Normalize() * 350)
+			ent:SetVelocity(ent:GetVelocity() + (ent:GetPos() - self.Entity:GetPos()):GetNormalized() * 350)
 		end
 	end*/
 
