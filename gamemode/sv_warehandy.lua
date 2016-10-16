@@ -78,31 +78,6 @@ function GM:DrawInstructions( sInstructions , optColorPointer , optTextColorPoin
 	end
 end
 			
-	/*
-	umsg.Start( "gw_instructions", rp )
-	umsg.String( sInstructions )
-	-- If there is no color, no chars about the color are passed.
-	umsg.Bool( optColorPointer ~= nil )
-	if (optColorPointer ~= nil) then
-		-- If there is a background color, a bool stating about the presence
-		-- of a text color must be passed, even if there is no text color !
-		umsg.Bool( optTextColorPointer ~= nil )
-
-		umsg.Char( optColorPointer.r - 128 )
-		umsg.Char( optColorPointer.g - 128 )
-		umsg.Char( optColorPointer.b - 128 )
-		umsg.Char( optColorPointer.a - 128 )
-		
-		if (optTextColorPointer ~= nil) then
-			umsg.Char( optTextColorPointer.r - 128 )
-			umsg.Char( optTextColorPointer.g - 128 )
-			umsg.Char( optTextColorPointer.b - 128 )
-			umsg.Char( optTextColorPointer.a - 128 )
-		end
-	end
-	umsg.End()
-end
-*/
 
 function GM:SetPlayersInitialStatus(isAchievedNilIfMystery)
 	-- nil as an achieved status then can only be set globally (start of game).
@@ -119,15 +94,6 @@ end
 function GM:SendEntityTextColor( rpfilterOrPlayer, entity, r, g, b, a )
 
 	netstream.Start(rpfilterOrPlayer, "EntityTextChangeColor", {entity, r, g, b, a})
-	/*
-	umsg.Start("EntityTextChangeColor", rpfilterOrPlayer)
-		umsg.Entity( entity )
-		umsg.Char( r - 128 )
-		umsg.Char( g - 128 )
-		umsg.Char( b - 128 )
-		umsg.Char( a - 128 )
-	umsg.End()
-	*/
 end
 
 ////////////////////////////////////////////////
@@ -164,19 +130,6 @@ function GM:SetNextGameEnd(time)
 
 	local random = math.random(1, #GAMEMODE.WASND[2] )
 	netstream.Start(nil, "NextGameTimes", {0, self.NextgameEnd, self.Windup, self.WareLen, true, true, 1, random, self.WareOverrideAnnouncer})
-	/*
-	umsg.Start("NextGameTimes", nil)
-		umsg.Float( 0 )
-		umsg.Float( self.NextgameEnd )
-		umsg.Float( self.Windup )
-		umsg.Float( self.WareLen )
-		umsg.Bool( true )
-		umsg.Bool( true )
-		umsg.Char( 1 )
-		umsg.Char( math.random(1, #GAMEMODE.WASND[2] ) )
-		umsg.Char( self.WareOverrideAnnouncer )
-	umsg.End()
-	*/
 end
 
 ////////////////////////////////////////////////

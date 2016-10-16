@@ -187,13 +187,6 @@ function meta:ApplyLock( dontSendStatusMessage )
 			--local rp = RecipientFilter()
 			--rp:AddPlayer( self )
 			netstream.Start(self, "gw_yourstatus", {hasAchieved, false})
-
-			/*
-			umsg.Start("gw_yourstatus", self)
-				umsg.Bool(hasAchieved)
-				umsg.Bool(false)
-			umsg.End()
-			*/
 		end
 	end
 end
@@ -202,11 +195,6 @@ function meta:TellDone( )
 	--local rp = RecipientFilter()
 	--rp:AddPlayer( self )
 	netstream.Start(self, "gw_specialstatus", 1)
-	/*
-	umsg.Start("gw_specialstatus", self)
-		umsg.Char( 1 )
-	umsg.End()
-	*/
 end
 
 function meta:ApplyDone( )
@@ -249,11 +237,6 @@ function meta:IncrementCombo()
 		--local rpall = RecipientFilter()
 		--rpall:AddAllPlayers( )
 		netstream.Start(nil, "BestStreakEverBreached", GAMEMODE:GetBestStreak())
-		/*
-		umsg.Start("BestStreakEverBreached", nil)
-			umsg.Long( GAMEMODE:GetBestStreak() )
-		umsg.End()
-		*/
 	end
 	
 	return myCombo
@@ -337,13 +320,6 @@ function meta:SimulateDeath( optvectPush, optiObjNumber )
 	
 	if optvectPush then
 		netstream.Start(self, "PlayerRagdollEffect", {self, optvectPush, optiObjNumber})
-		/*
-		umsg.Start("PlayerRagdollEffect")
-			umsg.Entity( self )
-			umsg.Vector( optvectPush )
-			umsg.Char( optiObjNumber or -1 )
-		umsg.End()
-		*/
 	end
 	
 	return ragdoll

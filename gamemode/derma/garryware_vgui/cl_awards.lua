@@ -92,8 +92,6 @@ function PANEL:Hide()
 end
 
 function PANEL:PerformScoreData()
-	print("performing")
-
 	-- There's also a similar one in the server
 	local players = team.GetPlayers( TEAM_HUMANS )
 	if #players < 2 then return end

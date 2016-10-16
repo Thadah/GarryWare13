@@ -17,11 +17,6 @@ function WARE:Initialize()
 	
 	
 	netstream.Start(nil, "SpecialFlourish", 1)
-	/*
-	umsg.Start("SpecialFlourish")
-		umsg.Char( 1 )
-	umsg.End()
-	*/
 
 	for k,ply in pairs(team.GetPlayers(TEAM_HUMANS)) do
 		netstream.Start(ply, "SpecialFlourish", 1)

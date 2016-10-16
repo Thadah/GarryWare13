@@ -30,23 +30,6 @@ function GM:PlayerInitialSpawn( ply, id )
 		netstream.Start(ply, "DecorationInfo", {self.Decoration_Origin, self.Decoration_Extrema})
 	end
 
-	/*
-	umsg.Start("ServerJoinInfo", ply )
-		umsg.Float( self.TimeWhenGameEnds )
-		umsg.Bool( didnotbegin )
-	umsg.End()
-
-	umsg.Start("BestStreakEverBreached", ply )
-		umsg.Long( self.BestStreakEver )
-	umsg.End()
-	
-	if self.Decoration_Origin then
-		umsg.Start("DecorationInfo", ply )
-			umsg.Vector( self.Decoration_Origin )
-			umsg.Vector( self.Decoration_Extrema )
-		umsg.End()
-	end
-	*/
 	self:SendModelList( ply )
 	
 	ply:SetComboSpecialInteger( 0 )
@@ -181,16 +164,5 @@ function GM:SendModelList( ply )
 		end
 		
 		netstream.Start(ply, "ModelList", {toSend, model})
-
-		/*
-		umsg.Start("ModelList", ply)
-			umsg.Long(toSend)
-			for k=1,toSend do
-				model = self.ModelPrecacheTable[ (i - 1) * messageSplit + k ]
-				umsg.String( model )
-			end
-		umsg.End()
-		*/
-		
 	end
 end
