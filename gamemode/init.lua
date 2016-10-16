@@ -101,13 +101,7 @@ function GM:CheckGlobalStatus( endOfGameBypassValidation )
 		--rp:AddAllPlayers( )
 
 		netstream.Start(nil, "gw_yourstatus", {probableStatus, true})
-		print("gw_yourstatus NetStream sent for processing")
-		/*
-		umsg.Start("gw_yourstatus", nil)
-			umsg.Bool(probableStatus)
-			umsg.Bool(true)
-		umsg.End()
-		*/
+		
 	end
 	
 	return true , probableStatus
@@ -117,12 +111,6 @@ function GM:SendEveryoneEvent( probable )
 	--local rpAll = RecipientFilter()
 	--rpAll:AddAllPlayers()
 	netstream.Start(team.GetPlayers(TEAM_HUMANS), "EventEveryoneState", probable)
-	
-	/*
-	umsg.Start("EventEveryoneState", nil)
-		umsg.Bool( probable )
-	umsg.End()
-	*/
 end
 
 ////////////////////////////////////////////////
@@ -156,11 +144,7 @@ function GM:PickRandomGame()
 		self:SetWareWindupAndLength(0, 3)
 		
 		GAMEMODE:SetPlayersInitialStatus( false )
-		if self.NextGameName then
-			GAMEMODE:DrawInstructions( "Error with minigame \""..self.NextGameName.."\"." )
-		else
-			ErrorNoHalt("Unable to choose random minigame, retrying...")
-		end
+		GAMEMODE:DrawInstructions( "Error with minigame \""..self.NextGameName.."\"." )
 	end
 	self.NextgameEnd = CurTime() + self.Windup + self.WareLen
 	
@@ -176,37 +160,19 @@ function GM:PickRandomGame()
 	local newWindup = CurTime() + self.Windup
 	
 	-- Send info about ware
-	for k,v in pairs (team.GetPlayers(TEAM_HUMANS)) do
-		netstream.Start(v, "NextGameTimes", {
-			newWindup,
-			self.NextgameEnd,
-			self.Windup,
-			self.WareLen,
-			self.WareShouldNotAnnounce,
-			true,
-			2,
-			math.random(1, 5),
-			self.WareOverrideAnnouncer,
-			iLoopToPlay
-		})
-		print("NS2")
-	end
-	
-	
-	/*
-	umsg.Start("NextGameTimes", rp)
-		umsg.Float( CurTime() + self.Windup )
-		umsg.Float( self.NextgameEnd )
-		umsg.Float( self.Windup )
-		umsg.Float( self.WareLen )
-		umsg.Bool( self.WareShouldNotAnnounce )
-		umsg.Bool( true )
-		umsg.Char( 3 )
-		umsg.Char( math.random(1, #GAMEMODE.WASND[3]) )
-		umsg.Char( self.WareOverrideAnnouncer )
-		umsg.Char( iLoopToPlay )
-	umsg.End()
-	*/
+	netstream.Start(team.GetPlayers(TEAM_HUMANS), "NextGameTimes", {
+		newWindup,
+		self.NextgameEnd,
+		self.Windup,
+		self.WareLen,
+		self.WareShouldNotAnnounce,
+		true,
+		2,
+		math.random(1, 5),
+		self.WareOverrideAnnouncer,
+		iLoopToPlay
+	})
+
 	self.WareShouldNotAnnounce = false
 end
 
@@ -228,8 +194,6 @@ function GM:TryNextPhase( )
 	
 	local iLoopToPlay = ( (self.Windup + self.WareLen) >= 10 ) and 2 or 1
 	
-	--local rp = RecipientFilter()
-	--rp:AddAllPlayers()
 	netstream.Start(nil, "NextGameTimes", {
 		0, 
 		self.NextgameEnd, 
@@ -242,21 +206,7 @@ function GM:TryNextPhase( )
 		self.WareOverrideAnnouncer,
 		iLoopToPlay
 	})
-	/*
-	umsg.Start("NextGameTimes", nil)
-		umsg.Float(0)
-		umsg.Float(self.NextgameEnd)
-		umsg.Float(self.Windup)
-		umsg.Float(self.WareLen)
-		umsg.Bool(self.WareShouldNotAnnounce)
-		umsg.Bool(true)
-		umsg.Char(2)
-		umsg.Char(math.random(1, #GAMEMODE.WASND[2]))
-		umsg.Char(self.WareOverrideAnnouncer)
-		umsg.Char(iLoopToPlay)
-	umsg.End()
-	*/
-
+	
 	self.WareShouldNotAnnounce = false
 	
 	return true
@@ -267,6 +217,8 @@ function GM:GetCurrentMinigameName()
 end
 
 function GM:EndGame()
+	winners = {}
+	losers = {}
 	if self.WareHaveStarted == true then
 	
 		-- Destroy all
@@ -281,56 +233,45 @@ function GM:EndGame()
 		if (everyoneStatusIsSame and !GAMEMODE:HasEveryoneLocked()) then
 			self:SendEveryoneEvent( probable )
 		end
-		
-		-- Generic stuff on player.
-		local rpWin = RecipientFilter()
-		local rpLose = RecipientFilter()
-		for k,v in pairs(team.GetPlayers(TEAM_HUMANS)) do 
+
+		for _, v in pairs(team.GetPlayers(TEAM_HUMANS)) do 
 			v:ApplyLock( everyoneStatusIsSame )
-			
 			local bAchieved = v:GetAchieved()
 			if (bAchieved) then
-				rpWin:AddPlayer(v)
+				table.insert(winners, v)
 			else
-				rpLose:AddPlayer(v)
+				table.insert(losers, v)
 			end
-			
+
 			-- Reinit player
 			v:RestoreDeath()
 			v:StripWeapons()
 			v:RemoveAllAmmo( )
 			v:Give("weapon_physcannon")
-			
-			-- Clear decals : NOTE : Now done clientside on signal, it saves from a stringstream
-			--v:ConCommand("r_cleardecals")
 		end
 		
 		-- Send positive message to the RP list of winners.
-		
-		umsg.Start("EventEndgameTrigger", rpWin)
-			umsg.Bool( true )
-			umsg.Char(math.random(1, #GAMEMODE.WASND[3]))
-		umsg.End()
-		
-		-- Send negative message to the RP list of losers.
-		umsg.Start("EventEndgameTrigger", rpLose)
-			umsg.Bool(false)
-			umsg.Char(math.random(1, #GAMEMODE.WASND[4]))
-		umsg.End()
-		
-		if (team.NumPlayers(TEAM_SPECTATOR) ~= 0) then
-			local rpSpec = RecipientFilter()
-			for k,v in pairs(team.GetPlayers(TEAM_SPECTATOR)) do
-				--Do generic stuff to specs
-				
-				rpSpec:AddPlayer( v )
-				--v:ConCommand("r_cleardecals")
+		for _, v in pairs(winners) do
+			netstream.Start(v, "EventEndgameTrigger", {
+				true,
+				math.random(1, #GAMEMODE.WASND[3])
+			})
+		end
+
+		for _, v2 in pairs(losers) do
+			netstream.Start(v2, "EventEndgameTrigger", {
+				false, 
+				math.random(1, #GAMEMODE.WASND[4])
+			})
+		end
+
+		if (team.NumPlayers(TEAM_SPECTATOR) != 0) then
+			for _, v3 in pairs(team.GetPlayers(TEAM_SPECTATOR)) do
+				netstream.Start(v3, "EventEndgameTrigger", {
+					false, 
+					math.random(1, #GAMEMODE.WASND[4])
+				})
 			end
-			
-			umsg.Start("EventEndgameTrigger", rpSpec)
-				umsg.Bool(false)
-				umsg.Char(math.random(1, #GAMEMODE.WASND[4]))
-			umsg.End()
 		end
 	end
 	
@@ -477,16 +418,6 @@ function GM:Think()
 				false,
 				false
 			})
-			/*
-			umsg.Start("NextGameTimes", nil)
-				umsg.Float( 0 )
-				umsg.Float( 0 )
-				umsg.Float( 0 )
-				umsg.Float( 0 )
-				umsg.Bool( false )
-				umsg.Bool( false )
-			umsg.End()
-			*/
 		elseif self.FirstTimePickGame and CurTime() > self.FirstTimePickGame then
 			-- Game has just started, pick the first game
 			self:PickRandomGameName( true )

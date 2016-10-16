@@ -95,7 +95,8 @@ function GetRandomGameName()
 		name = table.remove(Minigames_sequence,1)
 		minigame = ware_mod.Get(name)
 		env = ware_env.FindEnvironment(minigame.Room)
-	until env and (minigame.IsPlayable == nil or minigame:IsPlayable())
+	until name and env and (minigame.IsPlayable == nil or minigame:IsPlayable())
+
 	return name, env
 end
 
