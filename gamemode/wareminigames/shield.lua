@@ -11,21 +11,12 @@ WARE.Models = {
 "models/props_interiors/Radiator01a.mdl",
 "models/props_interiors/refrigeratorDoor01a.mdl",
 "models/props_junk/wood_crate001a.mdl"
- }
- 
-WARE.StringPos = {
-"land_a",
-"land_b",
-"land_c",
-"land_d",
-"land_e",
-"land_f"
 }
-
+ 
 WARE.Positions = {}
 
 function WARE:IsPlayable()
-	return false
+	return true
 end
 
 function WARE:GetModelList()
@@ -36,15 +27,17 @@ function WARE:FlashSpawns( iteration, delay )
 	for k,pos in pairs( self.Positions ) do
 		GAMEMODE:MakeAppearEffect( pos )
 	end
+
 	if (iteration > 0) then
-		timer.Simple( delay , self.FlashSpawns, self , iteration - 1, delay )
-	end
-	
+		timer.Simple(delay , function() self:FlashSpawns(iteration - 1, delay) end)
+	end	
 end
 
 
 function WARE:Initialize()
-	self.Positions = {}
+	GAMEMODE:EnableFirstFailAward( )
+	GAMEMODE:SetFailAwards( AWARD_VICTIM )
+	self.SpawnedNPCs = {}
 
 	GAMEMODE:RespawnAllPlayers( true, true )
 	
@@ -57,13 +50,15 @@ function WARE:Initialize()
 	local aposz   = GAMEMODE:GetEnts("land_measure")[1]:GetPos().z
 	self.zlimit = pitposz + (aposz - pitposz) * 0.8
 	
-	self.SPosCopy = table.Copy(self.StringPos)
+	local ratio = 0.7
+	local minimum = 3
+	local num = math.Clamp(math.ceil( team.NumPlayers(TEAM_HUMANS) * ratio) , minimum, 64)
 	
+	self.Positions = {}
 	local centerpos    = GAMEMODE:GetEnts("center")[1]:GetPos()
 	local alandmeasure = math.floor((GAMEMODE:GetEnts("land_a")[1]:GetPos() - centerpos):Length() * 0.5)
-	for i=1,2 do
-		local myLandmarkName = table.remove( self.SPosCopy, math.random(1,#self.SPosCopy) )
-		table.insert( self.Positions, GAMEMODE:GetEnts(myLandmarkName)[1]:GetPos() )
+	for i=1,num do
+		table.insert( self.Positions, Vector(0,0,0) + centerpos + Angle(0, math.random(0,360), 0):Forward() * math.random(alandmeasure * 0.5, alandmeasure) )
 	end
 	
 	self:FlashSpawns( 6 , 0.3 )
@@ -71,11 +66,6 @@ function WARE:Initialize()
 	for _,v in pairs(team.GetPlayers(TEAM_HUMANS)) do 
 		v:Give( "weapon_physcannon" )
 	end
-	
-	
-	local ratio = 1.1
-	local minimum = 3
-	local num = math.Clamp(math.ceil( team.NumPlayers(TEAM_HUMANS) * ratio) , minimum, 64)
 	
 	for i=1,num do
 		local newpos = Vector(0,0,256) + centerpos + Angle(0, math.random(0,360), 0):Forward() * math.random(alandmeasure * 0.5, alandmeasure)
@@ -102,22 +92,24 @@ function WARE:Initialize()
 end
 
 function WARE:StartAction()	
-	local centerpos    = GAMEMODE:GetEnts("center")[1]:GetPos()
+	local centerpos  = GAMEMODE:GetEnts("center")[1]:GetPos()
 	
 	for k,pos in pairs(self.Positions) do
-		local anglePart = (pos - centerpos):Angle()
-		anglePart.p = -35
-		anglePart.r = -180
-		anglePart.y = anglePart.y + 180
-	
-		local ent = ents.Create( "npc_turret_ceiling" )
+		local ent = ents.Create( "npc_turret_floor" )
 		ent:SetKeyValue("spawnflags", 32)
 		ent:SetPos( pos + (pos - centerpos) * 0.05 )
-		ent:SetAngles( anglePart )
-		ent:SetCollisionGroup(COLLISION_GROUP_WEAPON)
+		side = math.random(0,360)
+		ent:SetAngles(Angle(0, side, 0))
+		ent:SetCollisionGroup(COLLISION_GROUP_WORLD)
+		ent:SetMoveType(MOVETYPE_NONE)
+		ent:SetSolid(SOLID_NONE)
 		ent:Spawn()
+
+		physobj = ent:GetPhysicsObject()
+		physobj:EnableMotion(false)
+		physobj:Sleep()
 		
-		--ent:Fire("Enable")
+		ent:Fire("Enable")
 		
 		GAMEMODE:AppendEntToBin(ent)
 		GAMEMODE:MakeAppearEffect(ent:GetPos())
@@ -128,16 +120,29 @@ function WARE:EndAction()
 
 end
 
-function WARE:EntityTakeDamage( ent, inflictor, attacker, amount)
-	if ent:IsPlayer() and ent:IsWarePlayer() and attacker:IsNPC( ) then
-		ent:ApplyLose( )
+function WARE:EntityTakeDamage( ent, dmginfo)
+	local att = dmginfo:GetAttacker()
+	if ent:IsPlayer() and ent:IsWarePlayer() and !ent:GetLocked() and att:IsNPC( ) then
+		ent:StripWeapons()
+		ent:ApplyLose()
+		
+		for k,npc in pairs( self.SpawnedNPCs ) do
+			npc:AddEntityRelationship( ent, D_NU, 99 )
+		end
+		
 	end
 end
 
-function WARE:Think( )
+function WARE:Think()
 	for k,v in pairs(team.GetPlayers(TEAM_HUMANS)) do 
 		if v:GetPos().z < self.zlimit then
-			v:ApplyLose( )
+			ent:StripWeapons()
+			v:ApplyLose()
+			
+			for k,npc in pairs( self.SpawnedNPCs ) do
+				npc:AddEntityRelationship( ent, D_NU, 99 )
+			end
+			
 		end
 	end
 end

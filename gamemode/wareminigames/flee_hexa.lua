@@ -81,7 +81,7 @@ function WARE:StartAction()
 		GAMEMODE:MakeAppearEffect(ent:GetPos())
 		
 		for k,spec in pairs( spectators ) do
-			ent:AddEntityRelationship( spec, 4, 10 )
+			ent:AddEntityRelationship( spec, D_NU, 10 )
 			
 		end
 	end
@@ -99,7 +99,7 @@ function WARE:EntityTakeDamage(ent,info)
 		ent:SimulateDeath()
 		
 		for k,npc in pairs( self.SpawnedNPCs ) do
-			npc:AddEntityRelationship( ent, 4, 10 )
+			npc:AddEntityRelationship( ent, D_NU, 99 )
 		end
 		
 	end
@@ -113,7 +113,7 @@ function WARE:Think( )
 			ent:SimulateDeath()
 			
 			for k,npc in pairs( self.SpawnedNPCs ) do
-				npc:AddEntityRelationship( ent, 4, 10 )
+				npc:AddEntityRelationship( ent, D_NU, 99 )
 			end
 		
 		end
