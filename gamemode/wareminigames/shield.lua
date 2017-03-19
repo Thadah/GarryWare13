@@ -2,7 +2,6 @@ WARE.Author = "Hurricaaane (Ha3)"
 WARE.Room = "hexaprism"
 
 WARE.Models = {
-"models/Combine_turrets/Ceiling_turret.mdl",
 "models/props_c17/gravestone003a.mdl",
 "models/props_junk/TrashBin01a.mdl",
 "models/props_c17/FurnitureFridge001a.mdl",
