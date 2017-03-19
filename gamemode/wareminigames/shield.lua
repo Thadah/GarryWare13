@@ -110,6 +110,8 @@ function WARE:StartAction()
 		physobj:Sleep()
 		
 		ent:Fire("Enable")
+
+		table.insert( self.SpawnedNPCs, ent )
 		
 		GAMEMODE:AppendEntToBin(ent)
 		GAMEMODE:MakeAppearEffect(ent:GetPos())
@@ -125,6 +127,7 @@ function WARE:EntityTakeDamage( ent, dmginfo)
 	if ent:IsPlayer() and ent:IsWarePlayer() and !ent:GetLocked() and att:IsNPC( ) then
 		ent:StripWeapons()
 		ent:ApplyLose()
+		ent:SimulateDeath()
 		
 		for k,npc in pairs( self.SpawnedNPCs ) do
 			npc:AddEntityRelationship( ent, D_NU, 99 )
@@ -138,6 +141,7 @@ function WARE:Think()
 		if v:GetPos().z < self.zlimit then
 			ent:StripWeapons()
 			v:ApplyLose()
+			v:SimulateDeath()
 			
 			for k,npc in pairs( self.SpawnedNPCs ) do
 				npc:AddEntityRelationship( ent, D_NU, 99 )
