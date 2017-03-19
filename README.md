@@ -14,7 +14,7 @@ https://github.com/JetBoom/fretta13
 Unless you know what you are doing, please grab the release available from here:
 https://github.com/Thadah/GarryWare13/releases/download/v2.0.0/garryware13.zip
 
-## Installation
+## INSTALLATION
 To install the gamemode, simply put the **garryware13** and the **fretta13** folders inside *garrysmod/gamemodes* in your dedicated server. Then, open the *garryware13/content/* folder, and copy everything inside it to *garrysmod/*
 
 ### Console Startup Command
