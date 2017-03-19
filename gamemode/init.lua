@@ -8,31 +8,30 @@
 ////////////////////////////////////////////////
 
 -- Defaulted OFF !
-CreateConVar( "ware_stats_enabled", 0, {FCVAR_ARCHIVE} )
-DEBUG_DISABLE_STATS = !(GetConVar("ware_stats_enabled"):GetInt() > 0)
 
 resource.AddWorkshop("302361226")
 
-include( "shared.lua" )
-include( "sh_tables.lua" )
+include( "shared.lua")
+
 
 include( "sv_awards.lua" )
 include( "sv_effects.lua" )
 include( "sv_entitygathering.lua" )
-include( "sh_chataddtext.lua" )
 
-include( "minigames_module.lua" )
-include( "environment_module.lua" )
-include( "entitymap_module.lua" )
+--Libraries
+include( "libs/sh_tables.lua" )
+include( "libs/sh_chat.lua" )
+
+--Modules
+include("modules/netstream2.lua")
+include("modules/pon.lua")
+include("modules/minigames_module.lua")
+include("modules/environment_module.lua")
+include("modules/entitymap_module.lua")
 
 include( "sv_filelist.lua" )
 include( "sv_warehandy.lua" )
 include( "sv_playerhandle.lua" )
-include( "sv_frettarelated.lua" )
-
-if !DEBUG_DISABLE_STATS then
-	include( "sv_statistics.lua" )
-end
 
 GM.TakeFragOnSuicide = false
 
@@ -53,19 +52,6 @@ GM.NextgameStart = 0
 GM.NextgameEnd = 0
 
 GM.NumberOfWaresPlayed = -1
-
---DEBUG
-CreateConVar( "ware_debug", 0, {FCVAR_ARCHIVE} )
-CreateConVar( "ware_debugname", "", {FCVAR_ARCHIVE} )
-
---[[
-ware_debug 0 : Plays normal mode.
-ware_debug 1 : Plays continuously <ware_debugname>, waiting time stripped.
-ware_debug 2 : Plays normal mode, waiting time stripped.
-ware_debug 3 : Plays normal mode, waiting time stripped, intro sequence skipped.
-( Please don't skip gamemode intro, it is actually
-required to make sure players have loaded some files )
-]]--
 
 -- Ware internal functions.
 
@@ -113,10 +99,9 @@ function GM:CheckGlobalStatus( endOfGameBypassValidation )
 		-- Note from Ha3 : OMG, check the usermessage types next time. 1 hour waste
 		--local rp = RecipientFilter()
 		--rp:AddAllPlayers( )
-		umsg.Start("gw_yourstatus", nil)
-			umsg.Bool(probableStatus)
-			umsg.Bool(true)
-		umsg.End()
+
+		netstream.Start(nil, "gw_yourstatus", {probableStatus, true})
+		
 	end
 	
 	return true , probableStatus
@@ -125,10 +110,7 @@ end
 function GM:SendEveryoneEvent( probable )
 	--local rpAll = RecipientFilter()
 	--rpAll:AddAllPlayers()
-	
-	umsg.Start("EventEveryoneState", nil)
-		umsg.Bool( probable )
-	umsg.End()
+	netstream.Start(team.GetPlayers(TEAM_HUMANS), "EventEveryoneState", probable)
 end
 
 ////////////////////////////////////////////////
@@ -169,37 +151,33 @@ function GM:PickRandomGame()
 	self.NumberOfWaresPlayed = self.NumberOfWaresPlayed + 1
 	
 	if !self.WareOverrideAnnouncer then
-		self.WareOverrideAnnouncer = self.DefaultAnnouncerID or math.random(1, #GAMEMODE.WASND.BITBL_TimeLeft )
+		self.WareOverrideAnnouncer = self.DefaultAnnouncerID or math.random(1, 2)
 	end
 	
 	local iLoopToPlay = ( (self.Windup + self.WareLen) >= 10 ) and 2 or 1
+
+
+	local newWindup = CurTime() + self.Windup
 	
 	-- Send info about ware
-	local rp = RecipientFilter()
-	rp:AddAllPlayers()
-	umsg.Start("NextGameTimes", rp)
-		umsg.Float( CurTime() + self.Windup )
-		umsg.Float( self.NextgameEnd )
-		umsg.Float( self.Windup )
-		umsg.Float( self.WareLen )
-		umsg.Bool( self.WareShouldNotAnnounce )
-		umsg.Bool( true )
-		umsg.Char( 1 )
-		umsg.Char( math.random(1, #GAMEMODE.WASND.TBL_GlobalWareningNew ) )
-		umsg.Char( self.WareOverrideAnnouncer )
-		umsg.Char( iLoopToPlay )
-	umsg.End()
+	netstream.Start(team.GetPlayers(TEAM_HUMANS), "NextGameTimes", {
+		newWindup,
+		self.NextgameEnd,
+		self.Windup,
+		self.WareLen,
+		self.WareShouldNotAnnounce,
+		true,
+		2,
+		math.random(1, 5),
+		self.WareOverrideAnnouncer,
+		iLoopToPlay
+	})
+
 	self.WareShouldNotAnnounce = false
 end
 
 function GM:TryNextPhase( )
 	if self.WarePhase_NextLength <= 0 then return false end
-	
-	-- TOKEN_GW_STATS : Need to enable stats gathering HERE !
-	-- Dont forget the other one.
-	-- We do it here AFTER we know that there is a next phase, and
-	-- BEFORE changing the phase number
-	if !DEBUG_DISABLE_STATS then self:StatsUpdateMinigameInfo() end
 	
 	self.WarePhase_Current = self.WarePhase_Current + 1
 	
@@ -216,20 +194,19 @@ function GM:TryNextPhase( )
 	
 	local iLoopToPlay = ( (self.Windup + self.WareLen) >= 10 ) and 2 or 1
 	
-	--local rp = RecipientFilter()
-	--rp:AddAllPlayers()
-	umsg.Start("NextGameTimes", nil)
-		umsg.Float( 0 )
-		umsg.Float( self.NextgameEnd )
-		umsg.Float( self.Windup )
-		umsg.Float( self.WareLen )
-		umsg.Bool( self.WareShouldNotAnnounce )
-		umsg.Bool( true )
-		umsg.Char( 4 )
-		umsg.Char( math.random(1, #GAMEMODE.WASND.TBL_GlobalWareningPhase ) )
-		umsg.Char( self.WareOverrideAnnouncer )
-		umsg.Char( iLoopToPlay )
-	umsg.End()
+	netstream.Start(nil, "NextGameTimes", {
+		0, 
+		self.NextgameEnd, 
+		self.Windup, 
+		self.WareLen, 
+		self.WareShouldNotAnnounce,
+		true,
+		2,
+		math.random(1, #GAMEMODE.WASND[2]),
+		self.WareOverrideAnnouncer,
+		iLoopToPlay
+	})
+	
 	self.WareShouldNotAnnounce = false
 	
 	return true
@@ -240,6 +217,8 @@ function GM:GetCurrentMinigameName()
 end
 
 function GM:EndGame()
+	winners = {}
+	losers = {}
 	if self.WareHaveStarted == true then
 	
 		-- Destroy all
@@ -254,60 +233,45 @@ function GM:EndGame()
 		if (everyoneStatusIsSame and !GAMEMODE:HasEveryoneLocked()) then
 			self:SendEveryoneEvent( probable )
 		end
-		
-		-- Generic stuff on player.
-		local rpWin = RecipientFilter()
-		local rpLose = RecipientFilter()
-		for k,v in pairs(team.GetPlayers(TEAM_HUMANS)) do 
+
+		for _, v in pairs(team.GetPlayers(TEAM_HUMANS)) do 
 			v:ApplyLock( everyoneStatusIsSame )
-			
 			local bAchieved = v:GetAchieved()
 			if (bAchieved) then
-				rpWin:AddPlayer(v)
+				table.insert(winners, v)
 			else
-				rpLose:AddPlayer(v)
+				table.insert(losers, v)
 			end
-			
+
 			-- Reinit player
 			v:RestoreDeath()
 			v:StripWeapons()
 			v:RemoveAllAmmo( )
 			v:Give("weapon_physcannon")
-			
-			-- Clear decals : NOTE : Now done clientside on signal, it saves from a stringstream
-			--v:ConCommand("r_cleardecals")
 		end
 		
-		-- TOKEN_GW_STATS : Need to enable stats gathering HERE !
-		-- We do it there because players are locked after this moment.
-		-- Dont forget the other one.
-		if !DEBUG_DISABLE_STATS then self:StatsUpdateMinigameInfo() end
-		
 		-- Send positive message to the RP list of winners.
-		umsg.Start("EventEndgameTrigger", rpWin)
-			umsg.Bool( true )
-			umsg.Char( math.random(1, #GAMEMODE.WASND.TBL_GlobalWareningWin ) )
-		umsg.End()
-		
-		-- Send negative message to the RP list of losers.
-		umsg.Start("EventEndgameTrigger", rpLose)
-			umsg.Bool( false )
-			umsg.Char( math.random(1, #GAMEMODE.WASND.TBL_GlobalWareningLose ) )
-		umsg.End()
-		
-		if (team.NumPlayers(TEAM_SPECTATOR) ~= 0) then
-			local rpSpec = RecipientFilter()
-			for k,v in pairs(team.GetPlayers(TEAM_SPECTATOR)) do
-				--Do generic stuff to specs
-				
-				rpSpec:AddPlayer( v )
-				--v:ConCommand("r_cleardecals")
+		for _, v in pairs(winners) do
+			netstream.Start(v, "EventEndgameTrigger", {
+				true,
+				math.random(1, #GAMEMODE.WASND[3])
+			})
+		end
+
+		for _, v2 in pairs(losers) do
+			netstream.Start(v2, "EventEndgameTrigger", {
+				false, 
+				math.random(1, #GAMEMODE.WASND[4])
+			})
+		end
+
+		if (team.NumPlayers(TEAM_SPECTATOR) != 0) then
+			for _, v3 in pairs(team.GetPlayers(TEAM_SPECTATOR)) do
+				netstream.Start(v3, "EventEndgameTrigger", {
+					false, 
+					math.random(1, #GAMEMODE.WASND[4])
+				})
 			end
-			
-			umsg.Start("EventEndgameTrigger", rpSpec)
-				umsg.Bool( false )
-				umsg.Char( math.random(1, #GAMEMODE.WASND.TBL_GlobalWareningLose ) )
-			umsg.End()
 		end
 	end
 	
@@ -323,10 +287,8 @@ function GM:EndGame()
 		end
 		
 		iWinFailPercent = math.floor( iCount / #tCount * 100 )
-		umsg.Start("Transit", nil)
-			umsg.Char( iWinFailPercent )
-		umsg.End()
-	
+		
+		netstream.Start(nil, "Transit", iWinFailPercent)
 	end
 	
 	-- Reinitialize
@@ -343,25 +305,18 @@ end
 
 function GM:PickRandomGameName( bFirst )
 	local env
-	
-	if GetConVar("ware_debug"):GetInt() == 1 then
-		self.NextGameName = GetConVar("ware_debugname"):GetString()
-		env = ware_env.FindEnvironment(ware_mod.Get(self.NextGameName).Room) or self.CurrentEnvironment
-		
-	elseif bFirst and (GetConVar("ware_debug"):GetInt() % 2 == 0) then
+
+	if bFirst then
 		self.NextGameName = "_intro"
 		env = ware_env.FindEnvironment(ware_mod.Get(self.NextGameName).Room) or self.CurrentEnvironment
-		
 	else
 		self.NextGameName, env = ware_mod.GetRandomGameName()
-		
-	end
+	end	
 	
 	if env ~= self.CurrentEnvironment then
 		self.CurrentEnvironment = env
 		self.NextgameStart = self.NextgameStart + self.WADAT.TransitFlourishTime
 		self.NextPlayerRespawn = CurTime() + self.WADAT.EndFlourishTime
-		
 	end
 	
 end
@@ -396,7 +351,8 @@ end
 
 function GM:SetNextGameStartsIn( delay )
 	self.NextgameStart = CurTime() + delay
-	SendUserMessage( "GameStartTime" , nil, self.NextgameStart )
+	netstream.Start(nil, "GameStartTime", self.NextgameStart)
+	--SendUserMessage( "GameStartTime" , nil, self.NextgameStart )
 end	
 
 function GM:Think()
@@ -407,7 +363,7 @@ function GM:Think()
 			-- Starts a new ware
 			if (CurTime() > self.NextgameStart) then
 				self:PickRandomGame()
-				SendUserMessage("WaitHide")
+				netstream.Start(nil, "WaitHide")
 			end
 			
 			-- Eventually, respawn all players
@@ -454,15 +410,14 @@ function GM:Think()
 			-- Send info about ware
 			--local rp = RecipientFilter()
 			--rp:AddAllPlayers()
-			umsg.Start("NextGameTimes", nil)
-				umsg.Float( 0 )
-				umsg.Float( 0 )
-				umsg.Float( 0 )
-				umsg.Float( 0 )
-				umsg.Bool( false )
-				umsg.Bool( false )
-			umsg.End()
-			
+			netstream.Start(nil, "NextGameTimes", {
+				0,
+				0,
+				0,
+				0,
+				false,
+				false
+			})
 		elseif self.FirstTimePickGame and CurTime() > self.FirstTimePickGame then
 			-- Game has just started, pick the first game
 			self:PickRandomGameName( true )
@@ -475,17 +430,11 @@ function GM:Think()
 			self.GamesArePlaying = true
 			self.WareHaveStarted = false
 			self.ActionPhase = false
-			
-			if ( GetConVar("ware_debug"):GetInt() > 0 ) then
-				self:SetNextGameStartsIn( 4 )
-				self.FirstTimePickGame = 1.3
+
+			self:SetNextGameStartsIn( 10 )
+			self.FirstTimePickGame = 19.3
 				
-			else
-				self:SetNextGameStartsIn( 10 )
-				self.FirstTimePickGame = 19.3
-				
-			end
-			SendUserMessage("WaitShow")
+			netstream.Start(nil, "WaitShow")
 		end
 	end
 	
@@ -668,7 +617,3 @@ end
 -- Start up.
 
 IncludeMinigames()
-if !DEBUG_DISABLE_STATS then StatsPoolMinigameDescriptions() end
-
-////////////////////////////////////////////////
-////////////////////////////////////////////////

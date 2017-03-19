@@ -13,7 +13,7 @@ function GM:SetWareWindupAndLength(windup , len)
 end
 
 function GM:OverrideAnnouncer( id )
-    if (1 <= id) and (id <= #self.WASND.BITBL_TimeLeft) then
+    if (1 <= id) and (id <= #self.WASND[6]) then
 		self.WareOverrideAnnouncer = id
 	end
 end
@@ -42,30 +42,42 @@ end
 
 function GM:DrawInstructions( sInstructions , optColorPointer , optTextColorPointer , optrpFilter )
 	local rp = optrpFilter or nil
-			
-	umsg.Start( "gw_instructions", rp )
-	umsg.String( sInstructions )
-	-- If there is no color, no chars about the color are passed.
-	umsg.Bool( optColorPointer ~= nil )
-	if (optColorPointer ~= nil) then
-		-- If there is a background color, a bool stating about the presence
-		-- of a text color must be passed, even if there is no text color !
-		umsg.Bool( optTextColorPointer ~= nil )
 
-		umsg.Char( optColorPointer.r - 128 )
-		umsg.Char( optColorPointer.g - 128 )
-		umsg.Char( optColorPointer.b - 128 )
-		umsg.Char( optColorPointer.a - 128 )
-		
-		if (optTextColorPointer ~= nil) then
-			umsg.Char( optTextColorPointer.r - 128 )
-			umsg.Char( optTextColorPointer.g - 128 )
-			umsg.Char( optTextColorPointer.b - 128 )
-			umsg.Char( optTextColorPointer.a - 128 )
+	if optColorPointer then
+		if optTextColorPointer then
+			netstream.Start(rp, "gw_instructions", {
+				sInstructions, 
+				true, 
+				true, 
+				optColorPointer.r, 
+				optColorPointer.g, 
+				optColorPointer.b,
+				optColorPointer.a,
+				optTextColorPointer.r,
+				optTextColorPointer.g,
+				optTextColorPointer.b,
+				optTextColorPointer.a
+			})
+		else
+			netstream.Start(rp, "gw_instructions", {
+				sInstructions, 
+				true, 
+				false, 
+				optColorPointer.r, 
+				optColorPointer.g, 
+				optColorPointer.b,
+				optColorPointer.a
+			})
 		end
+	else
+		netstream.Start(rp, "gw_instructions", {
+			sInstructions, 
+			false, 
+			false
+		})
 	end
-	umsg.End()
 end
+			
 
 function GM:SetPlayersInitialStatus(isAchievedNilIfMystery)
 	-- nil as an achieved status then can only be set globally (start of game).
@@ -80,13 +92,8 @@ function GM:SetPlayersInitialStatus(isAchievedNilIfMystery)
 end
 
 function GM:SendEntityTextColor( rpfilterOrPlayer, entity, r, g, b, a )
-	umsg.Start("EntityTextChangeColor", rpfilterOrPlayer)
-		umsg.Entity( entity )
-		umsg.Char( r - 128 )
-		umsg.Char( g - 128 )
-		umsg.Char( b - 128 )
-		umsg.Char( a - 128 )
-	umsg.End()
+
+	netstream.Start(rpfilterOrPlayer, "EntityTextChangeColor", {entity, r, g, b, a})
 end
 
 ////////////////////////////////////////////////
@@ -120,17 +127,9 @@ function GM:SetNextGameEnd(time)
 	
 	--local rp = RecipientFilter()
 	--rp:AddAllPlayers()
-	umsg.Start("NextGameTimes", nil)
-		umsg.Float( 0 )
-		umsg.Float( self.NextgameEnd )
-		umsg.Float( self.Windup )
-		umsg.Float( self.WareLen )
-		umsg.Bool( true )
-		umsg.Bool( true )
-		umsg.Char( 1 )
-		umsg.Char( math.random(1, #GAMEMODE.WASND.TBL_GlobalWareningNew ) )
-		umsg.Char( self.WareOverrideAnnouncer )
-	umsg.End()
+
+	local random = math.random(1, #GAMEMODE.WASND[2] )
+	netstream.Start(nil, "NextGameTimes", {0, self.NextgameEnd, self.Windup, self.WareLen, true, true, 1, random, self.WareOverrideAnnouncer})
 end
 
 ////////////////////////////////////////////////

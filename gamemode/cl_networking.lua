@@ -7,6 +7,9 @@
 // Usermessages and VGUI                      //
 ////////////////////////////////////////////////
 
+include("modules/netstream2.lua")
+include("modules/pon.lua")
+
 gws_NextgameStart = 0
 gws_NextwarmupEnd = 0
 gws_NextgameEnd = 0
@@ -26,22 +29,17 @@ gws_AmbientMusicIsOn = false
 -- TODO DEBUG : SET TO FALSE AFTER EDITING !
 gws_AtEndOfGame = false
 
+netstream.Hook("DecorationInfo", function(data)
+	GAMEMODE:MapDecoration( data[1], data[2] )
+end)
 
-local function DecorationInfo( m )
-	local origin  = m:ReadVector()
-	local extrema = m:ReadVector()
-	
-	GAMEMODE:MapDecoration( origin, extrema )
-end
-usermessage.Hook( "DecorationInfo", DecorationInfo )
-
-local function ModelList( m )
-	local numberOfModels = m:ReadLong()
+netstream.Hook("ModelList", function(data)
+	local numberOfModels = data[1]
 	local currentModelCount = #GAMEMODE.ModelPrecacheTable
 	local model = ""
 	
 	for i=1,numberOfModels do
-		table.insert( GAMEMODE.ModelPrecacheTable, m:ReadString() )
+		table.insert( GAMEMODE.ModelPrecacheTable, data[2] )
 	end
 	
 	gws_PrecacheSequence = (gws_PrecacheSequence or 0) + 1
@@ -52,26 +50,23 @@ local function ModelList( m )
 		--print( "Precaching model " .. k .. " : " .. model )
 		util.PrecacheModel( model )
 	end
-end
-usermessage.Hook( "ModelList", ModelList )
+end)
 
-local function GameStartTime( m )
-	gws_NextgameStart = m:ReadLong()
-end
-usermessage.Hook( "GameStartTime", GameStartTime )
+netstream.Hook("GameStartTime", function(data)
+	gws_NextgameStart = data
+end)
 
-local function ServerJoinInfo( m )
+netstream.Hook("ServerJoinInfo", function(data)
 	local didnotbegin = false
 
-	gws_TimeWhenGameEnds = m:ReadFloat()
-	didnotbegin = m:ReadBool()
+	gws_TimeWhenGameEnds = data[1]
+	didnotbegin = data[2]
 	
 	if didnotbegin == true then
-		WaitShow()
+		netstream.Start("WaitShow")
 	end
 	print("Game ends on time : "..gws_TimeWhenGameEnds)
-end
-usermessage.Hook( "ServerJoinInfo", ServerJoinInfo )
+end)
 
 local function EnableMusicVolume()
 	if gws_AmbientMusicIsOn then
@@ -117,9 +112,9 @@ local function DisableMusic()
 end
 
 local function PlayEnding( musicID )
-	local dataRef = GAMEMODE.WADAT.TBL_GlobalWareningEpic[1]
+	local dataRef = GAMEMODE.WADAT.GlobalWareningEpic[1]
 	
-	LocalPlayer():EmitSound( GAMEMODE.WASND.TBL_GlobalWareningEpic[1], 60, GAMEMODE:GetSpeedPercent() )
+	LocalPlayer():EmitSound( GAMEMODE.WASND[10][2][2], 60, GAMEMODE:GetSpeedPercent() )
 	gws_AmbientMusicIsOn = true
 	
 	for k, music in pairs( gws_AmbientMusic ) do
@@ -131,105 +126,102 @@ local function PlayEnding( musicID )
 	timer.Simple( dataRef.Length, EnableMusic)
 end
 
-local function NextGameTimes( m )
-	gws_NextwarmupEnd = m:ReadFloat()
-	gws_NextgameEnd   = m:ReadFloat()
-	gws_WarmupLen     = m:ReadFloat()
-	gws_WareLen       = m:ReadFloat()
-	local bShouldKeepAnnounce = m:ReadBool()
-	local bShouldPlayMusic = m:ReadBool()
+netstream.Hook("NextGameTimes", function(data)
+	gws_NextwarmupEnd = data[1]
+	gws_NextgameEnd   = data[2]
+	gws_WarmupLen     = data[3]
+	gws_WareLen       = data[4]
+	local bShouldKeepAnnounce = data[5]
+	local bShouldPlayMusic = data[6]
 	
 	if  !bShouldKeepAnnounce then
 		gws_TickAnnounce = 5
 	else
 		gws_TickAnnounce = 0
 	end
-	
+
 	if bShouldPlayMusic then
-		local libraryID = m:ReadChar()
-		local musicID = m:ReadChar()
-		gws_CurrentAnnouncer = m:ReadChar()
-		local loopToPlay = m:ReadChar()
-		if libraryID != nil and musicID != nil then
-			LocalPlayer():EmitSound( GAMEMODE.WASND.BITBL_GlobalWarening[libraryID][musicID] , 60, GAMEMODE:GetSpeedPercent() )
+		local libraryID = data[7]
+		local musicID = data[8]
+		gws_CurrentAnnouncer = data[9]
+		local loopToPlay = data[10]
+
+		if musicID != nil then
+			LocalPlayer():EmitSound( GAMEMODE.WASND[libraryID][musicID][2] , 60, GAMEMODE:GetSpeedPercent() )
 			gws_AmbientMusicIsOn = true
 			EnableMusic()
 		end	
 	end	
-end
-usermessage.Hook( "NextGameTimes", NextGameTimes )
+end)
 
-local function EventEndgameTrigger( m )
-	local achieved = m:ReadBool()
-	local musicID = m:ReadChar()
-	
+netstream.Hook( "EventEndgameTrigger", function(data)
+	local achieved = data[1]
+	local musicID = data[2]
+
 	gws_AmbientMusicIsOn = false
 	timer.Simple( 0.5, DisableMusic )
 	
 	if (achieved) then
-		LocalPlayer():EmitSound( GAMEMODE.WASND.TBL_GlobalWareningWin[ musicID ] , 60, GAMEMODE:GetSpeedPercent() )
+		LocalPlayer():EmitSound( GAMEMODE.WASND[3][musicID][2] , 60, GAMEMODE:GetSpeedPercent() )
 	else
-		LocalPlayer():EmitSound( GAMEMODE.WASND.TBL_GlobalWareningLose[ musicID ] , 60, GAMEMODE:GetSpeedPercent() )
+		LocalPlayer():EmitSound( GAMEMODE.WASND[4][musicID][2] , 60, GAMEMODE:GetSpeedPercent() )
 	end
-end
-usermessage.Hook( "EventEndgameTrigger", EventEndgameTrigger )
+end)
 
-local function BestStreakEverBreached( m )
-	GAMEMODE:SetBestStreak( m:ReadLong() )
-end
-usermessage.Hook( "BestStreakEverBreached", BestStreakEverBreached )
+netstream.Hook("BestStreakEverBreached", function(BestStreakEver)
+	 GAMEMODE:SetBestStreak(BestStreakEver)
+end)
 
-local function EventEveryoneState( m )
-	local achieved = m:ReadBool()
+netstream.Hook( "EventEveryoneState", function(data)
+	local achieved = data
 
 	if (achieved) then
-		LocalPlayer():EmitSound( GAMEMODE.WASND.EveryoneWon, 100, GAMEMODE:GetSpeedPercent() )
+		LocalPlayer():EmitSound( GAMEMODE.WASND[10][7][2], 100, GAMEMODE:GetSpeedPercent() )
 	else
-		LocalPlayer():EmitSound( GAMEMODE.WASND.EveryoneLost, 100, GAMEMODE:GetSpeedPercent() )
+		LocalPlayer():EmitSound( GAMEMODE.WASND[10][8][2], 100, GAMEMODE:GetSpeedPercent() )
 	end
-end
-usermessage.Hook( "EventEveryoneState", EventEveryoneState )
+end)
 
-local function PlayerTeleported( m )
-	if  !m:ReadBool() then
-		local musicID = m:ReadChar()
-		LocalPlayer():EmitSound( GAMEMODE.WASND.TBL_GlobalWareningTeleport[ musicID ] , 60, GAMEMODE:GetSpeedPercent() )
+netstream.Hook("PlayerTeleported", function(data)
+	local bool = data[1] or false
+	if  !bool then
+		local musicID = data[2]
+		LocalPlayer():EmitSound( GAMEMODE.WASND[5][math.Clamp(musicID, 1, 2)][2] , 60, GAMEMODE:GetSpeedPercent() )
 	end
-	LocalPlayer():EmitSound( table.Random(GAMEMODE.WASND.TBL_Teleport) , 40, GAMEMODE:GetSpeedPercent() )
-end
-usermessage.Hook( "PlayerTeleported", PlayerTeleported )
+	LocalPlayer():EmitSound(GAMEMODE.WASND[5][math.random(3,5)][2], 40, GAMEMODE:GetSpeedPercent() )
+end)
 
 
+netstream.Hook("EntityTextChangeColor", function(data)
+	local target = data[1]
+	local r,g,b,a = data[2], data[3], data[4], data[5]
 
-
-local function EntityTextChangeColor( m )
-	local target = m:ReadEntity()
-	local r,g,b,a = m:ReadChar() + 128, m:ReadChar() + 128, m:ReadChar() + 128, m:ReadChar() + 128
-	
 	if IsValid(target) and target.SetEntityColor then
 		target:SetEntityColor(r,g,b,a)
 	else
-		timer.Simple( 0, function(target,r,g,b,a) if IsValid(target) and target.SetEntityColor then target:SetEntityColor(r,g,b,a) end end )
+		timer.Simple( 0, function(target,r,g,b,a) 
+			if IsValid(target) and target.SetEntityColor then 
+				target:SetEntityColor(r,g,b,a) 
+			end 
+		end)
 	end
-end
-usermessage.Hook( "EntityTextChangeColor", EntityTextChangeColor )
-
+end)
 
 /*----------------------------------
 VGUI Includes
 ------------------------------------*/
 
 
-local vgui_transit = vgui.RegisterFile( "vgui_transitscreen.lua" )
-local vgui_wait = vgui.RegisterFile( "vgui_waitscreen.lua" )
-local vgui_clock = vgui.RegisterFile( "vgui_clock.lua" )
-local vgui_clockgame = vgui.RegisterFile( "vgui_clockgame.lua" )
-local vgui_stupidboard = vgui.RegisterFile( "garryware_vgui_main.lua")
-local vgui_livescoreboard = vgui.RegisterFile( "garryware_vgui_livescoreboard.lua")
-local vgui_instructions = vgui.RegisterFile( "garryware_vgui_instructions.lua")
-local vgui_status = vgui.RegisterFile( "garryware_vgui_status.lua")
-local vgui_ammo = vgui.RegisterFile( "garryware_vgui_ammo.lua")
-local vgui_awards = vgui.RegisterFile( "garryware_vgui_awards.lua")
+local vgui_transit = vgui.RegisterFile( "derma/vgui/cl_transitscreen.lua" )
+local vgui_wait = vgui.RegisterFile( "derma/vgui/cl_waitscreen.lua" )
+local vgui_clock = vgui.RegisterFile( "derma/vgui/cl_clock.lua" )
+local vgui_clockgame = vgui.RegisterFile( "derma/vgui/cl_clockgame.lua" )
+local vgui_stupidboard = vgui.RegisterFile( "derma/garryware_vgui/cl_main.lua")
+local vgui_livescoreboard = vgui.RegisterFile( "derma/garryware_vgui/cl_livescoreboard.lua")
+local vgui_instructions = vgui.RegisterFile( "derma/garryware_vgui/cl_instructions.lua")
+local vgui_status = vgui.RegisterFile( "derma/garryware_vgui/cl_status.lua")
+local vgui_ammo = vgui.RegisterFile( "derma/garryware_vgui/cl_ammo.lua")
+local vgui_awards = vgui.RegisterFile( "derma/garryware_vgui/cl_awards.lua")
 
 local TransitVGUI = vgui.CreateFromTable( vgui_transit )
 local WaitVGUI = vgui.CreateFromTable( vgui_wait )
@@ -288,6 +280,7 @@ local tWinEvalutaion = {
 {95, "Massive WIN"},
 {100, "Epic WIN"}
 }
+
 local function EvaluateFailure( iPercent )
 	local iPos = 1
 	while (iPos < #tWinEvalutaion) and ( iPercent > tWinEvalutaion[iPos][1] ) do
@@ -296,9 +289,9 @@ local function EvaluateFailure( iPercent )
 	return tWinEvalutaion[iPos][2]
 end
 
-local function Transit( m )
-	if m then
-		local theoWinFailNum = tonumber( m:ReadChar() )
+netstream.Hook("Transit", function(data)
+	if data then
+		local theoWinFailNum = tonumber(data)
 		TransitVGUI:SetSubtitle("Server Fail-o-meter : " .. tostring( 100 - theoWinFailNum ) .. "% ... " .. EvaluateFailure( theoWinFailNum ) .. "!"  )
 		
 		local fWinFailBlend = theoWinFailNum / 100
@@ -311,21 +304,17 @@ local function Transit( m )
 	RunConsoleCommand("r_cleardecals")
 	
 	timer.Simple( 2.7, function() TransitVGUI:Hide() end )
-end
-usermessage.Hook( "Transit", Transit )
+end)
 
-function WaitShow( m ) --used in ServerJoinInfo
+netstream.Hook("WaitShow", function()
 	WaitVGUI:Show()
-end
-usermessage.Hook( "WaitShow", WaitShow )
+end)
 
-local function WaitHide( m )
+netstream.Hook("WaitHide", function()
 	WaitVGUI:Hide()
-end
-usermessage.Hook( "WaitHide", WaitHide )
+end)
 
-
-local function EndOfGamemode( m )
+netstream.Hook("EndOfGamemode", function()
 	ClockVGUI:Hide()
 	ClockGameVGUI:Hide()
 	StupidBoardVGUI:Hide()
@@ -340,22 +329,22 @@ local function EndOfGamemode( m )
 	gws_AtEndOfGame = true
 	
 	--timer.Simple( GAMEMODE.WADAT.EpilogueFlourishDelayAfterEndOfGamemode, PlayEnding, 2 )
-end
-usermessage.Hook( "EndOfGamemode", EndOfGamemode )
+end)
 
-local function SpecialFlourish( m )
-	local musicID = m:ReadChar()
-	local dataRef = GAMEMODE.WADAT.TBL_GlobalWareningEpic[musicID]
-	timer.Simple( dataRef.StartDalay + dataRef.MusicFadeDelay, function() gws_AmbientMusic[1]:ChangeVolume( 0.0, GAMEMODE:GetSpeedPercent() ) end )
-	timer.Simple( dataRef.StartDalay, PlayEnding, musicID )
-end
-usermessage.Hook( "SpecialFlourish", SpecialFlourish )
+netstream.Hook("SpecialFlourish", function(data)
+	local musicID = data
+	if musicID then
+		local dataRef = GAMEMODE.WADAT.GlobalWareningEpic[musicID]
+		if dataRef then
+			timer.Simple( dataRef.StartDelay + dataRef.MusicFadeDelay, function() gws_AmbientMusic[1]:ChangeVolume( 0.0, GAMEMODE:GetSpeedPercent() ) end )
+			timer.Simple( dataRef.StartDelay, PlayEnding, musicID )
+		end
+	end
+end)
 
-
-local function HitConfirmation( m )
-	LocalPlayer():EmitSound( GAMEMODE.WASND.Confirmation, GAMEMODE:GetSpeedPercent() )
-end
-usermessage.Hook( "HitConfirmation", HitConfirmation )
+netstream.Hook("HitConfirmation", function()
+	LocalPlayer():EmitSound( GAMEMODE.WASND[10][4][2], GAMEMODE:GetSpeedPercent() )
+end)
 
 local function DoRagdollEffect( ply, optvectPush, optiObjNumber, iIter)
 	if  !IsValid( ply ) then return end
@@ -389,41 +378,40 @@ local function DoRagdollEffect( ply, optvectPush, optiObjNumber, iIter)
 	
 end
 
-local function PlayerRagdollEffect( m )
-	local ply = m:ReadEntity()
-	local optvectPush = m:ReadVector()
-	local optiObjNumber = m:ReadChar()
+netstream.Hook("PlayerRagdollEffect", function(data)
+	local ply = data[1]
+	local optvectPush = data[2]
+	local optiObjNumber = nil
+	if data[3] then
+		optiObjNumber = data[3]
+	else
+		optiObjNumber = -1
+	end
 	
 	if  !IsValid( ply ) then return end
 	
 	DoRagdollEffect( ply, optvectPush, optiObjNumber, 20)
-end
-usermessage.Hook( "PlayerRagdollEffect", PlayerRagdollEffect )
+end)
 
-local function ReceiveInstructions( usrmsg )
-	local sText = usrmsg:ReadString()
-	local bUseCustomBG  = usrmsg:ReadBool()
+netstream.Hook("gw_instructions", function(data)
+	local sText = data[1]
+	local bUseCustomBG  = data[2]
 	
 	local cFG_Builder = nil
 	local cBG_Builder = nil
 	
 	if bUseCustomBG then
-		local bUseCustomFG = usrmsg:ReadBool()
+		local bUseCustomFG = data[3]
 		
-		cBG_Builder = Color(usrmsg:ReadChar() + 128, usrmsg:ReadChar() + 128, usrmsg:ReadChar() + 128, usrmsg:ReadChar() + 128)
+		cBG_Builder = Color(data[4], data[5], data[6], data[7])
 		
 		if bUseCustomFG then
-			cFG_Builder = Color( usrmsg:ReadChar() + 128, usrmsg:ReadChar() + 128, usrmsg:ReadChar() + 128, usrmsg:ReadChar() + 128)
-			
+			cFG_Builder = Color(data[8], data[9], data[10], data[11])
 		end
 	
 	end
 	InstructionsVGUI:PrepareDrawData( sText, cFG_Builder, cBG_Builder )
-	
-end
-usermessage.Hook( "gw_instructions", ReceiveInstructions )
-
-
+end)
 	
 local cStatusBackWinColorSet  = Color(0, 164, 237,192)
 local cStatusBackLoseColorSet = Color(255,  87,  87,192)
@@ -447,21 +435,20 @@ local function MakeParticlesFromTable( myTablePtr )
 	
 end
 
-local function ReceiveStatuses( usrmsg )	
+netstream.Hook("gw_yourstatus", function(data)
 	local sText = ""
 	
-	local yourStatus = usrmsg:ReadBool() or false
-	local isServerGlobal = usrmsg:ReadBool() or false
+	local yourStatus = data[1] or false
+	local isServerGlobal = data[2] or false
 	
 	if !isServerGlobal then
 		sText = ((yourStatus and "Success!") or "Failure!") -- MaxOfS2D you fail
 		if yourStatus then
-			LocalPlayer():EmitSound( table.Random(GAMEMODE.WASND.TBL_LocalWon), 100, GAMEMODE:GetSpeedPercent() )
+			LocalPlayer():EmitSound( table.Random(GAMEMODE.WASND[8])[2], 100, GAMEMODE:GetSpeedPercent() )
 		
 			MakeParticlesFromTable( tWinParticles )
-			
 		else
-			LocalPlayer():EmitSound( table.Random(GAMEMODE.WASND.TBL_LocalLose), 100, GAMEMODE:GetSpeedPercent() )
+			LocalPlayer():EmitSound( table.Random(GAMEMODE.WASND[9])[2], 100, GAMEMODE:GetSpeedPercent() )
 		
 			MakeParticlesFromTable( tFailParticles )
 		end
@@ -474,11 +461,11 @@ local function ReceiveStatuses( usrmsg )
 	local colorSelect = yourStatus and cStatusBackWinColorSet or cStatusBackLoseColorSet
 
 	StatusVGUI:PrepareDrawData( sText, nil, colorSelect, 3.0 )
-end
-usermessage.Hook( "gw_yourstatus", ReceiveStatuses )
 
-local function ReceiveSpecialStatuses( usrmsg )	
-	local specialStatus = usrmsg:ReadChar() or 0
+end)
+
+netstream.Hook("gw_specialstatus", function(data)
+	local specialStatus = data or 0
 	local positive = false
 	
 	local sText = ""
@@ -487,12 +474,11 @@ local function ReceiveSpecialStatuses( usrmsg )
 		positive = true
 		
 		sText = "Done!"
-		LocalPlayer():EmitSound( table.Random(GAMEMODE.WASND.TBL_LocalWon), 100, GAMEMODE:GetSpeedPercent() )
+		LocalPlayer():EmitSound( table.Random(GAMEMODE.WASND[8])[2], 100, GAMEMODE:GetSpeedPercent() )
 		
 	end
 
 	local colorSelect = positive and cStatusBackWinColorSet or cStatusBackLoseColorSet
 
 	StatusVGUI:PrepareDrawData( sText, nil, colorSelect, 1.0 )
-end
-usermessage.Hook( "gw_specialstatus", ReceiveSpecialStatuses )
+end)

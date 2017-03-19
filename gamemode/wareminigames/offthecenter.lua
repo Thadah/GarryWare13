@@ -42,16 +42,15 @@ function WARE:Initialize()
 	local effectRadius = self.CircleRadius + 32
 		
 	local effectdata = EffectData()
-		effectdata:SetOrigin( self.CenterPos )
-		effectdata:SetStart( self.Apos )
-		effectdata:SetRadius( effectRadius )
-		effectdata:SetMagnitude( 15 )
-		effectdata:SetAngles(Angle(119, 199, 255))
-		effectdata:SetScale( 9 )
-	util.Effect( "ware_prisma_harmonics", effectdata , true, true )
-		
-		effectdata:SetOrigin( self.CenterPos + Vector(0,0,16) )
-	util.Effect( "ware_prisma_harmonics_floor", effectdata , true, true )
+	effectdata:SetOrigin( self.CenterPos )
+	effectdata:SetStart( self.Apos )
+	effectdata:SetRadius( effectRadius )
+	effectdata:SetMagnitude( 15 )
+	effectdata:SetAngles(Angle(119, 199, 255))
+	effectdata:SetScale( 9 )
+	util.Effect( "ware_prisma_harmonics", effectdata, true, true )
+	effectdata:SetOrigin( self.CenterPos + Vector(0,0,16) )
+	util.Effect( "ware_prisma_harmonics_floor", effectdata, true, true)
 		
 	local ent = ents.Create("ware_ringzone")
 		ent:SetPos( self.CenterPos + Vector(0,0,8) )
@@ -61,8 +60,8 @@ function WARE:Initialize()
 		
 		ent.LastActTime = 0
 		
-		ent:SetZSize(self.CircleRadius * 2.0)
-		ent:SetZColor( Color(0,0,0) )
+		ent:SetZSize(self.CircleRadius * 2)
+		ent:SetZColor(  Color(185,220,255)  )
 		
 		GAMEMODE:AppendEntToBin(ent)
 		GAMEMODE:MakeAppearEffect(ent:GetPos())
@@ -111,13 +110,13 @@ function WARE:Think( )
 				end
 				
 				target:SetGroundEntity( NULL )
-				target:SetVelocity(target:GetVelocity()*(-1) + (target:GetPos() + Vector(0,0,32) - ring:GetPos()) * 500)
+				target:SetVelocity(target:GetVelocity()*(-1) + (target:GetPos() + Vector(0,0,32) - ring:GetPos()):GetNormalized() * 500 )
 			
 			end
 		end
 	
 		if target:IsPlayer() and target:IsWarePlayer() and !target:GetLocked() then
-			local dir = (target:GetPos() + Vector(0, 0, 128) - ring:GetPos())
+			local dir = (target:GetPos() + Vector(0, 0, 128) - ring:GetPos()):GetNormalized()
 			target:ApplyLose()
 			target:SimulateDeath( dir * 100 )
 			target:EjectWeapons( dir * 200, 100 ) 

@@ -8,11 +8,15 @@ function ENT:Initialize()
 	self.Entity:PhysicsInit( SOLID_VPHYSICS )
 	self.Entity:SetMoveType( MOVETYPE_VPHYSICS )
 	self.Entity:SetSolid( SOLID_VPHYSICS )
+	self.Entity:SetOwner(self.Owner)
+	self.Entity:EnableCustomCollisions(true)
 
 	self.Entity:SetCollisionGroup(COLLISION_GROUP_PROJECTILE)
 	
 	local phys = self.Entity:GetPhysicsObject()
 	phys:EnableDrag(true)
+	phys:EnableGravity(false)
+	phys:EnableCollisions(true)
 	phys:SetMass(80)
 	phys:SetMaterial("crowbar")
 	if (phys:IsValid()) then
@@ -44,18 +48,14 @@ function ENT:PhysicsCollide( data, physobj )
 	/*for _,ent in pairs(ents.FindInSphere(self.Entity:GetPos(),64)) do
 		if ent:IsPlayer() == true then
 			ent:SetGroundEntity( NULL )
-			ent:SetVelocity(ent:GetVelocity() + (ent:GetPos() - self.Entity:GetPos()):Normalize() * 350)
+			ent:SetVelocity(ent:GetVelocity() + (ent:GetPos() - self.Entity:GetPos()):GetNormalized() * 350)
 		end
 	end*/
 
 	--New code from BlackOps
 	for i,v in ipairs(ents.FindInSphere( self.Entity:GetPos(), 60 )) do
-		if(v ~= self.Entity) then
-			if(v:IsPlayer()) then
-				if(v == self.Entity:GetOwner()) then
-					v:SetVelocity(v:GetAimVector() * -500, 0)
-				end
-			end
+		if(v == self.Entity:GetOwner()) then
+			v:SetVelocity(v:GetAimVector() * -500, 0)
 		end
 	end
 	self.Entity:Remove()

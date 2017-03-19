@@ -1,3 +1,4 @@
+WARE = {}
 WARE.Author = "Hurricaaane (Ha3)"
 WARE.Room = "hexaprism"
 
@@ -8,8 +9,6 @@ WARE.Models = {
  }
  
 WARE.Positions = {}
-
-
 
 function WARE:GetModelList()
 	return self.Models
@@ -26,11 +25,6 @@ function WARE:FlashSpawns( iteration, delay )
 		timer.Simple(delay , function() self:FlashSpawns(iteration - 1, delay) end)
 	end	
 end
-
---TBD DEBUG
----function WARE:IsPlayable()
----	return true
----end
 
 function WARE:Initialize()
 	GAMEMODE:EnableFirstFailAward( )
@@ -87,7 +81,7 @@ function WARE:StartAction()
 		GAMEMODE:MakeAppearEffect(ent:GetPos())
 		
 		for k,spec in pairs( spectators ) do
-			ent:AddEntityRelationship( spec, 4, 10 )
+			ent:AddEntityRelationship( spec, D_NU, 10 )
 			
 		end
 	end
@@ -105,7 +99,7 @@ function WARE:EntityTakeDamage(ent,info)
 		ent:SimulateDeath()
 		
 		for k,npc in pairs( self.SpawnedNPCs ) do
-			npc:AddEntityRelationship( ent, 4, 10 )
+			npc:AddEntityRelationship( ent, D_NU, 99 )
 		end
 		
 	end
@@ -119,7 +113,7 @@ function WARE:Think( )
 			ent:SimulateDeath()
 			
 			for k,npc in pairs( self.SpawnedNPCs ) do
-				npc:AddEntityRelationship( ent, 4, 10 )
+				npc:AddEntityRelationship( ent, D_NU, 99 )
 			end
 		
 		end

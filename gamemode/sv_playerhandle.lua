@@ -21,34 +21,25 @@ function GM:PlayerInitialSpawn( ply, id )
 	if (self.NextgameStart > CurTime()) then
 		didnotbegin = true
 	end
-	
-	umsg.Start("ServerJoinInfo", ply )
-		umsg.Float( self.TimeWhenGameEnds )
-		umsg.Bool( didnotbegin )
-	umsg.End()
-	umsg.Start("BestStreakEverBreached", ply )
-		umsg.Long( self.BestStreakEver )
-	umsg.End()
-	
+
+	netstream.Start(ply, "ServerJoinInfo", {self.TimeWhenGameEnds, didnotbegin})
+
+	netstream.Start(ply, "BestStreakEverBreached", self.BestStreakEver)
+
 	if self.Decoration_Origin then
-		umsg.Start("DecorationInfo", ply )
-			umsg.Vector( self.Decoration_Origin )
-			umsg.Vector( self.Decoration_Extrema )
-		umsg.End()
+		netstream.Start(ply, "DecorationInfo", {self.Decoration_Origin, self.Decoration_Extrema})
 	end
-	
+
 	self:SendModelList( ply )
 	
 	ply:SetComboSpecialInteger( 0 )
 	
 	-- TOKEN_GW_STATS : Need to add player if not already done NOW !
-	if !DEBUG_DISABLE_STATS then self:StatsManagePlayerJoined( ply ) end
 end
 
 function GM:PlayerDisconnected( ply )
 	-- TOKEN_GW_STATS : Need to store last data NOW !
-	if !DEBUG_DISABLE_STATS then self:StatsStore( ply ) end
-	
+
 end
 
 function GM:PlayerSpawn(ply)
@@ -64,13 +55,14 @@ function GM:PlayerSpawn(ply)
 	
 	-- TODO
 	-- Double send it because sometime it crashes
+	/*
 	if self.Decoration_Origin then
 		umsg.Start("DecorationInfo", ply )
 			umsg.Vector( self.Decoration_Origin )
 			umsg.Vector( self.Decoration_Extrema )
 		umsg.End()
 	end
-	
+	*/
 end
 
 function GM:PlayerSelectSpawn(ply)
@@ -103,11 +95,10 @@ end
 
 function GM:RespawnAllPlayers( bNoMusicEvent, bForce )
 	if !self.CurrentEnvironment then return end
+
+	local randomsound = math.random(1, math.Clamp(#GAMEMODE.WASND[5], 1, 2))
 	
-	local rp = RecipientFilter()
-	
-	local spawns = {}
-	
+	local spawns = {}	
 	-- Priority goes to active players, so they don't spawn in each other
 	for _,v in pairs( team.GetPlayers(TEAM_HUMANS) ) do
 		if bForce or (v:GetEnvironment() ~= self.CurrentEnvironment) then
@@ -123,7 +114,6 @@ function GM:RespawnAllPlayers( bNoMusicEvent, bForce )
 			if bForce then v._forcespawntime = CurTime() end
 			v:Spawn( )
 			
-			rp:AddPlayer(v)
 		end
 	end
 	
@@ -138,14 +128,17 @@ function GM:RespawnAllPlayers( bNoMusicEvent, bForce )
 			v.ForcedSpawn = loc
 			v:Spawn()
 			
-			rp:AddPlayer(v)
 		end
 	end
 	
+	netstream.Start(rp, "PlayerTeleported", {bNoMusicEvent, randomsound})
+	
+	/*
 	umsg.Start("PlayerTeleported", rp)
 		umsg.Bool(bNoMusicEvent or false)
-		umsg.Char( math.random(1, #GAMEMODE.WASND.TBL_GlobalWareningTeleport ) )
+		umsg.Char( math.random(1, math.Clamp(#GAMEMODE.WASND[5], 1, 2)))
 	umsg.End()
+	*/
 end
 
 ////////////////////////////////////////////////
@@ -165,14 +158,11 @@ function GM:SendModelList( ply )
 	
 	for i=1,splits do
 		local toSend = ((i < splits) and messageSplit) or lastSplit
+
+		for k=1,toSend do
+			model = self.ModelPrecacheTable[ (i - 1) * messageSplit + k ]
+		end
 		
-		umsg.Start("ModelList", ply)
-			umsg.Long(toSend)
-			for k=1,toSend do
-				model = self.ModelPrecacheTable[ (i - 1) * messageSplit + k ]
-				umsg.String( model )
-			end
-		umsg.End()
-		
+		netstream.Start(ply, "ModelList", {toSend, model})
 	end
 end

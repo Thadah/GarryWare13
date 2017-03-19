@@ -135,7 +135,7 @@ function meta:ApplyLock( dontSendStatusMessage )
 		-- TOKEN_GWUPDATE_COMP
 		local anim = (math.random(0, 1) > 0) and ACT_SIGNAL_FORWARD or ACT_SIGNAL_HALT
 		self:DoAnimationEvent( anim ) 
-		self:EmitSound(GAMEMODE.WASND.OtherWin, 100, GAMEMODE:GetSpeedPercent())
+		self:EmitSound(GAMEMODE.WASND[10][5][2], 100, GAMEMODE:GetSpeedPercent())
 		self:AddFrags( 1 )
 		local newComboVal = self:IncrementCombo()
 		
@@ -156,7 +156,7 @@ function meta:ApplyLock( dontSendStatusMessage )
 		-- TOKEN_GWUPDATE_COMP
 		local anim = (math.random(0, 1) > 0) and ACT_GMOD_GESTURE_ITEM_THROW or ACT_GMOD_GESTURE_ITEM_DROP
 		self:DoAnimationEvent( anim ) 
-		self:EmitSound(GAMEMODE.WASND.OtherLose, 100, GAMEMODE:GetSpeedPercent())
+		self:EmitSound(GAMEMODE.WASND[10][6][2], 100, GAMEMODE:GetSpeedPercent())
 		self:AddDeaths( 1 )
 		self:InterruptCombo()
 		
@@ -186,10 +186,7 @@ function meta:ApplyLock( dontSendStatusMessage )
 		else
 			--local rp = RecipientFilter()
 			--rp:AddPlayer( self )
-			umsg.Start("gw_yourstatus", self)
-				umsg.Bool(hasAchieved)
-				umsg.Bool(false)
-			umsg.End()
+			netstream.Start(self, "gw_yourstatus", {hasAchieved, false})
 		end
 	end
 end
@@ -197,10 +194,7 @@ end
 function meta:TellDone( )
 	--local rp = RecipientFilter()
 	--rp:AddPlayer( self )
-	umsg.Start("gw_specialstatus", self)
-		umsg.Char( 1 )
-	umsg.End()
-	
+	netstream.Start(self, "gw_specialstatus", 1)
 end
 
 function meta:ApplyDone( )
@@ -242,9 +236,7 @@ function meta:IncrementCombo()
 		
 		--local rpall = RecipientFilter()
 		--rpall:AddAllPlayers( )
-		umsg.Start("BestStreakEverBreached", nil)
-			umsg.Long( GAMEMODE:GetBestStreak() )
-		umsg.End()
+		netstream.Start(nil, "BestStreakEverBreached", GAMEMODE:GetBestStreak())
 	end
 	
 	return myCombo
@@ -255,18 +247,18 @@ function meta:PrintComboMessagesAndEffects( compareCombo )
 		GAMEMODE:PrintInfoMessage( self:GetName(), " equalized a ", "Server Best Streak of " .. compareCombo .. " Wares!" )
 		
 		--self:EmitSound( GAMEMODE.WASND.TBL_LocalWon[1] , 100 , 125 )
-		self:EmitSound( GAMEMODE.WASND.GlobalWareningReport , 84 )
+		self:EmitSound( GAMEMODE.WASND[10][1][2] , 84 )
 		
 	elseif (compareCombo >= 3) and (compareCombo == self:GetBestCombo()) then 
 		GAMEMODE:PrintInfoMessage( self:GetName(), " scored his ", "Own Best Streak of " .. compareCombo .. " wares!" )
 		
 		--self:EmitSound( GAMEMODE.WASND.TBL_LocalWon[2] , 100 , 119 )
-		self:EmitSound( GAMEMODE.WASND.GlobalWareningReport, 100, GAMEMODE:GetSpeedPercent())
+		self:EmitSound( GAMEMODE.WASND[10][1][2], 100, GAMEMODE:GetSpeedPercent())
 	
 	elseif (compareCombo >= 3) then 
 		GAMEMODE:PrintInfoMessage( self:GetName(), " scored a ", "Streak of " .. compareCombo .. " wares." )
 		
-		self:EmitSound( GAMEMODE.WASND.GlobalWareningReport, 100, GAMEMODE:GetSpeedPercent())
+		self:EmitSound( GAMEMODE.WASND[10][1][2], 100, GAMEMODE:GetSpeedPercent())
 	end
 end
 
@@ -288,7 +280,7 @@ function meta:ApplyLose( )
 end
 
 function meta:SendHitConfirmation( )
-	SendUserMessage( "HitConfirmation", self )
+	netstream.Start(self, "HitConfirmation")
 end
 
 function meta:EjectWeapons( vectForce, fRandomness )
@@ -327,11 +319,7 @@ function meta:SimulateDeath( optvectPush, optiObjNumber )
 	self:CreateRagdoll()
 	
 	if optvectPush then
-		umsg.Start("PlayerRagdollEffect")
-			umsg.Entity( self )
-			umsg.Vector( optvectPush )
-			umsg.Char( optiObjNumber or -1 )
-		umsg.End()
+		netstream.Start(self, "PlayerRagdollEffect", {self, optvectPush, optiObjNumber})
 	end
 	
 	return ragdoll

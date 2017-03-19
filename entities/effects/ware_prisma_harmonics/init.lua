@@ -1,4 +1,3 @@
-EFFECT = {}
 EFFECT.Mat = Material( "effects/yellowflare" )
 EFFECT.Color = Color( 119, 199, 255, 128 )
 EFFECT.NumPins = 10
@@ -10,16 +9,15 @@ EFFECT.LastPhasis = 0
 EFFECT.AngleDump = Angle(0,0,0)
 
 function EFFECT:Init( data )
-	local self = EFFECT
 	self.Origin  = data:GetOrigin()
 	self.Extrema = data:GetStart()
 	self.Radius = data:GetRadius()
 	self.Speed = data:GetMagnitude()
-	local angleFake = data:GetAngle()
+	local angleFake = data:GetAngles()
 	self.Duration = data:GetScale()
 	self.Birth = CurTime()
 
-	self.AngleDiff = (self.Extrema - self.Origin):Angle().y - 360 / (6 * 2)
+	self.AngleDiff = (self.Extrema - self.Origin):Angle().y - 360/12
 	
 	self.Color = Color( angleFake.p, angleFake.y, angleFake.r )
 	self.BaseAlpha = self.Color.a
@@ -51,8 +49,7 @@ function EFFECT:Init( data )
 	
 end
 
-function EFFECT:Think( )
-	local self = EFFECT
+function EFFECT:Think()
 	if CurTime() > (self.Birth + self.Duration) then
 		return false
 	end
@@ -62,14 +59,12 @@ function EFFECT:Think( )
 end
 
 function EFFECT:CalculateAngle( iPhasis , angleToModify )
-	local self = EFFECT
 	angleToModify.p = math.sin(math.rad(self.VD[1] + iPhasis * self.VD[2])) * self.VD[3]
 	angleToModify.y = math.sin(math.rad(self.VD[4] + iPhasis * self.VD[5])) * self.VD[6]
 	angleToModify.r = math.sin(math.rad(self.VD[7] + iPhasis * self.VD[8])) * self.VD[9]
 end
 
 function EFFECT:Render( )
-	local self = EFFECT
 	local phasis = math.floor(CurTime() * self.Speed)
 	
 	render.SetMaterial( self.Mat )
@@ -79,7 +74,7 @@ function EFFECT:Render( )
 		
 		if phasis ~= self.LastPhasis then
 			self:CalculateAngle( phasis - i , self.AngleDump )
-			for k,_ in pairs( self.SubSequents[i] ) do
+			for k, _ in pairs( self.SubSequents[i] ) do
 				self.SubSequents[i][k].x = self.BaseCircle[k].x
 				self.SubSequents[i][k].y = self.BaseCircle[k].y
 				self.SubSequents[i][k].z = i * self.ShiftDistance
@@ -90,16 +85,12 @@ function EFFECT:Render( )
 				
 			end
 		end
-		
-		for k,_ in pairs( self.SubSequents[i] ) do
-			self.Color.a = self.BaseAlpha * delta * alphamul
-			render.DrawBeam( self.SubSequents[i][k], 		
-							 self.SubSequents[i][(k % self.CirclePrecision) + 1],
-							 self.Thickness,					
-							 0.5,					
-							 0.5,				
-							 self.Color )
-		end
+		cam.Start3D()
+			for k,_ in pairs( self.SubSequents[i] ) do
+				self.Color.a = self.BaseAlpha * delta * alphamul
+				render.DrawBeam( self.SubSequents[i][k], self.SubSequents[i][(k % self.CirclePrecision) + 1], self.Thickness, 0.5, 0.5,	self.Color )
+			end
+		cam.End3D()
 		
 	end
 	self.LastPhasis = phasis
