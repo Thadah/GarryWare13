@@ -119,7 +119,7 @@ function GM:SetNextGameEnd(time)
 	local t = CurTime()
 	
 	-- Prevents dividing by zero
-	if (t - time ~= 0) and (t - self.NextgameEnd ~= 0) then
+	if (t - time != 0) and (t - self.NextgameEnd != 0) then
 		self.WareLen = self.WareLen * (t - time) / (t - self.NextgameEnd)
 	end
 	

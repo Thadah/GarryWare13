@@ -4,7 +4,7 @@ if (SERVER) then
 end
 
 SWEP.Base				= "gmdm_base"
-SWEP.PrintName			= "SWARE Rocketjump"		
+SWEP.PrintName			= "SWARE Rocketjump"
 SWEP.Slot				= 1
 SWEP.SlotPos			= 0
 SWEP.DrawCrosshair		= true
@@ -31,46 +31,48 @@ SWEP.ProjectileForce = 5000000
 
 
 function SWEP:Throw( shotPower )
-	local tr = self.Owner:GetEyeTrace()
+  --local tr = self.Owner:GetEyeTrace()
 
-	if (not SERVER) then return end
+  if (not SERVER) then return end
 
-	local ent = ents.Create( self.ProjectileEntity )	
+  local ent = ents.Create( self.ProjectileEntity )
 
-	local Forward = self.Owner:EyeAngles():Forward()
-	ent:SetPos( self.Owner:GetShootPos() + Forward * 0 )
-	ent:SetAngles (self.Owner:EyeAngles())
-	ent:Spawn()
-	ent:SetOwner(self.Owner)
-	ent:Activate( )
-	
-	local trail_entity = util.SpriteTrail( ent, --Entity
-											0, --iAttachmentID
-											Color( 255, 255, 255, 255 ), --Color
-											false, -- bAdditive
-											8, --fStartWidth
-											0, --fEndWidth
-											0.2, --fLifetime
-											1 / ((0.7+1.2) * 0.5), --fTextureRes
-											"trails/tube.vmt") --strTexture
-	
-	local phys = ent:GetPhysicsObject()
-	phys:ApplyForceCenter (self.Owner:GetAimVector():GetNormalized() * shotPower)
+  local Forward = self.Owner:EyeAngles():Forward()
+  ent:SetPos( self.Owner:GetShootPos() + Forward * 0 )
+  ent:SetAngles (self.Owner:EyeAngles())
+  ent:Spawn()
+  ent:SetOwner(self.Owner)
+  ent:Activate( )
+
+  util.SpriteTrail( ent, --Entity
+  									0, --iAttachmentID
+  									Color( 255, 255, 255, 255 ), --Color
+  									false, -- bAdditive
+  									8, --fStartWidth
+  									0, --fEndWidth
+  									0.2, --fLifetime
+  									1 / 0.95, --fTextureRes
+  									"trails/tube.vmt") --strTexture*/
+
+  local phys = ent:GetPhysicsObject()
+  ent:CollisionRulesChanged()
+  self.Owner:CollisionRulesChanged()
+  phys:ApplyForceCenter (self.Owner:GetAimVector():GetNormalized() * shotPower)
 end
 
 function SWEP:PrimaryAttack()
-	self.Weapon:SetNextPrimaryFire( CurTime() + self.Delay )
-	self.Weapon:SetNextSecondaryFire( CurTime() + self.TickDelay )
-	
-	if ( not self:CanPrimaryAttack() ) then return end
-	if ( not self:CanShootWeapon() ) then return end
-	
-	self.Weapon:EmitSound(self.ShootSound)
-	
-	self:TakePrimaryAmmo( 1 )
-	
-	if (CLIENT) then return end
-	self:Throw( self.ProjectileForce )
+  self:SetNextPrimaryFire( CurTime() + self.Delay )
+  self:SetNextSecondaryFire( CurTime() + self.TickDelay )
+
+  if ( not self:CanPrimaryAttack() ) then return end
+  if ( not self:CanShootWeapon() ) then return end
+
+  self:EmitSound(self.ShootSound)
+
+  self:TakePrimaryAmmo( 1 )
+
+  if (CLIENT) then return end
+  self:Throw( self.ProjectileForce )
 end
 
 SWEP.Secondary.ClipSize = -1

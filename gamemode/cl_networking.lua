@@ -37,15 +37,15 @@ netstream.Hook("ModelList", function(data)
 	local numberOfModels = data[1]
 	local currentModelCount = #GAMEMODE.ModelPrecacheTable
 	local model = ""
-	
-	for i=1,numberOfModels do
+
+	for i = 1,numberOfModels do
 		table.insert( GAMEMODE.ModelPrecacheTable, data[2] )
 	end
-	
+
 	gws_PrecacheSequence = (gws_PrecacheSequence or 0) + 1
-	
-	print( "Precaching sequence #".. gws_PrecacheSequence .."." )
-	for k=(currentModelCount + 1),(currentModelCount + numberOfModels) do
+
+	print( "Precaching sequence #" .. gws_PrecacheSequence .. "." )
+	for k = (currentModelCount + 1),(currentModelCount + numberOfModels) do
 		model = GAMEMODE.ModelPrecacheTable[ k ]
 		--print( "Precaching model " .. k .. " : " .. model )
 		util.PrecacheModel( model )
@@ -61,37 +61,37 @@ netstream.Hook("ServerJoinInfo", function(data)
 
 	gws_TimeWhenGameEnds = data[1]
 	didnotbegin = data[2]
-	
+
 	if didnotbegin == true then
 		netstream.Start("WaitShow")
 	end
-	print("Game ends on time : "..gws_TimeWhenGameEnds)
+	print("Game ends on time : " .. gws_TimeWhenGameEnds)
 end)
 
 local function EnableMusicVolume()
 	if gws_AmbientMusicIsOn then
 		gws_AmbientMusic[1]:ChangeVolume( 0.7, GAMEMODE:GetSpeedPercent() )
-		
+
 	end
 end
 
-local function EnableMusic()	
+local function EnableMusic()
 	if gws_AmbientMusicIsOn then
 		for k, music in pairs( gws_AmbientMusic ) do
 			music:Stop()
 			gws_AmbientMusic_dat[k]._IsPlaying = false
-			
+
 		end
-		
+
 		gws_AmbientMusic[1]:Play()
 		gws_AmbientMusic_dat[1]._IsPlaying = true
 		gws_AmbientMusic[1]:ChangeVolume( 0.1, GAMEMODE:GetSpeedPercent() )
 		gws_AmbientMusic[1]:ChangePitch( GAMEMODE:GetSpeedPercent(), 1 )
 		timer.Simple( GAMEMODE.WADAT.StartFlourishLength * 0.7 , EnableMusicVolume )
-		
-		
+
+
 	end
-	
+
 end
 
 
@@ -100,29 +100,24 @@ local function DisableMusic()
 		for k, music in pairs( gws_AmbientMusic ) do
 			if gws_AmbientMusic_dat[k]._IsPlaying then
 				music:ChangeVolume( 0.1, GAMEMODE:GetSpeedPercent() )
-				
 			else
 				music:Stop()
-				
 			end
-			
 		end
-		
 	end
 end
 
 local function PlayEnding( musicID )
 	local dataRef = GAMEMODE.WADAT.GlobalWareningEpic[1]
-	
+
 	LocalPlayer():EmitSound( GAMEMODE.WASND[10][2][2], 60, GAMEMODE:GetSpeedPercent() )
 	gws_AmbientMusicIsOn = true
-	
+
 	for k, music in pairs( gws_AmbientMusic ) do
 		music:Stop()
 		gws_AmbientMusic_dat[k]._IsPlaying = false
-		
 	end
-	
+
 	timer.Simple( dataRef.Length, EnableMusic)
 end
 
@@ -133,7 +128,7 @@ netstream.Hook("NextGameTimes", function(data)
 	gws_WareLen       = data[4]
 	local bShouldKeepAnnounce = data[5]
 	local bShouldPlayMusic = data[6]
-	
+
 	if  !bShouldKeepAnnounce then
 		gws_TickAnnounce = 5
 	else
@@ -150,8 +145,8 @@ netstream.Hook("NextGameTimes", function(data)
 			LocalPlayer():EmitSound( GAMEMODE.WASND[libraryID][musicID][2] , 60, GAMEMODE:GetSpeedPercent() )
 			gws_AmbientMusicIsOn = true
 			EnableMusic()
-		end	
-	end	
+		end
+	end
 end)
 
 netstream.Hook( "EventEndgameTrigger", function(data)
@@ -160,7 +155,7 @@ netstream.Hook( "EventEndgameTrigger", function(data)
 
 	gws_AmbientMusicIsOn = false
 	timer.Simple( 0.5, DisableMusic )
-	
+
 	if (achieved) then
 		LocalPlayer():EmitSound( GAMEMODE.WASND[3][musicID][2] , 60, GAMEMODE:GetSpeedPercent() )
 	else
@@ -199,10 +194,10 @@ netstream.Hook("EntityTextChangeColor", function(data)
 	if IsValid(target) and target.SetEntityColor then
 		target:SetEntityColor(r,g,b,a)
 	else
-		timer.Simple( 0, function(target,r,g,b,a) 
-			if IsValid(target) and target.SetEntityColor then 
-				target:SetEntityColor(r,g,b,a) 
-			end 
+		timer.Simple( 0, function(target,r,g,b,a)
+			if IsValid(target) and target.SetEntityColor then
+				target:SetEntityColor(r,g,b,a)
+			end
 		end)
 	end
 end)
@@ -244,12 +239,12 @@ function GM:ScoreboardShow()
 		--GAMEMODE:GetScoreboard():SetVisible( true )
 		--GAMEMODE:PositionScoreboard( GAMEMODE:GetScoreboard() )
 		LiveScoreBoardVGUI:UseSecondarySort()
-		
+
 	else
 		AwardVGUI:Show()
-		
+
 	end
-	
+
 end
 
 function GM:ScoreboardHide()
@@ -257,12 +252,12 @@ function GM:ScoreboardHide()
 		--GAMEMODE:GetScoreboard():SetVisible( false )
 		--GAMEMODE:PositionScoreboard( GAMEMODE:GetScoreboard() )
 		LiveScoreBoardVGUI:UseNormalSort()
-		
+
 	else
 		AwardVGUI:Hide()
-		
+
 	end
-	
+
 end
 
 StupidBoardVGUI:Show()
@@ -293,16 +288,16 @@ netstream.Hook("Transit", function(data)
 	if data then
 		local theoWinFailNum = tonumber(data)
 		TransitVGUI:SetSubtitle("Server Fail-o-meter : " .. tostring( 100 - theoWinFailNum ) .. "% ... " .. EvaluateFailure( theoWinFailNum ) .. "!"  )
-		
+
 		local fWinFailBlend = theoWinFailNum / 100
 		fWinFailBlend = math.Clamp((fWinFailBlend - 0.5) * 1.5 + 0.5, 0, 1)
 		TransitVGUI:SetBlend( fWinFailBlend )
-		
+
 	end
-	
+
 	TransitVGUI:Show()
 	RunConsoleCommand("r_cleardecals")
-	
+
 	timer.Simple( 2.7, function() TransitVGUI:Hide() end )
 end)
 
@@ -320,14 +315,14 @@ netstream.Hook("EndOfGamemode", function()
 	StupidBoardVGUI:Hide()
 	LiveScoreBoardVGUI:Hide()
 	AmmoVGUI:Show()
-	
+
 	AwardVGUI:Show()
 	AwardVGUI:PerformScoreData()
-	
+
 	GAMEMODE:GetScoreboard():SetVisible( false )
-	
+
 	gws_AtEndOfGame = true
-	
+
 	--timer.Simple( GAMEMODE.WADAT.EpilogueFlourishDelayAfterEndOfGamemode, PlayEnding, 2 )
 end)
 
@@ -348,34 +343,34 @@ end)
 
 local function DoRagdollEffect( ply, optvectPush, optiObjNumber, iIter)
 	if  !IsValid( ply ) then return end
-	
+
 	local ragdoll = ply:GetRagdollEntity()
 	if ragdoll then
 		local physobj = nil
 		if optiObjNumber >= 0 then
-			physobj = ragdoll:GetPhysicsObjectNum( optiObjNumber )
-			
+			physobj = ragdoll:GetPhysicsObjectNum(optiObjNumber)
 		else
-			physobj = ragdoll:GetPhysicsObject( )
-			
+			print(ragdoll)
+			physobj = ragdoll:GetPhysicsObject()
+
 		end
-		
+
 		--print(ply:GetModel(), physobj:GetMass() )
-		
-		if physobj and physobj:IsValid() and physobj ~= NULL then
+
+		if physobj and physobj:IsValid() and physobj != NULL then
 			physobj:SetVelocity( 10^6 * optvectPush )
-			
+
 		else
 			timer.Simple(0, function() DoRagdollEffect( ply, optvectPush, optiObjNumber, iIter - 1) end)
-		
+
 		end
-		
+
 	else
 		if iIter > 0 then
 			timer.Simple(0, function() DoRagdollEffect( ply, optvectPush, optiObjNumber, iIter - 1) end)
 		end
 	end
-	
+
 end
 
 netstream.Hook("PlayerRagdollEffect", function(data)
@@ -387,32 +382,32 @@ netstream.Hook("PlayerRagdollEffect", function(data)
 	else
 		optiObjNumber = -1
 	end
-	
+
 	if  !IsValid( ply ) then return end
-	
+
 	DoRagdollEffect( ply, optvectPush, optiObjNumber, 20)
 end)
 
 netstream.Hook("gw_instructions", function(data)
 	local sText = data[1]
 	local bUseCustomBG  = data[2]
-	
+
 	local cFG_Builder = nil
 	local cBG_Builder = nil
-	
+
 	if bUseCustomBG then
 		local bUseCustomFG = data[3]
-		
+
 		cBG_Builder = Color(data[4], data[5], data[6], data[7])
-		
+
 		if bUseCustomFG then
 			cFG_Builder = Color(data[8], data[9], data[10], data[11])
 		end
-	
+
 	end
 	InstructionsVGUI:PrepareDrawData( sText, cFG_Builder, cBG_Builder )
 end)
-	
+
 local cStatusBackWinColorSet  = Color(0, 164, 237,192)
 local cStatusBackLoseColorSet = Color(255,  87,  87,192)
 local cStatusTextColorSet = Color(255,255,255,255)
@@ -432,30 +427,30 @@ local function MakeParticlesFromTable( myTablePtr )
 	for k,particle in pairs(myTablePtr) do
 		GAMEMODE:OnScreenParticlesMake(particle)
 	end
-	
+
 end
 
 netstream.Hook("gw_yourstatus", function(data)
 	local sText = ""
-	
+
 	local yourStatus = data[1] or false
 	local isServerGlobal = data[2] or false
-	
+
 	if !isServerGlobal then
 		sText = ((yourStatus and "Success!") or "Failure!") -- MaxOfS2D you fail
 		if yourStatus then
 			LocalPlayer():EmitSound( table.Random(GAMEMODE.WASND[8])[2], 100, GAMEMODE:GetSpeedPercent() )
-		
+
 			MakeParticlesFromTable( tWinParticles )
 		else
 			LocalPlayer():EmitSound( table.Random(GAMEMODE.WASND[9])[2], 100, GAMEMODE:GetSpeedPercent() )
-		
+
 			MakeParticlesFromTable( tFailParticles )
 		end
-		
+
 	else
 		sText = ((yourStatus and "Everyone won!") or "Everyone failed!")
-		
+
 	end
 
 	local colorSelect = yourStatus and cStatusBackWinColorSet or cStatusBackLoseColorSet
@@ -467,15 +462,15 @@ end)
 netstream.Hook("gw_specialstatus", function(data)
 	local specialStatus = data or 0
 	local positive = false
-	
+
 	local sText = ""
-	
+
 	if specialStatus == 1 then
 		positive = true
-		
+
 		sText = "Done!"
 		LocalPlayer():EmitSound( table.Random(GAMEMODE.WASND[8])[2], 100, GAMEMODE:GetSpeedPercent() )
-		
+
 	end
 
 	local colorSelect = positive and cStatusBackWinColorSet or cStatusBackLoseColorSet

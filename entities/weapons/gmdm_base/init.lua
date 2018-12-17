@@ -1,15 +1,15 @@
 ////////////////////////////////////////////////
--- -- Garry's Mod Deathmatch Weapon Base      --
--- by SteveUK                                 --
-//--------------------------------------------//
-////////////////////////////////////////////////
+// Garry's Mod Deathmatch Weapon Base        //
+// by SteveUK                                //
+//                                          //
+/////////////////////////////////////////////
 
 
 AddCSLuaFile( "cl_init.lua" )
 AddCSLuaFile( "cl_hud.lua" )
 AddCSLuaFile( "shared.lua" )
 
-include('shared.lua')
+include("shared.lua")
 
 
 ////////////////////////////////////////////////
@@ -48,15 +48,12 @@ end
 function SWEP:Deploy()
 
 	-- If it's silenced, we need to play a different anim.
-	if( self.SupportsSilencer and self:GetNetworkedBool( "Silenced" ) == true ) then
+	if ( self.SupportsSilencer and self:GetNWBool( "Silenced" ) == true ) then
 		self:SendWeaponAnim( ACT_VM_DRAW_SILENCED )
 	else
 		self:SendWeaponAnim( ACT_VM_DRAW )
 	end
-	
+
 	-- Quick switch.
 	return true
-end 
-
-////////////////////////////////////////////////
-////////////////////////////////////////////////
+end

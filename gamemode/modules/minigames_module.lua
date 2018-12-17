@@ -17,7 +17,7 @@ local Minigames_CSFiles = {}
 local function CopyMinigameTable(tbl)
 	local res = {}
 	for k,v in pairs(tbl) do
-		if k~="Hooks" or type(v)~="table" then
+		if k!="Hooks" or type(v)!="table" then
 			res[k] = v
 		else
 			res[k] = CopyMinigameTable(v)
@@ -31,7 +31,7 @@ local WARE = {}
 local ware_mod_meta = {__index=WARE}]]
 
 local function IsValidHookName(name)
-	return (string.Left( name , 1 ) ~= "_") and name ~= "Initialize" and name ~= "StartAction" and name ~= "EndAction" and name ~= "IsPlayable" and name ~= "GetModelList" and name ~= "PhaseSignal" and name ~= "PreEndAction"
+	return (string.Left( name , 1 ) != "_") and name != "Initialize" and name != "StartAction" and name != "EndAction" and name != "IsPlayable" and name != "GetModelList" and name != "PhaseSignal" and name != "PreEndAction"
 end
 
 function Register(name, minigame)

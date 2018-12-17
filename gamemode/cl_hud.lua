@@ -197,7 +197,7 @@ end
 
 function GM:BiltCrosshair( screenx, screeny, length, thick , oR, oG, oB, oA)
 	self:BiltRectangle( screenx, screeny, length, thick , oR, oG, oB, oA)
-	if (length ~= thick) then
+	if (length != thick) then
 		self:BiltRectangle( screenx, screeny, thick, length , oR, oG, oB, oA)
 	end
 end

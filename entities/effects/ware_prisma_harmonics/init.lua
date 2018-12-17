@@ -72,7 +72,7 @@ function EFFECT:Render( )
 	for i = 1, self.NumPins do
 		local delta = (self.NumPins - i + 1) / self.NumPins
 		
-		if phasis ~= self.LastPhasis then
+		if phasis != self.LastPhasis then
 			self:CalculateAngle( phasis - i , self.AngleDump )
 			for k, _ in pairs( self.SubSequents[i] ) do
 				self.SubSequents[i][k].x = self.BaseCircle[k].x

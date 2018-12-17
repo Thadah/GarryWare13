@@ -49,7 +49,7 @@ function WARE:Think()
 		local box = ents.FindInBox(block:GetPos() + Vector(-30,-30,0), block:GetPos() + Vector(30,30,64))
 		for _,target in pairs(box) do
 			if target:IsPlayer() and target:IsWarePlayer() then
-				if (self.PlayerLastBlock[target] ~= block) then
+				if (self.PlayerLastBlock[target] != block) then
 					self.PlayerLastBlock[target] = block
 					self.PlayerSwapCount[target] = self.PlayerSwapCount[target] + 1
 					

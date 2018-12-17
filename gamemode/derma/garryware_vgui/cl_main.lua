@@ -146,7 +146,7 @@ end
 
 function PANEL:EvaluateLocked( )	
 	local bIsLocked = LocalPlayer():GetLocked()
-	if bIsLocked ~= self.bLastIsLocked then
+	if bIsLocked != self.bLastIsLocked then
 		if bIsLocked then
 			if LocalPlayer():GetCombo() >= 3 then
 				self.dCentric:SetLeftOuterColor(  self.colors.Gold )
@@ -171,7 +171,7 @@ end
 
 function PANEL:EvaluateAchieved( )	
 	local bIsWin = LocalPlayer():GetAchieved()
-	if bIsWin ~= self.bLastIsWin then
+	if bIsWin != self.bLastIsWin then
 		if bIsWin then
 			self.dCentric:UseLeft( true )
 			
@@ -215,7 +215,7 @@ function PANEL:Think()
 		end
 		local iWinFailRatio = iCount / #tCount
 		
-		if iWinFailRatio ~= self.iLastWinFailRatio then
+		if iWinFailRatio != self.iLastWinFailRatio then
 			local displacement = (0.5 - self.iDrawKeep * 0.5) + iWinFailRatio * self.iDrawKeep
 			self.dWinImage:MoveTo( displacement * self.dWinImage:GetWide(), 0, 0.3, 0, 2)
 			self.dFailImage:MoveTo( (1 - displacement) * -self.dFailImage:GetWide(), 0, 0.3, 0, 2)

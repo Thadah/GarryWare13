@@ -101,7 +101,7 @@ function GM:RespawnAllPlayers( bNoMusicEvent, bForce )
 	local spawns = {}	
 	-- Priority goes to active players, so they don't spawn in each other
 	for _,v in pairs( team.GetPlayers(TEAM_HUMANS) ) do
-		if bForce or (v:GetEnvironment() ~= self.CurrentEnvironment) then
+		if bForce or (v:GetEnvironment() != self.CurrentEnvironment) then
 			if #spawns == 0 then
 				spawns = table.Copy( self.CurrentEnvironment.PlayerSpawns )
 			end
@@ -118,7 +118,7 @@ function GM:RespawnAllPlayers( bNoMusicEvent, bForce )
 	end
 	
 	for _,v in pairs(team.GetPlayers(TEAM_SPECTATOR)) do
-		if v:GetEnvironment() ~= self.CurrentEnvironment then
+		if v:GetEnvironment() != self.CurrentEnvironment then
 			if #spawns == 0 then
 				spawns = table.Copy(self.CurrentEnvironment.PlayerSpawns)
 			end

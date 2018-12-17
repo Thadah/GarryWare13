@@ -120,7 +120,7 @@ function WARE:LateForRhythm()
 	local hasLate = false
 	local rpLate = RecipientFilter()
 	for k,ply in pairs(team.GetPlayers(TEAM_HUMANS)) do
-		if self.PlayerStates[ply] ~= self.CurrentRhythm then
+		if self.PlayerStates[ply] != self.CurrentRhythm then
 			if !ply:GetLocked() then
 				hasLate = true
 				rpLate:AddPlayer( ply )

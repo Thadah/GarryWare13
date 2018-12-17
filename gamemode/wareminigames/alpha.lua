@@ -24,7 +24,7 @@ function WARE:Initialize()
 	self.NumberSpawns = math.random( 3, 7 )
 
 	self.croissant = math.random(0,1)
-	GAMEMODE:SetWareWindupAndLength(self.NumberSpawns * 0.4, self.NumberSpawns * 1.7 * 1.5 * ((self.croissant ~= 1) and 1.3 or 1))
+	GAMEMODE:SetWareWindupAndLength(self.NumberSpawns * 0.4, self.NumberSpawns * 1.7 * 1.5 * ((self.croissant != 1) and 1.3 or 1))
 	
 	GAMEMODE:SetPlayersInitialStatus( false )
 	--GAMEMODE:DrawInstructions("Shoot all " .. self.NumberSpawns .." crates in the right order!" )

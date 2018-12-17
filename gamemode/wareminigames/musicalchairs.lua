@@ -118,7 +118,7 @@ function WARE:PhaseSignal( iPhase )
 end
 
 function WARE:Think( )
-	if GAMEMODE:GetCurrentPhase() ~= 1 then return end
+	if GAMEMODE:GetCurrentPhase() != 1 then return end
 	
 	for k,ply in pairs(team.GetPlayers(TEAM_HUMANS)) do 
 		--Lower telerence
@@ -149,7 +149,7 @@ function WARE:PlayerEnteredVehicle( ply, vehEnt, role )
 end
 
 function WARE:CanPlayerEnterVehicle( ply, vehEnt, role )
-	if GAMEMODE:GetCurrentPhase() ~= 2 then return false end
+	if GAMEMODE:GetCurrentPhase() != 2 then return false end
 	if ply:GetLocked() then return false end
 	if !ply:IsWarePlayer() then
 		if !ply.__ISEXPLOITER then

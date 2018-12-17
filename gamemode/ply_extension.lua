@@ -204,7 +204,7 @@ function meta:ApplyDone( )
 end
 
 function meta:SetAchievedAndLock( hasAchieved )
-	if self:Team() ~= TEAM_HUMANS then return false end
+	if self:Team() != TEAM_HUMANS then return false end
 	if self:GetLocked()            then return false end
 	hasAchieved = (hasAchieved or false)
 	
@@ -380,7 +380,7 @@ end
 function meta:DoRecoilThink( pitch, yaw )
 
 	if ( SERVER ) then return end
-	if ( self ~= LocalPlayer() ) then return end
+	if ( self != LocalPlayer() ) then return end
 	
 	local pitch 	= self.RecoilPitch	or 0
 	local yaw 		= self.RecoilYaw  	or 0

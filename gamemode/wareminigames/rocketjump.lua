@@ -11,22 +11,22 @@ function WARE:Initialize()
 	GAMEMODE:EnableFirstWinAward( )
 	GAMEMODE:SetWinAwards( AWARD_MOVES )
 	GAMEMODE:SetWareWindupAndLength(1,9)
-	
+
 	GAMEMODE:SetPlayersInitialStatus( false )
 	GAMEMODE:DrawInstructions( "Look up!" )
 end
 
 function WARE:StartAction()
 	GAMEMODE:DrawInstructions( "Rocketjump onto a plate!" )
-	
-	for k,v in pairs(team.GetPlayers(TEAM_HUMANS)) do 
+
+	for k,v in pairs(team.GetPlayers(TEAM_HUMANS)) do
 		v:Give( "sware_rocketjump" )
 	end
-	
+
 	local ratio = 0.3
 	local minimum = 1
-	local num = math.Clamp(math.ceil(team.NumPlayers(TEAM_HUMANS)*ratio), minimum, 64)
-	
+	local num = math.Clamp(math.ceil(team.NumPlayers(TEAM_HUMANS) * ratio), minimum, 64)
+
 	local entposcopy = GAMEMODE:GetRandomPositions(num, "dark_inair")
 	for k,position in pairs(entposcopy) do
 		local platform = ents.Create("prop_physics")
@@ -34,10 +34,10 @@ function WARE:StartAction()
 		platform:SetPos(position + Vector(0,0,-140))
 		platform:SetAngles(Angle(90,0,0))
 		platform:Spawn()
-		
+
 		platform:SetColor(Color(255, 0, 0, 255))
 		platform:GetPhysicsObject():EnableMotion( false )
-		
+
 		GAMEMODE:AppendEntToBin( platform )
 		GAMEMODE:MakeAppearEffect( platform:GetPos() )
 	end

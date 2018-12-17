@@ -313,7 +313,7 @@ function GM:PickRandomGameName( bFirst )
 		self.NextGameName, env = ware_mod.GetRandomGameName()
 	end	
 	
-	if env ~= self.CurrentEnvironment then
+	if env != self.CurrentEnvironment then
 		self.CurrentEnvironment = env
 		self.NextgameStart = self.NextgameStart + self.WADAT.TransitFlourishTime
 		self.NextPlayerRespawn = CurTime() + self.WADAT.EndFlourishTime
@@ -446,7 +446,7 @@ function GM:TryFindStuck()
 	for k,ply in pairs(team.GetPlayers( TEAM_HUMANS )) do
 		if IsValid(ply) then
 			local plyPhys = ply:GetPhysicsObject()
-			if plyPhys:IsValid() and plyPhys ~= NULL then
+			if plyPhys:IsValid() and plyPhys != NULL then
 				if plyPhys:IsPenetrating() then
 					ply:SetNoCollideWithTeammates( true )
 					if !ply._WasStuckOneTime then

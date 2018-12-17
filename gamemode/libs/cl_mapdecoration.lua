@@ -62,7 +62,7 @@ function GM:PostDrawOpaqueRenderables()
 		for i = 1, dataTable.NumPins do
 			local delta = (dataTable.NumPins - i + 1) / dataTable.NumPins
 			
-			if phasis ~= MAPDECO.LastPhasis then
+			if phasis != MAPDECO.LastPhasis then
 				MAPDECO.CalculateAngle( phasis - i, dataTable, MAPDECO.AngleDump )
 				
 				for k,_ in pairs( dataTable.SubSequents[i] ) do

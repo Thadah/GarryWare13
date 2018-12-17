@@ -85,7 +85,7 @@ function PANEL:Think()
 		end
 		
 		--Sweps, not the phys/gravgun...
-		if self.tvars.clip1 >= 0 and self.tvars.clip1type ~= -1 then	
+		if self.tvars.clip1 >= 0 and self.tvars.clip1type != -1 then	
 			local rate = -1
 			if self.tvars.clip1 <= 0 then
 				self.dClip:SetBackgroundColor( self.colors.Bad )

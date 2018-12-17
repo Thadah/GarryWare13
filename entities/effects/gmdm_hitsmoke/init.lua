@@ -1,29 +1,29 @@
 
 
 /*---------------------------------------------------------
-   Initializes the effect. The data is a table of data 
+   Initializes the effect. The data is a table of data
    which was passed from the server.
 ---------------------------------------------------------*/
 function EFFECT:Init( data )
-	
+
 	local Pos = data:GetOrigin()
 	local Norm = data:GetNormal()
 	local Scale = data:GetScale()
-	
-	local SurfaceColor = render.GetSurfaceColor( Pos+Norm, Pos-Norm*100 ) * 255
-	
-	SurfaceColor.r = math.Clamp( SurfaceColor.r+40, 0, 255 )
-	SurfaceColor.g = math.Clamp( SurfaceColor.g+40, 0, 255 )
-	SurfaceColor.b = math.Clamp( SurfaceColor.b+40, 0, 255 )
-	
+
+	local SurfaceColor = render.GetSurfaceColor( Pos + Norm, Pos - Norm * 100 ) * 255
+
+	SurfaceColor.r = math.Clamp( SurfaceColor.r + 40, 0, 255 )
+	SurfaceColor.g = math.Clamp( SurfaceColor.g + 40, 0, 255 )
+	SurfaceColor.b = math.Clamp( SurfaceColor.b + 40, 0, 255 )
+
 	local Dist = LocalPlayer():GetPos():Distance( Pos )
 
 	local FleckSize = math.Clamp( Dist * 0.01, 8, 64 )
-		
+
 	local emitter = ParticleEmitter( Pos + Norm * 32 )
-	
+
 	emitter:SetNearClip( 0, 128 )
-	
+
 		--for i=0, 2 do
 		/*
 			local particle = emitter:Add( "particles/smokey", Pos + Norm * 2 )
@@ -38,10 +38,10 @@ function EFFECT:Init( data )
 		*/
 		--end
 
-		for i=0, 25 do
-		
+		for i = 0, 25 do
+
 			local particle = emitter:Add( "particles/smokey", Pos + Norm * 2 )
-			
+
 				particle:SetVelocity( Norm * math.Rand( 10, 100 ) + VectorRand() * math.Rand( 5, 22 ) )
 				particle:SetDieTime( math.Rand( 0.3, 0.7 ) )
 				particle:SetStartAlpha( 150 )
@@ -51,17 +51,17 @@ function EFFECT:Init( data )
 				particle:SetColor( SurfaceColor.r, SurfaceColor.g, SurfaceColor.b )
 				--particle:SetGravity( Vector( 0, 0, math.Rand( -200, -150 ) ) )
 				particle:SetAirResistance( 100 )
-				
+
 		end
-		
+
 	emitter:Finish()
-		
+
 	local emitter = ParticleEmitter( Pos, true )
-	
-		for i =0, 2 * Scale do
-		
+
+		for i = 0, 2 * Scale do
+
 			local particle
-			
+
 			if ( math.random( 0, 1 ) == 1 ) then
 				particle = emitter:Add( "effects/fleck_cement1", Pos )
 			else
@@ -83,16 +83,16 @@ function EFFECT:Init( data )
 				particle:SetAngleVelocity( Angle( math.Rand( -1, 1 ), math.Rand( -1, 1 ), math.Rand( -1, 1 ) ) * 1600 )
 				particle:SetCollide( true )
 				particle:SetBounce( 0.2 )
-				
+
 				if ( math.fmod( i, 2 ) == 0 ) then
 					particle:SetColor( 0, 0, 0 )
 				end
-		
+
 		end
 
-	
+
 	emitter:Finish()
-	
+
 end
 
 
@@ -108,8 +108,5 @@ end
 /*---------------------------------------------------------
    Draw the effect
 ---------------------------------------------------------*/
-function EFFECT:Render()	
+function EFFECT:Render()
 end
-
-
-

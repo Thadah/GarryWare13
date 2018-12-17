@@ -272,7 +272,7 @@ end
 ---------------------------------------------------------*/
 function SKIN:LayoutTeamScoreboardHeader( panel )
 
-	if panel and panel.TeamName ~= "" then
+	if panel and panel.TeamName != "" then
 
 		panel.TeamName:StretchToParent( 0, 0, 0, 0 )
 		panel.TeamName:SetTextInset( 8 )
@@ -394,7 +394,7 @@ function SKIN:PaintGamemodeButton( panel )
 		col = Color( 255, 255, 255, 20 )
 	end
 	
-	if ( panel.bgColor ~= nil ) then col = panel.bgColor end
+	if ( panel.bgColor != nil ) then col = panel.bgColor end
 
 	draw.RoundedBox( 4, 0, 0, w, h, col )
 
@@ -426,7 +426,7 @@ function SKIN:PaintPanelButton( panel )
 		col = Color( 200, 200, 200, 255 )
 	end
 		
-	if ( panel.bgColor ~= nil ) then col = panel.bgColor end
+	if ( panel.bgColor != nil ) then col = panel.bgColor end
 
 	surface.SetDrawColor( col )
 	panel:DrawFilledRect()

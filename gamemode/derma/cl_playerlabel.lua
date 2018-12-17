@@ -250,7 +250,7 @@ end
 
 function PANEL:EvaluateLocked( )	
 	local bIsLocked = self.m_player:GetLocked()
-	if bIsLocked ~= self.bLastIsLocked then
+	if bIsLocked != self.bLastIsLocked then
 		if bIsLocked then
 			self:UseLocked()
 			

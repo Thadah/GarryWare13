@@ -3,17 +3,17 @@
 local matRefraction	= Material( "refract_ring" )
 
 /*---------------------------------------------------------
-   Initializes the effect. The data is a table of data 
+   Initializes the effect. The data is a table of data
    which was passed from the server.
 ---------------------------------------------------------*/
 function EFFECT:Init( data )
 	self.Pos = data:GetOrigin()
 	self.Norm = data:GetNormal()
-	
+
 	----
 	local emitter = ParticleEmitter( self.Pos )
-	
-	for i=1,20 do
+
+	for i = 1,20 do
 		local particle = emitter:Add( "effects/yellowflare", self.Pos + self.Norm * 12)
 		particle:SetColor(255,192,255)
 		particle:SetStartSize( math.Rand(5,10) )
@@ -22,7 +22,7 @@ function EFFECT:Init( data )
 		particle:SetEndAlpha( 0 )
 		particle:SetDieTime( math.Rand(0.5,1.5) )
 		particle:SetVelocity( self.Norm * 150 + VectorRand() * 100 )
-		
+
 		particle:SetBounce(0.8)
 		particle:SetGravity( Vector( 0, 0, -300 ) )
 		particle:SetCollide(true)
@@ -30,7 +30,7 @@ function EFFECT:Init( data )
 		particle:SetStartLength( 0.2 )
 		particle:SetEndLength( 0 )
 	end
-	
+
 	local particle = emitter:Add( "effects/yellowflare", self.Pos)
 	particle:SetColor(255,192,255)
 	particle:SetStartSize( 100 )
@@ -41,15 +41,15 @@ function EFFECT:Init( data )
 	particle:SetVelocity( Vector(0,0,0) )
 	particle:SetBounce(0)
 	particle:SetGravity( Vector( 0, 0, 0 ) )
-	
+
 	emitter:Finish( )
 	----
-	
+
 	self.Refract = 0
-	
+
 	self.Size = 32
-	
-	self.Entity:SetRenderBounds( Vector()*-512, Vector()*512 )
+
+	self.Entity:SetRenderBounds( Vector() * -512, Vector() * 512 )
 end
 
 
@@ -59,10 +59,10 @@ end
 ---------------------------------------------------------*/
 function EFFECT:Think()
 	self.Refract = self.Refract + 2.0 * FrameTime()
-	self.Size = 64 * self.Refract^(0.2)
-	
+	self.Size = 64 * self.Refract ^ 0.2
+
 	if ( self.Refract >= 1 ) then return false end
-	
+
 	return true
 end
 
@@ -79,6 +79,3 @@ function EFFECT:Render()
 	render.UpdateRefractTexture()
 	render.DrawSprite( Pos, self.Size, self.Size )
 end
-
-
-
