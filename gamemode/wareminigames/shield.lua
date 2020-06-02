@@ -138,12 +138,12 @@ end
 function WARE:Think()
 	for k,v in pairs(team.GetPlayers(TEAM_HUMANS)) do 
 		if v:GetPos().z < self.zlimit then
-			ent:StripWeapons()
+			v:StripWeapons()
 			v:ApplyLose()
 			v:SimulateDeath()
 			
 			for k,npc in pairs( self.SpawnedNPCs ) do
-				npc:AddEntityRelationship( ent, D_NU, 99 )
+				npc:AddEntityRelationship(v, D_NU, 99 )
 			end
 			
 		end
