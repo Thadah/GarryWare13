@@ -1,0 +1,53 @@
+name: Mirror to GitHub
+
+on:
+  push:
+    branches: [ "main" ]
+    tags: [ "*" ]           # mirror tags, too
+  delete:
+    branches: [ "*" ]
+    tags: [ "*" ]
+
+env:
+  # ---- change this to your GitHub repo HTTPS URL (no token in it) ----
+  GITHUB_MIRROR_URL: https://github.com/Thadah/GarryWare13.git
+  # -------------------------------------------------------------------
+
+jobs:
+  mirror:
+    runs-on: docker
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # full history needed for --mirror
+
+      # Configure Git auth header using Basic with a PAT (no token in URL, nothing printed)
+      - name: Configure Git auth header
+        run: |
+          # Git over HTTPS wants Basic auth. Username "x-access-token" is the convention.
+          TOKEN="${{ secrets._GITHUB_MIRROR_TOKEN }}"
+          B64="$(printf '%s' "x-access-token:${TOKEN}" | base64 | tr -d '\n')"
+          git config --global http.https://github.com/.extraheader "Authorization: Basic ${B64}"
+          git config --global user.email "ci@local"
+          git config --global user.name "forgejo-ci"
+
+      # Generate GitHub-specific README by inserting README.md at the placeholder line
+      - name: Generate GitHub README
+        run: |
+          # If the placeholder {{MAIN_README_CONTENT}} is on its own line:
+          sed -e '/{{MAIN_README_CONTENT}}/ {' -e 'r README.md' -e 'd' -e '}' README-github.md > README.md.tmp
+          mv README.md.tmp README.md
+
+          # Commit the change if there are differences
+          if ! git diff --quiet README.md; then
+            git add README.md
+            git commit -m "Auto-merge README for GitHub mirror"
+          fi
+
+      # Add a mirror remote and push everything (branches + tags, create/prune)
+      - name: Push mirror
+        run: |
+          git remote add mirror "${GITHUB_MIRROR_URL}" || git remote set-url mirror "${GITHUB_MIRROR_URL}"
+          # Mirror creates/prunes to keep GitHub identical to Forgejo
+          git push --mirror mirror
